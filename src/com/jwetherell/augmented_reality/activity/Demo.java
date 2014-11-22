@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;  
@@ -215,14 +216,26 @@ public class Demo extends AugmentedReality {
                 break;
             case R.id.refresh:
             	/*
-            	Location location = ARData.getCurrentLocation();
-            	updateData(location.getLatitude(), location.getLongitude(), location.getAltitude());
-            	*/
             	Location l = ARData.getCurrentLocation();
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
         		builder.setMessage("lat: "+l.getLatitude()+"\n lon: "+l.getLongitude());
         		AlertDialog alert = builder.create();  
         		alert.show();
+        		*/
+            	String[] types = new String[]{"str1","str2"};
+            	Boolean[] selected = new Boolean[types.length];
+            	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            	builder.setSingleChoiceItems(types, 0,
+            			new DialogInterface.OnClickListener() {
+            				public void onClick(DialogInterface dialog, int which) {
+            					dialog.dismiss();
+            					Toast.makeText(getApplicationContext(), ""+which, Toast.LENGTH_SHORT).show();
+            				}
+            			}).setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            				public void onClick(DialogInterface dialog, int which) {
+            					dialog.dismiss();
+            				}
+            			}).setNegativeButton("cancel",null);
                 break;
             case R.id.exit:
                 finish();
