@@ -19,8 +19,9 @@ import com.jwetherell.augmented_reality.ui.Marker;
 
 public class TravelDataSource extends NetworkDataSource {
 	private static final String URL = "https://maps.googleapis.com/maps/api/place/search/json?";
-	private static final String TYPES = "airport|amusement_park|aquarium|art_gallery|bus_station|campground|car_rental|city_hall|embassy|establishment|hindu_temple|local_governemnt_office|mosque|museum|night_club|park|place_of_worship|police|post_office|stadium|spa|subway_station|synagogue|taxi_stand|train_station|travel_agency|University|zoo";
-
+	
+	//default given all types
+	private String types = "airport|amusement_park|aquarium|art_gallery|bus_station|campground|car_rental|city_hall|embassy|establishment|hindu_temple|local_governemnt_office|mosque|museum|night_club|park|place_of_worship|police|post_office|stadium|spa|subway_station|synagogue|taxi_stand|train_station|travel_agency|University|zoo";
 	private static String key = null;
 	private static Bitmap amusementPark = null;
 	private static Bitmap defaultIcon = null;
@@ -45,7 +46,7 @@ public class TravelDataSource extends NetworkDataSource {
 	@Override
 	public String createRequestURL(double lat, double lon, double alt, float radius, String locale) {
 		try {
-			return URL + "rankby=distance&location="+lat+","+lon+"&radius="+(radius*1000.0f)+"&types="+TYPES+"&sensor=true&key="+key;
+			return URL + "location="+lat+","+lon+"&radius="+(radius*1000.0f)+"&types="+types+"&sensor=true&key="+key;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -119,20 +120,19 @@ public class TravelDataSource extends NetworkDataSource {
 			}
 			if (lat != null) {
 				String user = jo.getString("name");
-				try{
-					JSONArray temp = jo.getJSONArray("types");
-					int len = temp.length();
-					for(int i=0; i<len;i++){
-						if(temp.getString(i).equals("amusement_park")){
-							ma = new IconMarker(user + ": " + jo.getString("name"), lat, lon, 0, Color.RED, amusementPark);
-							break;
-						}
+				
+				JSONArray temp = jo.getJSONArray("types");
+				int len = temp.length();
+				String log = "";
+				for(int i=0; i<len;i++){
+					log+= temp.getString(i)+"\n";
+					if(temp.getString(i).equals("amusement_park")){
+						ma = new IconMarker(user + ": " + jo.getString("name")+" - types\n"+log, lat, lon, 0, Color.RED, amusementPark);
+						break;
 					}
-					if (ma==null)
-						ma = new IconMarker(user + ": " + jo.getString("name"), lat, lon, 0, Color.RED, defaultIcon);
-				}catch(Exception e){
-					ma = new IconMarker(user + ": " + jo.getString("name"), lat, lon, 0, Color.RED, wikipedia);
 				}
+				if (ma==null)
+					ma = new IconMarker(user + ": " + jo.getString("name")+" - types\n"+log, lat, lon, 0, Color.RED, defaultIcon);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

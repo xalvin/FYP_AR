@@ -33,8 +33,8 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
     private static final String TAG = "SensorsActivity";
     private static final AtomicBoolean computing = new AtomicBoolean(false);
 
-    private static final int MIN_TIME = 30 * 1000;
-    private static final int MIN_DISTANCE = 10;
+    private static final int MIN_TIME = 10 * 1000;
+    private static final int MIN_DISTANCE = 100;
 
     private static final float temp[] = new float[9]; // Temporary rotation matrix in Android format
     private static final float rotation[] = new float[9]; // Final rotation matrix in Android format
@@ -106,14 +106,15 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
 
             sensorMgr.registerListener(this, sensorGrav, SensorManager.SENSOR_DELAY_UI);
             sensorMgr.registerListener(this, sensorMag, SensorManager.SENSOR_DELAY_UI);
-
+/*
             locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-
+*/
             try {
-
+/*
                 try {
                     Location gps = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    onLocationChanged(gps);
                     Location network = locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     if (gps != null) onLocationChanged(gps);
                     else if (network != null) onLocationChanged(network);
@@ -121,7 +122,7 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
                 } catch (Exception ex2) {
                     onLocationChanged(ARData.hardFix);
                 }
-
+*/
                 gmf = new GeomagneticField((float) ARData.getCurrentLocation().getLatitude(), 
                                            (float) ARData.getCurrentLocation().getLongitude(),
                                            (float) ARData.getCurrentLocation().getAltitude(), 
@@ -162,10 +163,12 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
                     sensorMgr.unregisterListener(this, sensorMag);
                     sensorMgr = null;
                 }
+                /*
                 if (locationMgr != null) {
                     locationMgr.removeUpdates(this);
                     locationMgr = null;
                 }
+                */
             } catch (Exception ex2) {
                 ex2.printStackTrace();
             }

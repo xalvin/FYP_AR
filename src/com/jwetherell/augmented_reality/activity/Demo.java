@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Color;
@@ -18,6 +19,8 @@ import android.location.Location;
 import android.location.LocationListener;  
 import android.location.LocationManager; 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,6 +33,7 @@ import android.widget.Toast;
 
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.data.ARData;
+import com.jwetherell.augmented_reality.data.GooglePlacesDataSource;
 //import com.jwetherell.augmented_reality.data.GooglePlacesDataSource;
 import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.data.NetworkDataSource;
@@ -51,11 +55,12 @@ public class Demo extends AugmentedReality {
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(1);
     private static final ThreadPoolExecutor exeService = new ThreadPoolExecutor(1, 1, 20, TimeUnit.SECONDS, queue);
     private static final Map<String, NetworkDataSource> sources = new ConcurrentHashMap<String, NetworkDataSource>();
-
+    private static final int MIN_TIME = 10 * 1000;
+    private static final int MIN_DISTANCE = 100;
+    
     private static Toast myToast = null;
     private static VerticalTextView text = null;
-    private LocationManager locationMangaer=null;  
-    private LocationListener locationListener=null;  
+    private LocationManager locationMgr=null;  
 
     /**
      * {@inheritDoc}
@@ -80,8 +85,8 @@ public class Demo extends AugmentedReality {
 
         // Local
         	//GPS
-        locationMangaer = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new MyLocationListener();
+        locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
         	//local data source (user added)
         LocalDataSource localData = new LocalDataSource(this.getResources());
         ARData.addMarkers(localData.getMarkers());
@@ -90,43 +95,87 @@ public class Demo extends AugmentedReality {
         /*
         NetworkDataSource wikipedia = new WikipediaDataSource(this.getResources());
         sources.put("wiki", wikipedia);
+        
         NetworkDataSource googlePlaces = new GooglePlacesDataSource(this.getResources());
         sources.put("googlePlaces", googlePlaces);
         */
+        
         NetworkDataSource travel = new TravelDataSource(this.getResources());
         sources.put("travel", travel);
+        /**/
     }
 
+    private void spandTimeMethod() {  
+        try {  
+            Thread.sleep(10000);  
+        } catch (InterruptedException e) {  
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        }  
+    } 
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public void onStart() {
-        super.onStart();
-        boolean flag = displayGpsStatus();  
+    	boolean flag = displayGpsStatus();  
+    	
     	if (flag) {
-            locationMangaer.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 100,locationListener);   
+    		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+    		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
+    		final Handler handler = new Handler() {  
+    	        @Override  
+    	        public void handleMessage(Message msg) {// run when handler receive message  
+    	            pd.dismiss();// close ProgressDialog  
+    	        }  
+    	    };
+			/* Thread for loading GPS and network data time*/  
+            new Thread(new Runnable() {  
+                @Override  
+                public void run() {  
+                    spandTimeMethod();
+                    handler.sendEmptyMessage(0);
+                    }  
+  
+                }).start(); 
+            try{
+            	Location l = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            	ARData.setCurrentLocation(l);
+            }catch(NullPointerException npe){
+            	try{
+            		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+        			/* Thread for loading GPS and network data time*/  
+                    new Thread(new Runnable() {  
+                        @Override  
+                        public void run() {  
+                            spandTimeMethod();
+                            handler.sendEmptyMessage(0);
+                            }  
+          
+                        }).start(); 
+            		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            		ARData.setCurrentLocation(l);
+            		
+            	}catch(Exception e){
+	            	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
+	        		builder.setMessage("Your location cannot be located.\n"+npe.toString()+"\n"+e.toString());
+	        		AlertDialog alert = builder.create();  
+	        		alert.show();
+        		}
+            }
     	} else {  
     		AlertDialog.Builder builder = new AlertDialog.Builder(this);  
     		builder.setMessage("Your Device's GPS is Disable");
     		AlertDialog alert = builder.create();  
     		alert.show();
     	} 
+        super.onStart();        
         Location last = ARData.getCurrentLocation();
         updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
     }
 
-    /**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu, menu);
-	    return true;
-	}
-	
-	private Boolean displayGpsStatus() {  
+    private Boolean displayGpsStatus() {  
 		  ContentResolver contentResolver = getBaseContext()  
 		  .getContentResolver();  
 		  boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver,LocationManager.GPS_PROVIDER);  
@@ -136,31 +185,16 @@ public class Demo extends AugmentedReality {
 		  } else {  
 		   return false;  
 		  }  
-		 } 
-
-	private class MyLocationListener implements LocationListener { 
-		public void onLocationChanged(Location location) {
-		        ARData.setCurrentLocation(location);
-		        updateData(location.getLatitude(), location.getLongitude(), location.getAltitude());
-	    }
-
-		@Override
-		public void onProviderDisabled(String arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onProviderEnabled(String provider) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// TODO Auto-generated method stub
-			
-		}
+    } 
+    
+    /**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
 	}
 	
 	/**

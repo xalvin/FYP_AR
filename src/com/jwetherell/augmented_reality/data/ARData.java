@@ -33,8 +33,8 @@ public abstract class ARData {
     /* defaulting to our place */
     public static final Location hardFix = new Location("ATL");
     static {
-        hardFix.setLatitude(39.931261);
-        hardFix.setLongitude(-75.051267);
+        hardFix.setLatitude(22.3162108);
+        hardFix.setLongitude(114.1812943);
         hardFix.setAltitude(1);
     }
 

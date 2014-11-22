@@ -47,7 +47,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static LinearLayout zoomLayout = null;
     protected static AugmentedView augmentedView = null;
 
-    public static final float MAX_ZOOM = 100; // in KM
+    public static final float MAX_ZOOM = 20; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
     public static final float TEN_PERCENT = 10f * ONE_PERCENT;
     public static final float TWENTY_PERCENT = 2f * TEN_PERCENT;
@@ -91,7 +91,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
 
         myZoomBar = new VerticalSeekBar(this);
         myZoomBar.setMax(100);
-        myZoomBar.setProgress(50);
+        myZoomBar.setProgress(75);
         myZoomBar.setOnSeekBarChangeListener(myZoomBarOnSeekBarChangeListener);
         LinearLayout.LayoutParams zoomBarParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
         zoomBarParams.gravity = Gravity.CENTER_HORIZONTAL;

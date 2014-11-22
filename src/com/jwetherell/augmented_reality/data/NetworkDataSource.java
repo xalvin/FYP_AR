@@ -24,9 +24,9 @@ import com.jwetherell.augmented_reality.ui.Marker;
  */
 public abstract class NetworkDataSource extends DataSource {
 
-    protected static final int MAX = 20;
-    protected static final int READ_TIMEOUT = 40000;
-    protected static final int CONNECT_TIMEOUT = 40000;
+    protected static final int MAX = 10;
+    protected static final int READ_TIMEOUT = 10000;
+    protected static final int CONNECT_TIMEOUT = 10000;
 
     protected List<Marker> markersCache = null;
 
