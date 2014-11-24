@@ -222,6 +222,10 @@ public abstract class ARData {
             cache.clear();
         }
     }
+    
+    public static void resetMarkers(){
+    	markerList.clear();
+    }
 
     /**
      * Get the Markers collection.

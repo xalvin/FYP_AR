@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">AugmentedReality</string>
     <string name="google_places_api_key">AIzaSyC5mTsDhjayzCqXH87ggEYsfswR1cStfX8</string>
+    <string name="food">Food</string>
+    <string name="museum">Museum</string>
 </resources>

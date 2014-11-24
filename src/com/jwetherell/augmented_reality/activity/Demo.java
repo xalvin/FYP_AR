@@ -1,5 +1,9 @@
 package com.jwetherell.augmented_reality.activity;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +39,6 @@ import android.widget.Toast;
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.data.GooglePlacesDataSource;
-//import com.jwetherell.augmented_reality.data.GooglePlacesDataSource;
 import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
@@ -56,9 +59,10 @@ public class Demo extends AugmentedReality {
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(1);
     private static final ThreadPoolExecutor exeService = new ThreadPoolExecutor(1, 1, 20, TimeUnit.SECONDS, queue);
     private static final Map<String, NetworkDataSource> sources = new ConcurrentHashMap<String, NetworkDataSource>();
-    private static final int MIN_TIME = 10 * 1000;
+    private static final int MIN_TIME = 300 * 1000;
     private static final int MIN_DISTANCE = 100;
     
+    private static LocalDataSource localData = null;
     private static Toast myToast = null;
     private static VerticalTextView text = null;
     private LocationManager locationMgr=null;  
@@ -89,7 +93,7 @@ public class Demo extends AugmentedReality {
         locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
         	//local data source (user added)
-        LocalDataSource localData = new LocalDataSource(this.getResources());
+        localData = new LocalDataSource(this.getResources());
         ARData.addMarkers(localData.getMarkers());
         	
         	// network data sources (search by google)
@@ -108,7 +112,7 @@ public class Demo extends AugmentedReality {
 
     private void spandTimeMethod() {  
         try {  
-            Thread.sleep(10000);  
+            Thread.sleep(1000);  
         } catch (InterruptedException e) {  
             // TODO Auto-generated catch block  
             e.printStackTrace();  
@@ -120,18 +124,15 @@ public class Demo extends AugmentedReality {
      */
     @Override
     public void onStart() {
-    	boolean flag = displayGpsStatus();  
-    	
-    	if (flag) {
-    		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-    		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
-    		final Handler handler = new Handler() {  
-    	        @Override  
-    	        public void handleMessage(Message msg) {// run when handler receive message  
-    	            pd.dismiss();// close ProgressDialog  
-    	        }  
-    	    };
-			/* Thread for loading GPS and network data time*/  
+		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
+		final Handler handler = new Handler() {  
+	        @Override  
+	        public void handleMessage(Message msg) {// run when handler receive message  
+	            pd.dismiss();// close ProgressDialog  
+	        }  
+	    };
+		/* Thread for loading GPS and network data time*/  
             new Thread(new Runnable() {  
                 @Override  
                 public void run() {  
@@ -147,47 +148,29 @@ public class Demo extends AugmentedReality {
             	try{
             		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
         			/* Thread for loading GPS and network data time*/  
-                    new Thread(new Runnable() {  
-                        @Override  
-                        public void run() {  
-                            spandTimeMethod();
-                            handler.sendEmptyMessage(0);
-                            }  
-          
-                        }).start(); 
-            		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            		ARData.setCurrentLocation(l);
-            		
-            	}catch(Exception e){
-	            	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
-	        		builder.setMessage("Your location cannot be located.\n"+npe.toString()+"\n"+e.toString());
-	        		AlertDialog alert = builder.create();  
-	        		alert.show();
-        		}
-            }
-    	} else {  
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this);  
-    		builder.setMessage("Your Device's GPS is Disable");
-    		AlertDialog alert = builder.create();  
-    		alert.show();
-    	} 
+                new Thread(new Runnable() {  
+                    @Override  
+                    public void run() {  
+                        spandTimeMethod();
+                        handler.sendEmptyMessage(0);
+                        }  
+      
+                    }).start(); 
+        		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        		ARData.setCurrentLocation(l);
+        		
+        	}catch(Exception e){
+            	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
+        		builder.setMessage("Your location cannot be located.\n"+npe.toString()+"\n"+e.toString());
+        		AlertDialog alert = builder.create();  
+        		alert.show();
+    		}
+        }
         super.onStart();        
         Location last = ARData.getCurrentLocation();
         updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
     }
 
-    private Boolean displayGpsStatus() {  
-		  ContentResolver contentResolver = getBaseContext()  
-		  .getContentResolver();  
-		  boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver,LocationManager.GPS_PROVIDER);  
-		  if (gpsStatus) {  
-		   return true;  
-		  
-		  } else {  
-		   return false;  
-		  }  
-    } 
-    
     /**
 	 * {@inheritDoc}
 	 */
@@ -222,20 +205,49 @@ public class Demo extends AugmentedReality {
         		AlertDialog alert = builder.create();  
         		alert.show();
         		*/
-            	String[] types = new String[]{"str1","str2"};
-            	Boolean[] selected = new Boolean[types.length];
+            	final String[] types = new String[]{"Food","Museum","Lodging","City hall"};
+            	final boolean[] selected = new boolean[types.length];
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            	builder.setSingleChoiceItems(types, 0,
-            			new DialogInterface.OnClickListener() {
-            				public void onClick(DialogInterface dialog, int which) {
-            					dialog.dismiss();
-            					Toast.makeText(getApplicationContext(), ""+which, Toast.LENGTH_SHORT).show();
-            				}
+            	builder.setMultiChoiceItems(types, null,
+            			new DialogInterface.OnMultiChoiceClickListener() {
+							@Override
+							public void onClick(DialogInterface d, int indexSelected,
+									boolean isChecked) {
+								// TODO Auto-generated method stub
+								if(isChecked){
+									selected[indexSelected] = true;
+								}else{
+									selected[indexSelected] = false;
+								}
+							}
             			}).setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            				public void onClick(DialogInterface dialog, int which) {
+            				public void onClick(DialogInterface dialog, int id) {
             					dialog.dismiss();
+            					//fixing text format
+            					String st = "";
+            					for(int i =0;i<types.length;i++){
+            						if(selected[i]){
+            							if(st.equals("")){
+            								st = types[i];
+            							}else{
+            								st += "|"+types[i];
+            							}
+            						}
+            					}
+            					st = st.toLowerCase().replaceAll(" ", "_");
+            					appendLog("types for searching " +st);
+            					//update types user selected
+            					TravelDataSource t = (TravelDataSource) sources.get("travel");
+            					t.setTypes(st);
+            					//update display data
+            					ARData.resetMarkers();
+            					ARData.addMarkers(localData.getMarkers());
+            					Location last = ARData.getCurrentLocation();
+            			        updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
             				}
             			}).setNegativeButton("cancel",null);
+            	AlertDialog alert = builder.create();  
+        		alert.show();
                 break;
             case R.id.exit:
                 finish();
@@ -307,5 +319,36 @@ public class Demo extends AugmentedReality {
 
         ARData.addMarkers(markers);
         return true;
+    }
+    
+    public static void appendLog(String text)
+    {       
+       File logFile = new File("sdcard/ARlog.txt");
+       if (!logFile.exists())
+       {
+          try
+          {
+             logFile.createNewFile();
+          } 
+          catch (IOException e)
+          {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+          }
+       }
+       try
+       {
+          //BufferedWriter for performance, true to set append to file flag
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+          buf.append(text);
+          buf.newLine();
+          buf.flush();
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
     }
 }

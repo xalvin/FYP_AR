@@ -1,5 +1,9 @@
 package com.jwetherell.augmented_reality.data;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,14 @@ public class TravelDataSource extends NetworkDataSource {
 		wikipedia = BitmapFactory.decodeResource(res, R.drawable.wikipedia);
 	}
 
+	public void setTypes(String st){
+		this.types = st;
+	}
+	
+	public String getTypes(){
+		return this.types;
+	}
+	
 	@Override
 	public String createRequestURL(double lat, double lon, double alt, float radius, String locale) {
 		try {
@@ -83,7 +95,7 @@ public class TravelDataSource extends NetworkDataSource {
 	@Override
 	public List<Marker> parse(JSONObject root) {
 		if (root == null) throw new NullPointerException();
-
+		appendLog("\n\n\n\njson received "+root.toString()+"\n\n\n\n");
 		JSONObject jo = null;
 		JSONArray dataArray = null;
 		List<Marker> markers = new ArrayList<Marker>();
@@ -139,4 +151,35 @@ public class TravelDataSource extends NetworkDataSource {
 		}
 		return ma;
 	}
+	
+	public static void appendLog(String text)
+    {       
+       File logFile = new File("sdcard/ARlog.txt");
+       if (!logFile.exists())
+       {
+          try
+          {
+             logFile.createNewFile();
+          } 
+          catch (IOException e)
+          {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+          }
+       }
+       try
+       {
+          //BufferedWriter for performance, true to set append to file flag
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+          buf.append(text);
+          buf.newLine();
+          buf.flush();
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
+    }
 }

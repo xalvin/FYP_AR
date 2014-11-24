@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/foodBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/food" />
+
+        <ImageView
+            android:id="@+id/food"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/food" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/museumBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/museum" />
+
+        <ImageView
+            android:id="@+id/museum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/museum" />
+    </TableRow>
+
+</TableLayout>
