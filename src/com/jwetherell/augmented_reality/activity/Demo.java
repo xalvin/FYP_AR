@@ -207,12 +207,19 @@ public class Demo extends AugmentedReality {
         		AlertDialog alert = builder.create();  
         		alert.show();
         		*/
-            	final String[] types = new String[]{"Accommodation","Food","Shopping","Transport"};
-            	//final String[] forSearch = new String[]{""};
-            	/*final Map<String,String> translator = new ConcurrentHashMap<String,String>();
-            	for(String key:types){
-            		translater.put(key, value)
-            	}*/
+            	final String[] types = new String[]{"Accommodation","Entertatment","Food","Sightseeing","Shopping","Transport"};
+            	final String[] forSearch = new String[]{
+            			"campground|lodging",
+            			"amusement_park|aquarium|art_gallery|night_club|park",
+            			"bar|cafe|food|meal_delivery|meal_takeaway|restaurant",
+            			"church|city_hall|hindu_temple|mosque|museum|place_of_worship|stadium|synagogue|zoo",
+            			"clothing_store|convenience_store|department_store|electronics_store|florist|furniture_store|grocery_or_supermarket|home_goods_store|jewelry_store|liquor_store|shoe_store|shopping_mall|store",
+            			"bus_station|subway_station|taxi_stand|train_station"
+            		};
+            	final Map<String,String> translator = new ConcurrentHashMap<String,String>();
+            	for(int i =0;i<types.length;i++){
+            		translator.put(types[i], forSearch[i]);
+            	}
             	final boolean[] selected = new boolean[types.length];
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);
             	builder.setMultiChoiceItems(types, null,
@@ -235,9 +242,9 @@ public class Demo extends AugmentedReality {
             					for(int i =0;i<types.length;i++){
             						if(selected[i]){
             							if(st.equals("")){
-            								st = types[i];
+            								st = translator.get(types[i]);
             							}else{
-            								st += "|"+types[i];
+            								st += "|"+translator.get(types[i]);
             							}
             						}
             					}
@@ -245,7 +252,7 @@ public class Demo extends AugmentedReality {
             					appendLog("types for searching " +st);
             					//update types user selected
             					TravelDataSource t = (TravelDataSource) sources.get("travel");
-            					t.setKeyword(st);
+            					t.setCustomTypes(st);
             					//update display data
             					ARData.resetMarkers();
             					ARData.addMarkers(localData.getMarkers());

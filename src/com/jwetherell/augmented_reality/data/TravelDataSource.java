@@ -30,6 +30,7 @@ public class TravelDataSource extends NetworkDataSource {
 
 	//default given all types
 	private String keyword = "";
+	private String customTypes = "";
 	private static String key = null;
 	private static Bitmap amusementPark = null;
 	private static Bitmap defaultIcon = null;
@@ -59,13 +60,21 @@ public class TravelDataSource extends NetworkDataSource {
 		return this.keyword;
 	}
 	
+	public void setCustomTypes(String st){
+		this.customTypes = st;
+	}
+	
+	public String getCustomTypes(){
+		return this.customTypes;
+	}
 	@Override
 	public String createRequestURL(double lat, double lon, double alt, float radius, String locale) {
 		try {
-			if (keyword.equals(""))
+			if (customTypes.equals(""))
 				return URL + "&location="+lat+","+lon+"&radius="+(radius*1000.0f)+"&types="+TYPES+"&sensor=true&key="+key;
-			else
-				return URL + "&keyword="+keyword+"&location="+lat+","+lon+"&radius="+(radius*1000.0f)+"&sensor=true&key="+key;
+			else{
+				return URL + "&location="+lat+","+lon+"&radius="+(radius*1000.0f)+"&types="+customTypes+"&sensor=true&key="+key;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -102,6 +111,7 @@ public class TravelDataSource extends NetworkDataSource {
 	@Override
 	public List<Marker> parse(JSONObject root) {
 		if (root == null) throw new NullPointerException();
+		appendLog("json received "+root.toString()+"\n\n\n\n");
 		JSONObject jo = null;
 		JSONArray dataArray = null;
 		List<Marker> markers = new ArrayList<Marker>();
@@ -112,11 +122,11 @@ public class TravelDataSource extends NetworkDataSource {
 			int top = Math.min(MAX, dataArray.length());
 			for (int i = 0; i < top; i++) {
 				jo = dataArray.getJSONObject(i);
-				appendLog("\n\n\n\njson received "+jo.toString()+"\n\n\n\n");
 				Marker ma = processJSONObject(jo);
 				if (ma != null) markers.add(ma);
 			}
 		} catch (JSONException e) {
+			
 			e.printStackTrace();
 		}
 		return markers;
