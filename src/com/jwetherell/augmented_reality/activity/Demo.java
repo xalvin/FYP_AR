@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,7 +61,7 @@ public class Demo extends AugmentedReality {
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(1);
     private static final ThreadPoolExecutor exeService = new ThreadPoolExecutor(1, 1, 20, TimeUnit.SECONDS, queue);
     private static final Map<String, NetworkDataSource> sources = new ConcurrentHashMap<String, NetworkDataSource>();
-    private static final int MIN_TIME = 300 * 1000;
+    private static final int MIN_TIME = 30000 * 1000;
     private static final int MIN_DISTANCE = 100;
     
     private static LocalDataSource localData = null;
@@ -125,7 +127,7 @@ public class Demo extends AugmentedReality {
     @Override
     public void onStart() {
 		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
+		final ProgressDialog pd = ProgressDialog.show(this, "Initiali", "loading");
 		final Handler handler = new Handler() {  
 	        @Override  
 	        public void handleMessage(Message msg) {// run when handler receive message  
@@ -141,24 +143,24 @@ public class Demo extends AugmentedReality {
                     }  
   
                 }).start(); 
-            try{
-            	Location l = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            	ARData.setCurrentLocation(l);
-            }catch(NullPointerException npe){
-            	try{
-            		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-        			/* Thread for loading GPS and network data time*/  
-                new Thread(new Runnable() {  
-                    @Override  
-                    public void run() {  
-                        spandTimeMethod();
-                        handler.sendEmptyMessage(0);
-                        }  
-      
-                    }).start(); 
-        		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        		ARData.setCurrentLocation(l);
-        		
+        try{
+        	Location l = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        	ARData.setCurrentLocation(l);
+        }catch(NullPointerException npe){
+        	try{
+        		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+    			/* Thread for loading GPS and network data time*/  
+            new Thread(new Runnable() {  
+                @Override  
+                public void run() {  
+                    spandTimeMethod();
+                    handler.sendEmptyMessage(0);
+                    }  
+  
+                }).start(); 
+    		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+    		ARData.setCurrentLocation(l);
+    		
         	}catch(Exception e){
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
         		builder.setMessage("Your location cannot be located.\n"+npe.toString()+"\n"+e.toString());
@@ -167,8 +169,8 @@ public class Demo extends AugmentedReality {
     		}
         }
         super.onStart();        
-        Location last = ARData.getCurrentLocation();
-        updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+        //Location last = ARData.getCurrentLocation();
+        //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
     }
 
     /**
@@ -205,7 +207,12 @@ public class Demo extends AugmentedReality {
         		AlertDialog alert = builder.create();  
         		alert.show();
         		*/
-            	final String[] types = new String[]{"Food","Museum","Lodging","City hall"};
+            	final String[] types = new String[]{"Accommodation","Food","Shopping","Transport"};
+            	//final String[] forSearch = new String[]{""};
+            	/*final Map<String,String> translator = new ConcurrentHashMap<String,String>();
+            	for(String key:types){
+            		translater.put(key, value)
+            	}*/
             	final boolean[] selected = new boolean[types.length];
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);
             	builder.setMultiChoiceItems(types, null,
@@ -238,7 +245,7 @@ public class Demo extends AugmentedReality {
             					appendLog("types for searching " +st);
             					//update types user selected
             					TravelDataSource t = (TravelDataSource) sources.get("travel");
-            					t.setTypes(st);
+            					t.setKeyword(st);
             					//update display data
             					ARData.resetMarkers();
             					ARData.addMarkers(localData.getMarkers());
@@ -340,6 +347,9 @@ public class Demo extends AugmentedReality {
        {
           //BufferedWriter for performance, true to set append to file flag
           BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+          String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+          buf.append(currentDateandTime);
+          buf.append("\n");
           buf.append(text);
           buf.newLine();
           buf.flush();

@@ -47,7 +47,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static LinearLayout zoomLayout = null;
     protected static AugmentedView augmentedView = null;
 
-    public static final float MAX_ZOOM = 20; // in KM
+    public static final float MAX_ZOOM = 5; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
     public static final float TEN_PERCENT = 10f * ONE_PERCENT;
     public static final float TWENTY_PERCENT = 2f * TEN_PERCENT;
