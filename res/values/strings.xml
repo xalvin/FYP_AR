@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AugmentedReality</string>
-    <string name="google_places_api_key">AIzaSyC5mTsDhjayzCqXH87ggEYsfswR1cStfX8</string>
+    <string name="google_places_api_key">AIzaSyBs_swJIIe4nGszJPxn3qfbKonsiumSFsg</string>
     <string name="food">Food</string>
     <string name="museum">Museum</string>
 </resources>
