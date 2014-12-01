@@ -5,7 +5,8 @@
     <item android:id="@+id/showZoomBar" 
           android:title="Hide Zoom Bar">
     </item>
-    <item android:id="@+id/refresh" android:title="Refresh"></item><item android:id="@+id/exit" 
+    <item android:id="@+id/filter" android:title="Types to search"></item>
+    <item android:id="@+id/exit" 
           android:title="Exit">
     </item>
     
