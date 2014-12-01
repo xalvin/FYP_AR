@@ -127,7 +127,7 @@ public class Demo extends AugmentedReality {
     @Override
     public void onStart() {
 		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-		final ProgressDialog pd = ProgressDialog.show(this, "Initiali", "loading");
+		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
 		final Handler handler = new Handler() {  
 	        @Override  
 	        public void handleMessage(Message msg) {// run when handler receive message  
@@ -145,7 +145,7 @@ public class Demo extends AugmentedReality {
                 }).start(); 
         try{
         	Location l = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        	ARData.setCurrentLocation(l);
+        	if(l == null) throw new NullPointerException();
         }catch(NullPointerException npe){
         	try{
         		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
@@ -159,7 +159,7 @@ public class Demo extends AugmentedReality {
   
                 }).start(); 
     		Location l= locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-    		ARData.setCurrentLocation(l);
+    		if(l == null) throw new NullPointerException();
     		
         	}catch(Exception e){
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
@@ -199,7 +199,7 @@ public class Demo extends AugmentedReality {
                 item.setTitle(((showZoomBar) ? "Hide" : "Show") + " Zoom Bar");
                 zoomLayout.setVisibility((showZoomBar) ? LinearLayout.VISIBLE : LinearLayout.GONE);
                 break;
-            case R.id.refresh:
+            case R.id.filter:
             	/*
             	Location l = ARData.getCurrentLocation();
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);  
@@ -248,7 +248,7 @@ public class Demo extends AugmentedReality {
             							}
             						}
             					}
-            					st = st.toLowerCase().replaceAll(" ", "_");
+            					//st = st.toLowerCase().replaceAll(" ", "_");
             					appendLog("types for searching " +st);
             					//update types user selected
             					TravelDataSource t = (TravelDataSource) sources.get("travel");
