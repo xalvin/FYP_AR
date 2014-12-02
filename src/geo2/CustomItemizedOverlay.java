@@ -1,5 +1,7 @@
-package geo;
+package geo2;
 
+import geo.GeoGraph;
+import geo.GeoObj;
 import util.EfficientList;
 import util.EfficientListQualified;
 import android.graphics.drawable.Drawable;

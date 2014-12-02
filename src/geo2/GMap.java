@@ -1,5 +1,6 @@
-package geo;
+package geo2;
 
+import geo.GeoObj;
 import gui.CustomGestureListener;
 import system.EventManager;
 import system.TouchEventInterface;
@@ -16,7 +17,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import commands.Command;
-import de.rwth.setups.GoogleMapsKey;
+import de2.rwth2.setups2.GoogleMapsKey;
 
 /**
  * To get a maps api key you have to use a keytool to generate a MD5 fingerprint

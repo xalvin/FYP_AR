@@ -50,7 +50,7 @@ import com.jwetherell.augmented_reality.data.WikipediaDataSource;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
-import de.rwth.sample.ARActivityPlusMaps;
+import de2.rwth2.sample2.ARActivityPlusMaps;
 
 /**
  * This class extends the AugmentedReality and is designed to be an example on
@@ -287,25 +287,31 @@ public class Demo extends AugmentedReality {
      * {@inheritDoc}
      */
     @Override
-    protected void markerTouched(Marker marker) {
+    protected void markerTouched(final Marker marker) {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	Vector dest = marker.getLocation();
-    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
-    	Location last = ARData.getCurrentLocation();
-    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
     	builder.setMessage(marker.getName());
     	builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
+				try{
 				Intent intent = new Intent();
+				Vector dest = marker.getLocation();
+		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
+		    	Location last = ARData.getCurrentLocation();
+		    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
 	            intent.setClass(Demo.this, ARActivityPlusMaps.class);
 	            Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
 	            intent.putExtras(bundle);
 	            startActivity(intent);
+				}catch (Exception e){
+					appendLog(e.toString());
+				}
 			}
     	});
     	builder.setNegativeButton("cancel",null);
+    	AlertDialog alert = builder.create();  
+		alert.show();
     	/*
         text.setText(marker.getName());
         myToast.show();

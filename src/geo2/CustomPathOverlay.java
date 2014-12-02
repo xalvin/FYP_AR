@@ -1,5 +1,7 @@
-package geo;
+package geo2;
 
+import geo.GeoGraph;
+import geo.GeoObj;
 import util.EfficientListQualified;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

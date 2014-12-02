@@ -1,4 +1,4 @@
-package geo;
+package geo2;
 
 import java.io.IOException;
 import java.io.InputStream;

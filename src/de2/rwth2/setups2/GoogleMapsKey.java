@@ -1,4 +1,4 @@
-package de.rwth.setups;
+package de2.rwth2.setups2;
 
 public class GoogleMapsKey {
 

@@ -1,4 +1,4 @@
-package commands.geo;
+package commands2.geo2;
 
 import geo.GeoGraph;
 import util.Wrapper;

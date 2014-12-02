@@ -1,9 +1,9 @@
-package de.rwth.setups;
+package de2.rwth2.setups2;
 
-import geo.CustomItemizedOverlay;
-import geo.GMap;
 import geo.GeoGraph;
 import geo.GeoObj;
+import geo2.CustomItemizedOverlay;
+import geo2.GMap;
 import gl.Color;
 import gl.GL1Renderer;
 import gl.GLFactory;

@@ -1,4 +1,4 @@
-package de.rwth.sample;
+package de2.rwth2.sample2;
 
 import system.Setup;
 import android.app.Activity;
@@ -12,6 +12,8 @@ import android.view.MenuItem;
 
 import com.google.android.maps.MapActivity;
 import com.jwetherell.augmented_reality.common.Vector;
+
+import de2.rwth2.setups2.ARNavigatorSetup;
 
 
 public class ARActivityPlusMaps extends MapActivity {
@@ -41,6 +43,7 @@ public class ARActivityPlusMaps extends MapActivity {
 		this.current = new Vector(curr[0],curr[1],curr[2]);
 		float[] dest = bundle.getFloatArray("destination");
 		this.destination = new Vector(dest[0],dest[1],dest[2]);
+		setupToUse = new ARNavigatorSetup();
 		
 		Log.d(LOG_TAG, "main onCreate");
 		if (setupToUse != null) {

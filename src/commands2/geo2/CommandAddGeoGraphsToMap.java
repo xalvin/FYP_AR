@@ -1,9 +1,9 @@
-package commands.geo;
+package commands2.geo2;
 
-import geo.CustomItemizedOverlay;
-import geo.CustomPathOverlay;
-import geo.GMap;
 import geo.GeoGraph;
+import geo2.CustomItemizedOverlay;
+import geo2.CustomPathOverlay;
+import geo2.GMap;
 import gl.scenegraph.RenderList;
 import util.EfficientList;
 import util.Wrapper;

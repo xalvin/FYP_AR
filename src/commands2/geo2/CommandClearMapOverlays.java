@@ -1,6 +1,6 @@
-package commands.geo;
+package commands2.geo2;
 
-import geo.GMap;
+import geo2.GMap;
 import android.util.Log;
 
 import commands.Command;

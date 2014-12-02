@@ -1,8 +1,8 @@
-package commands.geo;
+package commands2.geo2;
 
-import geo.GMap;
 import geo.GeoGraph;
 import geo.GeoObj;
+import geo2.GMap;
 import util.Wrapper;
 import android.location.Location;
 import android.os.Handler;

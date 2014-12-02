@@ -1,5 +1,6 @@
-package geo;
+package geo2;
 
+import geo.GeoObj;
 import gl.scenegraph.MeshComponent;
 import android.graphics.drawable.Drawable;
 
