@@ -292,7 +292,6 @@ public class Demo extends AugmentedReality {
     	builder.setMessage(marker.getName());
     	builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				try{
 				Intent intent = new Intent();
 				Vector dest = marker.getLocation();
 		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
@@ -304,9 +303,6 @@ public class Demo extends AugmentedReality {
 	            bundle.putFloatArray("current", current);
 	            intent.putExtras(bundle);
 	            startActivity(intent);
-				}catch (Exception e){
-					appendLog(e.toString());
-				}
 			}
     	});
     	builder.setNegativeButton("cancel",null);
