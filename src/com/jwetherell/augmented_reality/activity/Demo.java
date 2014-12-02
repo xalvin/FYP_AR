@@ -21,6 +21,7 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;  
@@ -39,6 +40,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.jwetherell.augmented_reality.R;
+import com.jwetherell.augmented_reality.common.Vector;
 import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.data.GooglePlacesDataSource;
 import com.jwetherell.augmented_reality.data.LocalDataSource;
@@ -47,6 +49,8 @@ import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
+
+import de.rwth.sample.ARActivityPlusMaps;
 
 /**
  * This class extends the AugmentedReality and is designed to be an example on
@@ -284,8 +288,28 @@ public class Demo extends AugmentedReality {
      */
     @Override
     protected void markerTouched(Marker marker) {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	Vector dest = marker.getLocation();
+    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
+    	Location last = ARData.getCurrentLocation();
+    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
+    	builder.setMessage(marker.getName());
+    	builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				Intent intent = new Intent();
+	            intent.setClass(Demo.this, ARActivityPlusMaps.class);
+	            Bundle bundle = new Bundle();
+	            bundle.putFloatArray("destination", destination);
+	            bundle.putFloatArray("current", current);
+	            intent.putExtras(bundle);
+	            startActivity(intent);
+			}
+    	});
+    	builder.setNegativeButton("cancel",null);
+    	/*
         text.setText(marker.getName());
         myToast.show();
+        */
     }
 
     /**
