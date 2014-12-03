@@ -1,5 +1,10 @@
 package de2.rwth2.setups2;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import geo.GeoGraph;
 import geo.GeoObj;
 import geo.GeoUtils;
@@ -101,9 +106,16 @@ public class ARNavigatorSetup extends Setup {
 	private int graphCounter;
 	private NodeListener addNewGeoObjToCustomGraphListener;
 	private ObjectEditListener listenerSetEventsToClicksForSearchGraph;
+	
 
 	@Override
 	public void _a_initFieldsIfNecessary() {
+		try {
+			System.setErr(new PrintStream(new FileOutputStream(new File("sdcard/ARErrLog.txt"), true)));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// allow the user to send error reports to the developer:
 		ErrorHandler.enableEmailReports("droidar.rwth@gmail.com",

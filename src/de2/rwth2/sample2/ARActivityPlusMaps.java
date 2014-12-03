@@ -1,5 +1,13 @@
 package de2.rwth2.sample2;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import system.Setup;
 import android.app.Activity;
 import android.content.Intent;
@@ -36,15 +44,27 @@ public class ARActivityPlusMaps extends MapActivity {
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		try {
+			System.setErr(new PrintStream(new FileOutputStream(new File("sdcard/ARErrLog.txt"), true)));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		super.onCreate(savedInstanceState);
-		
-		Bundle bundle =this.getIntent().getExtras();
-		float[] curr = bundle.getFloatArray("destination");
-		this.current = new Vector(curr[0],curr[1],curr[2]);
-		float[] dest = bundle.getFloatArray("destination");
-		this.destination = new Vector(dest[0],dest[1],dest[2]);
-		setupToUse = new ARNavigatorSetup();
-		
+		try{
+			Bundle bundle =this.getIntent().getExtras();
+			float[] curr = bundle.getFloatArray("destination");
+			this.current = new Vector(curr[0],curr[1],curr[2]);
+			float[] dest = bundle.getFloatArray("destination");
+			this.destination = new Vector(dest[0],dest[1],dest[2]);
+		}catch(Exception ex){
+			try {
+				ex.printStackTrace(new PrintWriter(new FileWriter(new File("sdcard/ARlog.txt"), true)));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		Log.d(LOG_TAG, "main onCreate");
 		if (setupToUse != null) {
 			mySetupToUse = setupToUse;
@@ -62,6 +82,12 @@ public class ARActivityPlusMaps extends MapActivity {
 		ARActivityPlusMaps.setupToUse = setupToUse;
 		currentActivity.startActivity(new Intent(currentActivity,
 				ARActivityPlusMaps.class));
+	}
+	
+	public static void startWithSetup(Activity currentActivity, Setup setupToUse, Bundle extra) {
+		ARActivityPlusMaps.setupToUse = setupToUse;
+		currentActivity.startActivity(new Intent(currentActivity,
+				ARActivityPlusMaps.class).putExtras(extra));
 	}
 
 	private void runSetup() {

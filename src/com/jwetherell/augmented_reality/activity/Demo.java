@@ -16,6 +16,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -50,6 +51,7 @@ import com.jwetherell.augmented_reality.data.WikipediaDataSource;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
+import de2.rwth2.setups2.ARNavigatorSetup;
 import de2.rwth2.sample2.ARActivityPlusMaps;
 
 /**
@@ -292,17 +294,16 @@ public class Demo extends AugmentedReality {
     	builder.setMessage(marker.getName());
     	builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				Intent intent = new Intent();
 				Vector dest = marker.getLocation();
 		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
 		    	Location last = ARData.getCurrentLocation();
 		    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
-	            intent.setClass(Demo.this, ARActivityPlusMaps.class);
 	            Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
-	            intent.putExtras(bundle);
-	            startActivity(intent);
+	            Activity theCurrentActivity = Demo.this;
+				ARActivityPlusMaps.startWithSetup(theCurrentActivity,
+						new de2.rwth2.setups2.ARNavigatorSetup(),bundle);
 			}
     	});
     	builder.setNegativeButton("cancel",null);
