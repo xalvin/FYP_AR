@@ -73,7 +73,6 @@ public class Demo extends AugmentedReality {
     private static LocalDataSource localData = null;
     private static Toast myToast = null;
     private static VerticalTextView text = null;
-    private LocationManager locationMgr=null;  
 
     /**
      * {@inheritDoc}
@@ -97,8 +96,6 @@ public class Demo extends AugmentedReality {
         myToast.setDuration(Toast.LENGTH_SHORT);
 
         // Local
-        	//GPS
-        locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
         	//local data source (user added)
         localData = new LocalDataSource(this.getResources());
@@ -118,20 +115,14 @@ public class Demo extends AugmentedReality {
         /**/
     }
 
-    private void spandTimeMethod() {  
-        try {  
-            Thread.sleep(1000);  
-        } catch (InterruptedException e) {  
-            // TODO Auto-generated catch block  
-            e.printStackTrace();  
-        }  
-    } 
+    
     
     /**
      * {@inheritDoc}
      */
     @Override
     public void onStart() {
+		/*
 		locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
 		final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
 		final Handler handler = new Handler() {  
@@ -140,7 +131,7 @@ public class Demo extends AugmentedReality {
 	            pd.dismiss();// close ProgressDialog  
 	        }  
 	    };
-		/* Thread for loading GPS and network data time*/  
+		// Thread for loading GPS and network data time  
             new Thread(new Runnable() {  
                 @Override  
                 public void run() {  
@@ -155,7 +146,7 @@ public class Demo extends AugmentedReality {
         }catch(NullPointerException npe){
         	try{
         		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-    			/* Thread for loading GPS and network data time*/  
+    			// Thread for loading GPS and network data time  
             new Thread(new Runnable() {  
                 @Override  
                 public void run() {  
@@ -173,7 +164,7 @@ public class Demo extends AugmentedReality {
         		AlertDialog alert = builder.create();  
         		alert.show();
     		}
-        }
+        }*/
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
@@ -290,25 +281,31 @@ public class Demo extends AugmentedReality {
      */
     @Override
     protected void markerTouched(final Marker marker) {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage(marker.getName());
-    	builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				Vector dest = marker.getLocation();
+    	//AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	//builder.setMessage(marker.getName());
+    	//builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
+		//	public void onClick(DialogInterface dialog, int id) {
+				Vector dest = marker.getPhysicalLocation();
 		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
 		    	Location last = ARData.getCurrentLocation();
 		    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
 	            Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
+	            /*
 	            Activity theCurrentActivity = Demo.this;
 				ARActivityPlusMaps.startWithSetup(theCurrentActivity,
 						new de2.rwth2.setups2.ARNavigatorSetup(),bundle);
-			}
-    	});
-    	builder.setNegativeButton("cancel",null);
-    	AlertDialog alert = builder.create();  
-		alert.show();
+				*/
+	            Intent i = new Intent();
+	            i.setClass(this,OpenGLActivity.class);
+	            i.putExtras(bundle);
+	            startActivity(i);
+		//	}
+    	//});
+    	//builder.setNegativeButton("cancel",null);
+    	//AlertDialog alert = builder.create();  
+		//alert.show();
     	/*
         text.setText(marker.getName());
         myToast.show();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -14,6 +15,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.FloatMath;
 import android.util.Log;
 
@@ -33,7 +36,7 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
     private static final String TAG = "SensorsActivity";
     private static final AtomicBoolean computing = new AtomicBoolean(false);
 
-    private static final int MIN_TIME = 10 * 1000;
+    private static final int MIN_TIME = 30000 * 1000;
     private static final int MIN_DISTANCE = 100;
 
     private static final float temp[] = new float[9]; // Temporary rotation matrix in Android format
@@ -67,7 +70,15 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
+    
+    private void spandTimeMethod() {  
+        try {  
+            Thread.sleep(1000);  
+        } catch (InterruptedException e) {  
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        }  
+    } 
     /**
      * {@inheritDoc}
      */
@@ -106,23 +117,56 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
 
             sensorMgr.registerListener(this, sensorGrav, SensorManager.SENSOR_DELAY_UI);
             sensorMgr.registerListener(this, sensorMag, SensorManager.SENSOR_DELAY_UI);
-/*
+
             locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-*/
+            
+            final ProgressDialog pd = ProgressDialog.show(this, "", "loading");
+    		final Handler handler = new Handler() {  
+    	        @Override  
+    	        public void handleMessage(Message msg) {// run when handler receive message  
+    	            pd.dismiss();// close ProgressDialog  
+    	        }  
+    	    };
+    		/* Thread for loading GPS and network data time*/  
+                new Thread(new Runnable() {  
+                    @Override  
+                    public void run() {  
+                        spandTimeMethod();
+                        handler.sendEmptyMessage(0);
+                        }  
+      
+                    }).start(); 
             try {
-/*
-                try {
-                    Location gps = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            	try{
+            		Location gps = locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     onLocationChanged(gps);
-                    Location network = locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    if (gps != null) onLocationChanged(gps);
-                    else if (network != null) onLocationChanged(network);
-                    else onLocationChanged(ARData.hardFix);
-                } catch (Exception ex2) {
-                    onLocationChanged(ARData.hardFix);
-                }
-*/
+            	}catch (NullPointerException e){
+            		try{
+	            		locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+	            		final ProgressDialog pd2 = ProgressDialog.show(this, "", "loading");
+	            		final Handler handler2 = new Handler() {  
+	            	        @Override  
+	            	        public void handleMessage(Message msg) {// run when handler receive message  
+	            	            pd2.dismiss();// close ProgressDialog  
+	            	        }  
+	            	    };
+	            		/* Thread for loading GPS and network data time*/  
+	                        new Thread(new Runnable() {  
+	                            @Override  
+	                            public void run() {  
+	                                spandTimeMethod();
+	                                handler2.sendEmptyMessage(0);
+	                                }  
+	              
+	                            }).start(); 
+	                    Location network = locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+	                    onLocationChanged(network);
+            		}catch (Exception ex2) {
+                        onLocationChanged(ARData.hardFix);
+                    }
+            	} 
+
                 gmf = new GeomagneticField((float) ARData.getCurrentLocation().getLatitude(), 
                                            (float) ARData.getCurrentLocation().getLongitude(),
                                            (float) ARData.getCurrentLocation().getAltitude(), 
@@ -163,12 +207,10 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
                     sensorMgr.unregisterListener(this, sensorMag);
                     sensorMgr = null;
                 }
-                /*
                 if (locationMgr != null) {
                     locationMgr.removeUpdates(this);
                     locationMgr = null;
                 }
-                */
             } catch (Exception ex2) {
                 ex2.printStackTrace();
             }
@@ -194,7 +236,6 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
                 ex.printStackTrace();
             }
             sensorMgr = null;
-
             try {
                 locationMgr.removeUpdates(this);
             } catch (Exception ex) {

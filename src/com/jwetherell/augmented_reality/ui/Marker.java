@@ -191,6 +191,10 @@ public class Marker implements Comparable<Marker> {
     public Vector getLocation() {
         return this.locationXyzRelativeToPhysicalLocation;
     }
+    
+    public Vector getPhysicalLocation(){
+    	return new Vector((float)physicalLocation.getLatitude(),(float)physicalLocation.getLongitude(),(float)physicalLocation.getAltitude());
+    }
 
     public float getHeight() {
         if (symbolContainer == null || textContainer == null)
