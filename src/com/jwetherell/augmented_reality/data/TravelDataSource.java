@@ -134,11 +134,16 @@ public class TravelDataSource extends NetworkDataSource {
 
 	private Marker processJSONObject(JSONObject jo) {
 		if (jo == null) throw new NullPointerException();
-
+		if (!jo.has("photos")) throw new NullPointerException();
 		if (!jo.has("geometry")) throw new NullPointerException();
 
 		Marker ma = null;
 		try {
+			String ref = null;
+			if (!jo.isNull("photos")){
+				JSONArray imgReference = jo.getJSONArray("photos");
+				ref = imgReference.getJSONObject(0).getString("photo_reference");				
+			}
 			Double lat = null, lon = null;
 
 			if (!jo.isNull("geometry")) {
@@ -156,12 +161,12 @@ public class TravelDataSource extends NetworkDataSource {
 				for(int i=0; i<len;i++){
 					log+= temp.getString(i)+"\n";
 					if(temp.getString(i).equals("amusement_park")){
-						ma = new IconMarker(user, lat, lon, 0, Color.RED, amusementPark);
+						ma = new IconMarker(user, lat, lon, 0, Color.RED, amusementPark,ref);
 						break;
 					}
 				}
 				if (ma==null)
-					ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon);
+					ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon,ref);
 				appendLog(log);
 			}
 		} catch (Exception e) {

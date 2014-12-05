@@ -4,4 +4,6 @@
     <string name="google_places_api_key">AIzaSyBs_swJIIe4nGszJPxn3qfbKonsiumSFsg</string>
     <string name="food">Food</string>
     <string name="museum">Museum</string>
+    <string name="back">Back</string>
+    <string name="routeMeThere">Route me there</string>
 </resources>

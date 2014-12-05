@@ -1,4 +1,4 @@
-package geo2;
+package com.jwetherell.augmented_reality.geo2;
 
 import java.io.IOException;
 import java.io.InputStream;

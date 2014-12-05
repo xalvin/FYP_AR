@@ -48,11 +48,10 @@ import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
+import com.jwetherell.augmented_reality.de2.rwth2.setups2.ARNavigatorSetup;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
-import de2.rwth2.setups2.ARNavigatorSetup;
-import de2.rwth2.sample2.ARActivityPlusMaps;
 
 /**
  * This class extends the AugmentedReality and is designed to be an example on
@@ -289,9 +288,13 @@ public class Demo extends AugmentedReality {
 		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
 		    	Location last = ARData.getCurrentLocation();
 		    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
+		    	String name = marker.getName();
+		    	String imgRef = marker.getImgReference();
 	            Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
+	            bundle.putString("name", name);
+	            bundle.putString("imgRef", imgRef);
 	            /*
 	            Activity theCurrentActivity = Demo.this;
 				ARActivityPlusMaps.startWithSetup(theCurrentActivity,

@@ -3,25 +3,29 @@ package com.jwetherell.augmented_reality.activity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 import com.jwetherell.augmented_reality.R;
-import com.jwetherell.augmented_reality.common.Vector;
+import com.jwetherell.augmented_reality.de2.rwth2.setups2.ARNavigatorSetup;
 
-import geo.GeoGraph;
-import gl.GLCamera;
-import util.Vec;
-import worldData.World;
+
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class OpenGLActivity extends Activity{
-	private GeoGraph myGraph;
-	private World world;
-	private GLCamera camera;
-	private Vector destination;
-	private Vector current;
+	private float[] destination;
+	private float[] current;
+	private String name;
+	private String imgRef;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -31,29 +35,76 @@ public class OpenGLActivity extends Activity{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		float[] curr = null;
-		float[] dest = null;
 		try{
 			Bundle data = this.getIntent().getExtras();
-			curr = data.getFloatArray("current");
-			this.current = new Vector(curr[0],curr[1],curr[2]);
-			dest = data.getFloatArray("destination");
-			this.destination = new Vector(dest[0],dest[1],dest[2]);
+			
+			//this.current = new Vector(curr[0],curr[1],curr[2]);
+			this.current = data.getFloatArray("current");
+			//this.destination = new Vector(dest[0],dest[1],dest[2]);
+			this.destination = data.getFloatArray("destination");
+			this.name = data.getString("name");
+			this.imgRef = data.getString("imgRef");
 		} catch(NullPointerException npe){
 			npe.printStackTrace();
-		}/*
+		}
+		
+		setContentView(R.layout.defaultlistitemview);
+		if (current == null) throw new NullPointerException("current location cannot be loaded");
+		if (destination == null) throw new NullPointerException("destination location cannot be loaded");
+		
+		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
 		try{
-			myGraph = new GeoGraph();
-			camera = new GLCamera(new Vec(0, 0, 1f));
-			world.add(myGraph);
+			String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
+			new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
 		}catch(Exception e){
 			e.printStackTrace();
-		}*/
-		setContentView(R.layout.defaultlistitemview);
-		if (curr == null) throw new NullPointerException("current location cannot be loaded");
-		if (dest == null) throw new NullPointerException("destination location cannot be loaded");
-		
-		((TextView) findViewById(R.id.lat)).setText("current: x "+curr[0]+" y "+curr[1]+" z "+curr[2]+"\n");
-		((TextView) findViewById(R.id.lon)).setText("destination: x "+dest[0]+" y "+dest[1]+" z "+dest[2]+"\n");
+		}
+		((TextView) findViewById(R.id.markerName)).setText(this.name);
+		((TextView) findViewById(R.id.location)).setText("destination: x "+destination[0]+"\n\t\t\ty "+destination[1]+"\n\t\t\tz "+destination[2]);
+		((Button) findViewById(R.id.routeMeThere)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Bundle bundle = new Bundle();
+	            bundle.putFloatArray("destination", destination);
+	            bundle.putFloatArray("current", current);
+	            
+	            ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
+			}
+		});
+		((Button) findViewById(R.id.back)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				finish();
+			}
+		});
+	}
+	
+	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+	    ImageView bmImage;
+
+	    public DownloadImageTask(ImageView bmImage) {
+	        this.bmImage = bmImage;
+	    }
+
+	    protected Bitmap doInBackground(String... urls) {
+	        String urldisplay = urls[0];
+	        Bitmap mIcon11 = null;
+	        try {
+	            InputStream in = new java.net.URL(urldisplay).openStream();
+	            mIcon11 = BitmapFactory.decodeStream(in);
+	        } catch (Exception e) {
+	            Log.e("Error", e.getMessage());
+	            e.printStackTrace();
+	        }
+	        return mIcon11;
+	    }
+
+	    protected void onPostExecute(Bitmap result) {
+	        bmImage.setImageBitmap(result);
+	    }
 	}
 }

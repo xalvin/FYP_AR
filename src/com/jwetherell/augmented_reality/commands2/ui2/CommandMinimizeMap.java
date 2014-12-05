@@ -1,19 +1,24 @@
-package commands2.ui2;
+package com.jwetherell.augmented_reality.commands2.ui2;
 
-import geo2.GMap;
+import com.jwetherell.augmented_reality.geo2.GMap;
+
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
 import commands.undoable.UndoableCommand;
 
-public class CommandMapEnlargeToFullScreen extends UndoableCommand {
+public class CommandMinimizeMap extends UndoableCommand {
 
 	private GMap myMap;
+	private float myWeight;
+	private int myHeight;
 	private LayoutParams myBackupParams;
 
-	public CommandMapEnlargeToFullScreen(GMap map) {
+	public CommandMinimizeMap(GMap map, float weight, int height) {
 		myMap = map;
+		myWeight = weight;
+		myHeight = height;
 	}
 
 	@Override
@@ -21,9 +26,8 @@ public class CommandMapEnlargeToFullScreen extends UndoableCommand {
 		if (myMap.getParent() instanceof View) {
 			myBackupParams = ((View) myMap.getParent()).getLayoutParams();
 			LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-			p.height = LayoutParams.FILL_PARENT;
-			p.weight = 0;
+					LayoutParams.FILL_PARENT, myHeight);
+			p.weight = myWeight;
 			((View) myMap.getParent()).setLayoutParams(p);
 			return true;
 		}

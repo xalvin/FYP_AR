@@ -1,9 +1,7 @@
-package de2.rwth2.setups2;
+package com.jwetherell.augmented_reality.de2.rwth2.setups2;
 
 import geo.GeoGraph;
 import geo.GeoObj;
-import geo2.CustomItemizedOverlay;
-import geo2.GMap;
 import gl.Color;
 import gl.GL1Renderer;
 import gl.GLFactory;
@@ -28,6 +26,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.maps.MapActivity;
+import com.jwetherell.augmented_reality.geo2.CustomItemizedOverlay;
+import com.jwetherell.augmented_reality.geo2.GMap;
+
 import commands.Command;
 import commands.ui.CommandInUiThread;
 import components.TimerComp;

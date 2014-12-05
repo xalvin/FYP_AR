@@ -19,6 +19,10 @@ public class IconMarker extends Marker {
         this.bitmap = bitmap;
     }
 
+    public IconMarker(String name, double latitude, double longitude, double altitude, int color, Bitmap bitmap,String imgReference) {
+        super(name, latitude, longitude, altitude, color, imgReference);
+        this.bitmap = bitmap;
+    }
     /**
      * {@inheritDoc}
      */

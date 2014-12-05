@@ -79,11 +79,16 @@ public class Marker implements Comparable<Marker> {
     private static boolean debugGpsPosition = false;
     private PaintablePoint positionPoint = null;
     private PaintablePosition positionContainer = null;
+    
+    private String imgReference = null;
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
     }
 
+    public Marker(String name, double latitude, double longitude, double altitude, int color, String imgReference) {
+        set(name, latitude, longitude, altitude, color, imgReference);
+    }
     /**
      * Set the objects parameters. This should be used instead of creating new
      * objects.
@@ -114,6 +119,25 @@ public class Marker implements Comparable<Marker> {
             this.noAltitude = true;
         else
             this.noAltitude = false;
+        this.imgReference=null;
+    }
+    
+    public void set(String name, double latitude, double longitude, double altitude, int color, String imgReference) {
+        if (name == null)
+            throw new NullPointerException();
+
+        this.name = name;
+        this.physicalLocation.set(latitude, longitude, altitude);
+        this.color = color;
+        this.isOnRadar = false;
+        this.isInView = false;
+        this.locationXyzRelativeToPhysicalLocation.set(0, 0, 0);
+        this.initialY = 0.0f;
+        if (altitude == 0.0d)
+            this.noAltitude = true;
+        else
+            this.noAltitude = false;
+        this.imgReference = imgReference;
     }
 
     /**
@@ -125,6 +149,9 @@ public class Marker implements Comparable<Marker> {
         return this.name;
     }
 
+    public String getImgReference(){
+    	return this.imgReference;
+    }
     /**
      * Get the color of this Marker.
      * 

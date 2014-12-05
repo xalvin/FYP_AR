@@ -1,4 +1,4 @@
-package de2.rwth2.setups2;
+package com.jwetherell.augmented_reality.de2.rwth2.setups2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,8 +9,6 @@ import geo.GeoGraph;
 import geo.GeoObj;
 import geo.GeoUtils;
 import geo.NodeListener;
-import geo2.CustomItemizedOverlay;
-import geo2.GMap;
 import gl.Color;
 import gl.CustomGLSurfaceView;
 import gl.GL1Renderer;
@@ -44,6 +42,19 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.google.android.maps.MyLocationOverlay;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandAddGeoGraphsToMap;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandAddGeoObjToGeoGraph;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandAddPathToGeoGraph;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandClearMapOverlays;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandFindWayInGraph;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandFindWayWithGMaps;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandMapCenter;
+import com.jwetherell.augmented_reality.commands2.geo2.CommandMapShowZoomControls;
+import com.jwetherell.augmented_reality.commands2.ui2.CommandMapEnlargeToFullScreen;
+import com.jwetherell.augmented_reality.commands2.ui2.CommandMinimizeMap;
+import com.jwetherell.augmented_reality.geo2.CustomItemizedOverlay;
+import com.jwetherell.augmented_reality.geo2.GMap;
+
 import commands.Command;
 import commands.CommandGroup;
 import commands.logic.CommandIfThenElse;
@@ -57,16 +68,6 @@ import commands.system.CommandShowWorldAnimation;
 import commands.ui.CommandAnimateZoom;
 import commands.ui.CommandShowListActivity;
 import commands.ui.CommandShowToast;
-import commands2.geo2.CommandAddGeoGraphsToMap;
-import commands2.geo2.CommandAddGeoObjToGeoGraph;
-import commands2.geo2.CommandAddPathToGeoGraph;
-import commands2.geo2.CommandClearMapOverlays;
-import commands2.geo2.CommandFindWayInGraph;
-import commands2.geo2.CommandFindWayWithGMaps;
-import commands2.geo2.CommandMapCenter;
-import commands2.geo2.CommandMapShowZoomControls;
-import commands2.ui2.CommandMapEnlargeToFullScreen;
-import commands2.ui2.CommandMinimizeMap;
 
 import de.rwth.R;
 

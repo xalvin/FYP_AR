@@ -1,4 +1,4 @@
-package de2.rwth2.sample2;
+package com.jwetherell.augmented_reality.activity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,8 +20,6 @@ import android.view.MenuItem;
 
 import com.google.android.maps.MapActivity;
 import com.jwetherell.augmented_reality.common.Vector;
-
-import de2.rwth2.setups2.ARNavigatorSetup;
 
 
 public class ARActivityPlusMaps extends MapActivity {

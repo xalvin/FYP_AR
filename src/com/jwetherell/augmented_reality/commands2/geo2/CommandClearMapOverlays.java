@@ -1,6 +1,7 @@
-package commands2.geo2;
+package com.jwetherell.augmented_reality.commands2.geo2;
 
-import geo2.GMap;
+import com.jwetherell.augmented_reality.geo2.GMap;
+
 import android.util.Log;
 
 import commands.Command;

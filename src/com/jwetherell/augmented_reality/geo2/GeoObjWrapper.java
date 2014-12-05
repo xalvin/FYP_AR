@@ -1,4 +1,4 @@
-package geo2;
+package com.jwetherell.augmented_reality.geo2;
 
 import geo.GeoObj;
 import gl.scenegraph.MeshComponent;

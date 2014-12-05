@@ -1,8 +1,9 @@
-package commands2.geo2;
+package com.jwetherell.augmented_reality.commands2.geo2;
+
+import com.jwetherell.augmented_reality.geo2.GMap;
 
 import geo.GeoGraph;
 import geo.GeoObj;
-import geo2.GMap;
 import util.Wrapper;
 import android.location.Location;
 import android.os.Handler;

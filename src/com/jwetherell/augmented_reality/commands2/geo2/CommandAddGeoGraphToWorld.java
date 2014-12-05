@@ -1,4 +1,4 @@
-package commands2.geo2;
+package com.jwetherell.augmented_reality.commands2.geo2;
 
 import geo.GeoGraph;
 import util.Wrapper;

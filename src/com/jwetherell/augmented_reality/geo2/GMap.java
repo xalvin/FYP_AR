@@ -1,4 +1,4 @@
-package geo2;
+package com.jwetherell.augmented_reality.geo2;
 
 import geo.GeoObj;
 import gui.CustomGestureListener;
@@ -16,8 +16,9 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
+import com.jwetherell.augmented_reality.de2.rwth2.setups2.GoogleMapsKey;
+
 import commands.Command;
-import de2.rwth2.setups2.GoogleMapsKey;
 
 /**
  * To get a maps api key you have to use a keytool to generate a MD5 fingerprint

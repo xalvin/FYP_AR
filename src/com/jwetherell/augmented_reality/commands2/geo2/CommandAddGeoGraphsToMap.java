@@ -1,9 +1,10 @@
-package commands2.geo2;
+package com.jwetherell.augmented_reality.commands2.geo2;
+
+import com.jwetherell.augmented_reality.geo2.CustomItemizedOverlay;
+import com.jwetherell.augmented_reality.geo2.CustomPathOverlay;
+import com.jwetherell.augmented_reality.geo2.GMap;
 
 import geo.GeoGraph;
-import geo2.CustomItemizedOverlay;
-import geo2.CustomPathOverlay;
-import geo2.GMap;
 import gl.scenegraph.RenderList;
 import util.EfficientList;
 import util.Wrapper;

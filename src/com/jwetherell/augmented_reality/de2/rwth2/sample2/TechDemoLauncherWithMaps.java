@@ -1,4 +1,8 @@
-package de2.rwth2.sample2;
+package com.jwetherell.augmented_reality.de2.rwth2.sample2;
+
+import com.jwetherell.augmented_reality.activity.ARActivityPlusMaps;
+import com.jwetherell.augmented_reality.de2.rwth2.setups2.ARNavigatorSetup;
+import com.jwetherell.augmented_reality.de2.rwth2.setups2.AccuracyTestsSetup;
 
 import system.Setup;
 import android.app.Activity;
@@ -8,8 +12,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import de.rwth.R;
-import de2.rwth2.setups2.ARNavigatorSetup;
-import de2.rwth2.setups2.AccuracyTestsSetup;
 
 public class TechDemoLauncherWithMaps extends Activity {
 
