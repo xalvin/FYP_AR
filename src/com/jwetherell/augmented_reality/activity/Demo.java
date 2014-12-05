@@ -48,7 +48,6 @@ import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
-import com.jwetherell.augmented_reality.de2.rwth2.setups2.ARNavigatorSetup;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 

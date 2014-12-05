@@ -6,8 +6,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 
+import system.ArActivity;
+
 import com.jwetherell.augmented_reality.R;
-import com.jwetherell.augmented_reality.de2.rwth2.setups2.ARNavigatorSetup;
+
+import de.rwth.setups.PositionTestsSetup;
 
 
 import android.app.Activity;
@@ -69,8 +72,10 @@ public class OpenGLActivity extends Activity{
 				Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
-	            
-	            ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
+	            Activity theCurrentActivity = OpenGLActivity.this;
+				ArActivity.startWithSetup(theCurrentActivity,
+						new PositionTestsSetup());
+	            //ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
 			}
 		});
 		((Button) findViewById(R.id.back)).setOnClickListener(new View.OnClickListener() {

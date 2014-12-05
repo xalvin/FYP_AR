@@ -46,12 +46,14 @@ public class LocalDataSource extends DataSource {
         Marker home = new Marker("ATL CIRCLE", 39.931269, -75.051231, 0, Color.YELLOW);
         cachedMarkers.add(home);
         */
+    	/*
     	Marker ouhk = new IconMarker("Open University of Hong Kong", 22.3152108, 114.1802943, 0, Color.YELLOW, icon);
         cachedMarkers.add(ouhk);
         Marker testPt1 = new Marker("Avenue of stars", 22.2945141,114.1708274, 0, Color.YELLOW);
         cachedMarkers.add(testPt1);
         Marker testPt2 = new Marker("The Peak Tram", 22.2771122,114.1570673, 0, Color.YELLOW);
         cachedMarkers.add(testPt2);
+        */
         /*
          * Marker lon = new IconMarker(
          * "I am a really really long string which should wrap a number of times on the screen."
