@@ -186,8 +186,8 @@ public class RoutingSetup extends Setup {
 		spawnObj(posD, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posE, GLFactory.getInstance().newCircle(Color.blue()));
 */
-		for(GeoObj obj :this.steps){
-			spawnObj(obj,GLFactory.getInstance().newDiamond(Color.greenTransparent()));
+		for(int i =1;i<steps.size();i++){
+			spawnObj(steps.get(i),GLFactory.getInstance().newDiamond(Color.greenTransparent()));
 		}
 		renderer.addRenderElement(world);
 	}
