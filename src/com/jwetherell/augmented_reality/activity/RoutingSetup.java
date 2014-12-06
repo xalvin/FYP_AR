@@ -1,5 +1,21 @@
 package com.jwetherell.augmented_reality.activity;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.jwetherell.augmented_reality.ui.IconMarker;
+import com.jwetherell.augmented_reality.ui.Marker;
+
 import geo.GeoObj;
 import gl.Color;
 import gl.CustomGLSurfaceView;
@@ -30,24 +46,121 @@ public class RoutingSetup extends Setup {
 	private final GLCamera camera;
 	private final World world;
 	private final ActionCalcRelativePos gpsAction;
+	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
 	private final GeoObj posC;
 	private final GeoObj posD;
 	private final GeoObj posE;
-
+	*/
+	private ArrayList<GeoObj> steps;
 	public RoutingSetup() {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
+		/*
 		posA = new GeoObj(50.778922, 6.060461);
 		posB = new GeoObj(50.780815, 6.06662);
 		posC = new GeoObj(50.780557, 6.06735);
 		posD = new GeoObj(50.779892, 6.065955);
 		posE = new GeoObj(50.780408, 6.066492);
-
+		*/
+		steps = new ArrayList<GeoObj>();
 	}
 
+	public RoutingSetup(String url) {
+		camera = new GLCamera();
+		world = new World(camera);
+		gpsAction = new ActionCalcRelativePos(world, camera);
+		steps = null;
+		String JSONStr = null;
+		try {
+			InputStream stream = (new URL(url)).openConnection().getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
+	        StringBuilder sb = new StringBuilder();
+
+	        try {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                sb.append(line + "\n");
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            try {
+	                stream.close();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        JSONStr = sb.toString();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(JSONStr == null) throw new NullPointerException();
+		JSONObject json = null;
+		try {
+			json = new JSONObject(JSONStr);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		if (json == null) throw new NullPointerException();
+		steps=parse(json);
+		if(steps==null){
+			CommandShowToast.show(myTargetActivity,"no route found");
+		}			
+	}
+	
+	public ArrayList<GeoObj> parse(JSONObject root) {
+		if (root == null) throw new NullPointerException();
+		JSONObject jo = null;
+		JSONArray dataArray = null;
+		ArrayList<GeoObj> geoObjs = null;
+
+		try {
+			if (root.has("routes")) dataArray = root.getJSONArray("routes");
+			if (dataArray == null) return geoObjs;
+			jo = dataArray.getJSONObject(0);
+			geoObjs = processJSONObject(jo);
+			if (geoObjs == null) throw new NullPointerException();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return geoObjs;
+	}
+
+	private ArrayList<GeoObj> processJSONObject(JSONObject jo) {
+		if (jo == null) throw new NullPointerException();
+		if (!jo.has("legs")) return null;
+		JSONArray legsArray = null;
+		
+		ArrayList<GeoObj> result = new ArrayList<GeoObj>();
+		try {
+			legsArray = jo.getJSONArray("legs");
+			JSONObject obj = legsArray.getJSONObject(0);
+			if(!obj.has("steps")) return null;
+			JSONArray stepsArray = legsArray.getJSONObject(0).getJSONArray("steps");
+			int len = stepsArray.length();
+			JSONObject first = stepsArray.getJSONObject(0);
+			JSONObject start = first.getJSONObject("start_location");
+			result.add(new GeoObj(start.getDouble("lat"),start.getDouble("lng")));
+			JSONObject end = first.getJSONObject("end_location");
+			result.add(new GeoObj(end.getDouble("lat"),end.getDouble("lng")));
+			for(int i=1; i<len;i++){
+				JSONObject ed = stepsArray.getJSONObject(i).getJSONObject("end_location");
+				result.add(new GeoObj(ed.getDouble("lat"),ed.getDouble("lng")));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = null;
+		}
+		return result;
+	}
+	
 	@Override
 	public void _a_initFieldsIfNecessary() {
 
@@ -56,13 +169,16 @@ public class RoutingSetup extends Setup {
 	@Override
 	public void _b_addWorldsToRenderer(GL1Renderer renderer,
 			GLFactory objectFactory, GeoObj currentPosition) {
-
+/*
 		spawnObj(posA, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posB, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posC, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posD, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posE, GLFactory.getInstance().newCircle(Color.blue()));
-
+*/
+		for(GeoObj obj :this.steps){
+			spawnObj(obj,GLFactory.getInstance().newDiamond(Color.greenTransparent()));
+		}
 		renderer.addRenderElement(world);
 	}
 
@@ -88,7 +204,7 @@ public class RoutingSetup extends Setup {
 
 	@Override
 	public void _e2_addElementsToGuiSetup(GuiSetup guiSetup, Activity activity) {
-		guiSetup.setRightViewAllignBottom();
+/*		guiSetup.setRightViewAllignBottom();
 
 		guiSetup.addImangeButtonToRightView(R.drawable.arrow_up_float,
 				new Command() {
@@ -134,7 +250,11 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 
 		addGpsPosOutputButtons(guiSetup);
-
+*/
+		for (GeoObj pos : this.steps){
+			MeshComponent mesh = GLFactory.getInstance().newArrow();
+			spawnObj(pos, mesh);
+		}
 	}
 
 	private void addGpsPosOutputButtons(GuiSetup guiSetup) {
@@ -192,8 +312,10 @@ public class RoutingSetup extends Setup {
 
 		mesh.setPosition(Vec.getNewRandomPosInXYPlane(new Vec(), 0.1f, 1f));
 		x.setComp(mesh);
+		/*
 		CommandShowToast.show(myTargetActivity, "Object spawned at "
 				+ x.getMySurroundGroup().getPosition());
+		*/
 		world.add(x);
 	}
 }

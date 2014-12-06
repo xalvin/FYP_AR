@@ -72,9 +72,10 @@ public class OpenGLActivity extends Activity{
 				Bundle bundle = new Bundle();
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
+	            String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
 	            Activity theCurrentActivity = OpenGLActivity.this;
 				ArActivity.startWithSetup(theCurrentActivity,
-						new PositionTestsSetup());
+						new RoutingSetup(url));
 	            //ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
 			}
 		});
