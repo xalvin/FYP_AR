@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import com.jwetherell.augmented_reality.ui.IconMarker;
 import com.jwetherell.augmented_reality.ui.Marker;
 
+import geo.Edge;
 import geo.GeoObj;
 import gl.Color;
 import gl.CustomGLSurfaceView;
@@ -46,6 +47,8 @@ public class RoutingSetup extends Setup {
 	private final GLCamera camera;
 	private final World world;
 	private final ActionCalcRelativePos gpsAction;
+	private float[] current;
+	private float[] destination;
 	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
@@ -68,12 +71,15 @@ public class RoutingSetup extends Setup {
 		steps = new ArrayList<GeoObj>();
 	}
 
-	public RoutingSetup(String url) {
+	public RoutingSetup(float[] current, float[] destination) {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
+		this.current = current;
+		this.destination = destination;
 		steps = null;
 		String JSONStr = null;
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
 		try {
 			InputStream stream = (new URL(url)).openConnection().getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
@@ -154,6 +160,10 @@ public class RoutingSetup extends Setup {
 				JSONObject ed = stepsArray.getJSONObject(i).getJSONObject("end_location");
 				result.add(new GeoObj(ed.getDouble("lat"),ed.getDouble("lng")));
 			}
+			if(result.get(0).getLatitude()!=current[0] && result.get(0).getLongitude()!= current[1])
+				result.add(0,new GeoObj(current[0],current[1]));
+			if(result.get(result.size()-1).getLatitude()!=destination[0] && result.get(result.size()-1).getLongitude()!= destination[1])
+				result.add(new GeoObj(destination[0],destination[1]));
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = null;
@@ -185,9 +195,10 @@ public class RoutingSetup extends Setup {
 	@Override
 	public void _c_addActionsToEvents(EventManager eventManager,
 			CustomGLSurfaceView arView, SystemUpdater updater) {
+		/*
 		arView.addOnTouchMoveListener(new ActionMoveCameraBuffered(camera, 5,
 				25));
-
+		*/
 		ActionRotateCameraBuffered rot = new ActionRotateCameraBuffered(camera);
 		updater.addObjectToUpdateCycle(rot);
 		eventManager.addOnOrientationChangedAction(rot);
@@ -251,9 +262,14 @@ public class RoutingSetup extends Setup {
 
 		addGpsPosOutputButtons(guiSetup);
 */
-		for (GeoObj pos : this.steps){
-			MeshComponent mesh = GLFactory.getInstance().newArrow();
-			spawnObj(pos, mesh);
+		for (int i =1; i < steps.size(); i++){
+			MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
+			Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
+			/*
+			CommandShowToast.show(myTargetActivity, "Object spawned at "
+					+ x.getMySurroundGroup().getPosition());
+			*/
+			world.add(x);
 		}
 	}
 
