@@ -54,6 +54,10 @@ public class LocalDataSource extends DataSource {
         Marker testPt2 = new Marker("The Peak Tram", 22.2771122,114.1570673, 0, Color.YELLOW);
         cachedMarkers.add(testPt2);
         */
+    	Marker hku = new Marker("The University of Hong Kong", 22.282999,114.137085,0,Color.YELLOW);
+    	cachedMarkers.add(hku);
+    	Marker philipDental = new Marker("Prince Philip Dental Hospital", 22.2862335,114.14393,0,Color.YELLOW);
+    	cachedMarkers.add(philipDental);
         /*
          * Marker lon = new IconMarker(
          * "I am a really really long string which should wrap a number of times on the screen."

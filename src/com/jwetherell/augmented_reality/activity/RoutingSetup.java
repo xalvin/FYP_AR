@@ -1,12 +1,17 @@
 package com.jwetherell.augmented_reality.activity;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -35,6 +40,8 @@ import actions.ActionMoveCameraBuffered;
 import actions.ActionRotateCameraBuffered;
 import android.R;
 import android.app.Activity;
+import android.location.Location;
+import android.util.Log;
 
 import commands.Command;
 import commands.DebugCommandPositionEvent;
@@ -43,6 +50,7 @@ import commands.ui.CommandShowToast;
 
 public class RoutingSetup extends Setup {
 
+	private final String TAG = "Routing Setup";
 	protected static final int ZDELTA = 5;
 	private final GLCamera camera;
 	private final World world;
@@ -60,7 +68,20 @@ public class RoutingSetup extends Setup {
 	public RoutingSetup() {
 		camera = new GLCamera();
 		world = new World(camera);
-		gpsAction = new ActionCalcRelativePos(world, camera);
+		gpsAction = new ActionCalcRelativePos(world, camera){
+			
+			public boolean onLocationChanged(Location location){
+				/*
+				appendLog("Update camera location");
+				Log.i(TAG, "Update camera location");
+				camera.setGpsPos(new GeoObj(location.getLatitude(),location.getLongitude()));
+				*/
+				appendLog("active super.onLocationChanged");
+				Log.i(TAG, "active super.onLocationChanged");
+				super.onLocationChanged(location);
+				return true;
+			}
+		};
 		/*
 		posA = new GeoObj(50.778922, 6.060461);
 		posB = new GeoObj(50.780815, 6.06662);
@@ -173,7 +194,7 @@ public class RoutingSetup extends Setup {
 	
 	@Override
 	public void _a_initFieldsIfNecessary() {
-
+		
 	}
 
 	@Override
@@ -205,7 +226,7 @@ public class RoutingSetup extends Setup {
 
 		eventManager.addOnTrackballAction(new ActionMoveCameraBuffered(camera,
 				5, 25));
-		// eventManager.addOnLocationChangedAction(gpsAction);
+		eventManager.addOnLocationChangedAction(gpsAction);
 	}
 
 	@Override
@@ -259,9 +280,9 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posC, "Spawn at posC", guiSetup);
 		addSpawnButtonToUI(posD, "Spawn at posD", guiSetup);
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
-
-		addGpsPosOutputButtons(guiSetup);
 */
+		addGpsPosOutputButtons(guiSetup);
+
 		for (int i =1; i < steps.size(); i++){
 			MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
 			Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
@@ -334,5 +355,40 @@ public class RoutingSetup extends Setup {
 		*/
 		world.add(x);
 	}
+	
+    public static void appendLog(String text)
+    {       
+       File logFile = new File("sdcard/RoutingLog.txt");
+       if (!logFile.exists())
+       {
+          try
+          {
+             logFile.createNewFile();
+          } 
+          catch (IOException e)
+          {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+          }
+       }
+       try
+       {
+          //BufferedWriter for performance, true to set append to file flag
+          BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+          buf.append("[\n\t");
+          String currentDateandTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+          buf.append(currentDateandTime);
+          buf.newLine();
+          buf.append("\t\t"+text);
+          buf.newLine();
+          buf.flush();
+          buf.close();
+       }
+       catch (IOException e)
+       {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
+    }
 }
 

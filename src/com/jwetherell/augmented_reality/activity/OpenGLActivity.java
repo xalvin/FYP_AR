@@ -46,7 +46,8 @@ public class OpenGLActivity extends Activity{
 			//this.destination = new Vector(dest[0],dest[1],dest[2]);
 			this.destination = data.getFloatArray("destination");
 			this.name = data.getString("name");
-			this.imgRef = data.getString("imgRef");
+			if (data.getString("imgRef")!=null)
+				this.imgRef = data.getString("imgRef");
 		} catch(NullPointerException npe){
 			npe.printStackTrace();
 		}
@@ -57,8 +58,10 @@ public class OpenGLActivity extends Activity{
 		
 		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
 		try{
-			String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
-			new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
+			if(this.imgRef!=null){
+				String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
+				new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
