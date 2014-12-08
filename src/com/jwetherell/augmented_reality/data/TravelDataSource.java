@@ -177,7 +177,7 @@ public class TravelDataSource extends NetworkDataSource {
 	
 	public static void appendLog(String text)
     {       
-       File logFile = new File("sdcard/ARlog.txt");
+       File logFile = new File("sdcard/","ARlog.txt");
        if (!logFile.exists())
        {
           try

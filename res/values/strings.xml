@@ -6,4 +6,6 @@
     <string name="museum">Museum</string>
     <string name="back">Back</string>
     <string name="routeMeThere">Route me there</string>
+    <string name="remove">remove favourite</string>
+    <string name="add">add to favourite</string>
 </resources>

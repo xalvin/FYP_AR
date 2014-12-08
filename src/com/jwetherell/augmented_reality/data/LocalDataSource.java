@@ -1,7 +1,17 @@
 package com.jwetherell.augmented_reality.data;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -54,10 +64,52 @@ public class LocalDataSource extends DataSource {
         Marker testPt2 = new Marker("The Peak Tram", 22.2771122,114.1570673, 0, Color.YELLOW);
         cachedMarkers.add(testPt2);
         */
+    	/*
     	Marker hku = new Marker("The University of Hong Kong", 22.282999,114.137085,0,Color.YELLOW);
     	cachedMarkers.add(hku);
     	Marker philipDental = new Marker("Prince Philip Dental Hospital", 22.2862335,114.14393,0,Color.YELLOW);
     	cachedMarkers.add(philipDental);
+    	*/
+    	File jsonFile = new File("sdcard/localData.json");
+        String jsonStr = null;
+        if (jsonFile.exists()){
+        	FileInputStream in = null;
+ 	       try{
+ 	    	   // read exist json string
+ 	    	   in = new FileInputStream(jsonFile);
+ 	    	   FileChannel fc = in.getChannel();
+                MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+                jsonStr = Charset.defaultCharset().decode(bb).toString();
+ 	       }catch(Exception e){
+ 	    	   e.printStackTrace();
+ 	       }finally{
+ 	    	  try {
+ 	    		   in.close();
+ 	    	  } catch (IOException e) {
+ 					e.printStackTrace();
+ 	    	  }
+ 	       }
+ 	      JSONObject root = new JSONObject();
+			if(jsonStr!=null){
+				try {
+					root = new JSONObject(jsonStr);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			JSONArray a = null;
+			try {
+				a = root.getJSONArray("data");
+				for(int i = 0;i<a.length();i++){
+					JSONObject obj = a.getJSONObject(i);
+					JSONObject dest = obj.getJSONObject("destination");
+					Marker temp = new Marker(obj.getString("name"), dest.getDouble("x"),dest.getDouble("y"),dest.getDouble("z"),Color.YELLOW);
+					cachedMarkers.add(temp);
+				}
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+        }
         /*
          * Marker lon = new IconMarker(
          * "I am a really really long string which should wrap a number of times on the screen."

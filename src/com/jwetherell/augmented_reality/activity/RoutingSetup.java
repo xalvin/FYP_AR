@@ -3,12 +3,16 @@ package com.jwetherell.augmented_reality.activity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,11 +96,14 @@ public class RoutingSetup extends Setup {
 		steps = new ArrayList<GeoObj>();
 	}
 
-	public RoutingSetup(float[] current, float[] destination) {
+	public RoutingSetup(float[] destination) {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
-		this.current = current;
+		GeoObj c = EventManager.getInstance()
+				.getCurrentLocationObject();
+		float[] t = {(float) c.getLatitude(),(float) c.getLongitude(),(float) c.getAltitude()};
+		this.current = t;
 		this.destination = destination;
 		steps = null;
 		String JSONStr = null;
@@ -224,8 +231,10 @@ public class RoutingSetup extends Setup {
 		updater.addObjectToUpdateCycle(rot);
 		eventManager.addOnOrientationChangedAction(rot);
 
+		/*
 		eventManager.addOnTrackballAction(new ActionMoveCameraBuffered(camera,
 				5, 25));
+		*/
 		eventManager.addOnLocationChangedAction(gpsAction);
 	}
 
@@ -356,14 +365,13 @@ public class RoutingSetup extends Setup {
 		world.add(x);
 	}
 	
-    public static void appendLog(String text)
-    {       
-       File logFile = new File("sdcard/RoutingLog.txt");
+    public static void appendLog(String text){       
+       File logFile = new File("sdcard/","RoutingLog.txt");
        if (!logFile.exists())
        {
           try
           {
-             logFile.createNewFile();
+        	  logFile.createNewFile();
           } 
           catch (IOException e)
           {

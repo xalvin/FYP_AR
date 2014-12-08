@@ -1,14 +1,29 @@
 package com.jwetherell.augmented_reality.activity;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import system.ArActivity;
 
 import com.jwetherell.augmented_reality.R;
+import com.jwetherell.augmented_reality.data.ARData;
+import com.jwetherell.augmented_reality.data.LocalDataSource;
 
 import de.rwth.setups.PositionTestsSetup;
 
@@ -26,7 +41,6 @@ import android.widget.TextView;
 
 public class OpenGLActivity extends Activity{
 	private float[] destination;
-	private float[] current;
 	private String name;
 	private String imgRef;
 	@Override
@@ -41,24 +55,23 @@ public class OpenGLActivity extends Activity{
 		try{
 			Bundle data = this.getIntent().getExtras();
 			
-			//this.current = new Vector(curr[0],curr[1],curr[2]);
-			this.current = data.getFloatArray("current");
 			//this.destination = new Vector(dest[0],dest[1],dest[2]);
 			this.destination = data.getFloatArray("destination");
 			this.name = data.getString("name");
 			if (data.getString("imgRef")!=null)
 				this.imgRef = data.getString("imgRef");
+			else
+				this.imgRef = "";
 		} catch(NullPointerException npe){
 			npe.printStackTrace();
 		}
 		
 		setContentView(R.layout.defaultlistitemview);
-		if (current == null) throw new NullPointerException("current location cannot be loaded");
 		if (destination == null) throw new NullPointerException("destination location cannot be loaded");
 		
 		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
 		try{
-			if(this.imgRef!=null){
+			if(!this.imgRef.equals("")){
 				String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
 				new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
 			}
@@ -79,10 +92,37 @@ public class OpenGLActivity extends Activity{
 	            */
 	            Activity theCurrentActivity = OpenGLActivity.this;
 				ArActivity.startWithSetup(theCurrentActivity,
-						new RoutingSetup(current,destination));
+						new RoutingSetup(destination));
 	            //ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
 			}
 		});
+		final Button b = (Button) findViewById(R.id.favourite);
+		View.OnClickListener buttonAction = new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(((Button)v.findViewById(R.id.favourite)).getText().equals(OpenGLActivity.this.getResources().getString(R.string.remove))){
+					removeFromJson(name);
+					ARData.resetMarkers();
+					LocalDataSource l = new LocalDataSource(OpenGLActivity.this.getResources());
+					ARData.addMarkers(l.getMarkers());
+					b.setText(OpenGLActivity.this.getResources().getString(R.string.add));
+				}else{
+					appendToJson(destination,name,imgRef);
+					ARData.resetMarkers();
+					LocalDataSource l = new LocalDataSource(OpenGLActivity.this.getResources());
+					ARData.addMarkers(l.getMarkers());
+					b.setText(OpenGLActivity.this.getResources().getString(R.string.remove));
+				}
+			}
+		};
+		if(checkExists(this.name)){
+			b.setText(this.getResources().getString(R.string.remove));
+		} else{
+			b.setText(this.getResources().getString(R.string.add));
+		}
+		b.setOnClickListener(buttonAction);
 		((Button) findViewById(R.id.back)).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -116,5 +156,241 @@ public class OpenGLActivity extends Activity{
 	    protected void onPostExecute(Bitmap result) {
 	        bmImage.setImageBitmap(result);
 	    }
+	}
+	
+	//append new favourite destination to JSON file
+	/* JSON format:
+		{
+			"data":
+			[
+				{
+					"name" : "location_name"
+					"destination":
+					{
+						"x" : (float)lat
+						"y" : (float)lon
+						"z" : (float)alt
+					}
+					"imgRef" : "image_reference"
+				}...
+			]
+		}
+				
+	
+	*/
+	public static void appendToJson(float[] destination,String name,String imgRef){       
+       File jsonFile = new File("sdcard/localData.json");
+       String jsonStr = null;
+       if (!jsonFile.exists())
+       {
+          try
+          {
+        	  jsonFile.createNewFile();
+          } 
+          catch (IOException e)
+          {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+          }
+       }else{
+    	   FileInputStream in = null;
+	       try{
+	    	   // read exist json string
+	    	   in = new FileInputStream(jsonFile);
+	    	   FileChannel fc = in.getChannel();
+               MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+               jsonStr = Charset.defaultCharset().decode(bb).toString();
+	       }catch(Exception e){
+	    	   e.printStackTrace();
+	       }finally{
+	    	  try {
+	    		   in.close();
+	    	  } catch (IOException e) {
+					e.printStackTrace();
+	    	  }
+	       }
+       }
+		try
+		{
+			JSONObject root = new JSONObject();
+			if(jsonStr!=null){
+				try {
+					root = new JSONObject(jsonStr);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			JSONArray a = null;
+			try {
+				try{
+					a = root.getJSONArray("data");
+				} catch(Exception e){
+					a = new JSONArray();
+				}
+				JSONObject obj = new JSONObject();
+				obj.put("name", name);
+				JSONObject dest = new JSONObject();
+				dest.put("x", destination[0]);
+				dest.put("y", destination[1]);
+				dest.put("z", destination[2]);
+				obj.put("destination",dest);
+				obj.put("imgRef", imgRef);
+				a.put(obj);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if(a!=null){
+				root = new JSONObject();
+				root.put("data",a);
+			}
+			try{
+				FileWriter out = new FileWriter(jsonFile,false);
+				out.write(root.toString());
+				out.flush();
+				out.close();
+			}catch(IOException ex){
+				ex.printStackTrace();
+			}
+		}
+       catch (Exception e)
+       {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
+    }
+	
+	//check if destination exists in data file already
+	public static boolean checkExists(String name){
+	       File jsonFile = new File("sdcard/localData.json");
+	       String jsonStr = null;
+	       if (!jsonFile.exists())
+	       {
+	          return false;
+	       }else{
+	    	   FileInputStream in = null;
+		       try{
+		    	   // read exist json string
+		    	   in = new FileInputStream(jsonFile);
+		    	   FileChannel fc = in.getChannel();
+	               MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+	               jsonStr = Charset.defaultCharset().decode(bb).toString();
+		       }catch(Exception e){
+		    	   e.printStackTrace();
+		    	   return false;
+		       }finally{
+		    	  try {
+		    		   in.close();		    		   
+		    	  } catch (IOException e) {
+						e.printStackTrace();
+						return false;
+		    	  }
+		       }
+	       }
+	       try
+			{
+	    	   
+				if(jsonStr==null) return false;
+				JSONObject root=null;
+				try {
+					root = new JSONObject(jsonStr);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				try {
+					JSONArray a = root.getJSONArray("data");
+					for(int i = 0;i<a.length();i++){
+						if(a.getJSONObject(i).getString("name").equals(name))
+							return true;
+					}
+					return false;
+				} catch (JSONException e) {
+					e.printStackTrace();
+					return false;
+				}
+				
+			}
+	       catch (Exception e)
+	       {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+	          return false;
+	       }
+	}
+	
+	//check if destination exists in data file already
+	public static void removeFromJson(String name){       
+	       File jsonFile = new File("sdcard/localData.json");
+	       String jsonStr = null;
+	       if (!jsonFile.exists())
+	       {
+	          return;
+	       }else{
+	    	   FileInputStream in = null;
+		       try{
+		    	   // read exist json string
+		    	   in = new FileInputStream(jsonFile);
+		    	   FileChannel fc = in.getChannel();
+	               MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+	               jsonStr = Charset.defaultCharset().decode(bb).toString();
+		       }catch(Exception e){
+		    	   e.printStackTrace();
+		    	   return;
+		       }finally{
+		    	  try {
+		    		   in.close();
+		    	  } catch (IOException e) {
+						e.printStackTrace();
+						return;
+		    	  }
+		       }
+	       }
+	       try
+			{
+	    	   
+				if(jsonStr==null) return;
+				JSONObject root=null;
+				try {
+					root = new JSONObject(jsonStr);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				JSONArray a = null;
+				try {
+					try{
+						a = root.getJSONArray("data");
+					} catch(Exception e){
+						return;
+					}
+					JSONArray temp = new JSONArray();
+					int i;
+					for(i = 0;i<a.length();i++){
+						if(!a.getJSONObject(i).getString("name").equals(name))
+							temp.put(a.getJSONObject(i));
+					}
+					a = temp;
+				} catch (JSONException e) {
+					e.printStackTrace();
+					return;
+				}
+				
+				if(a!=null){
+					root = new JSONObject();
+					root.put("data",a);
+				}
+				try{
+					FileWriter out = new FileWriter(jsonFile,false);
+					out.write(root.toString());
+					out.flush();
+					out.close();
+				}catch(IOException ex){
+					ex.printStackTrace();
+				}				
+			}
+	       catch (Exception e)
+	       {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+	          return;
+	       }
 	}
 }

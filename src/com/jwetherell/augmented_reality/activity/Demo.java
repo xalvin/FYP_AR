@@ -96,8 +96,7 @@ public class Demo extends AugmentedReality {
         // Local
         
         	//local data source (user added)
-        localData = new LocalDataSource(this.getResources());
-        ARData.addMarkers(localData.getMarkers());
+        
         	
         	// network data sources (search by google)
         /*
@@ -108,8 +107,7 @@ public class Demo extends AugmentedReality {
         sources.put("googlePlaces", googlePlaces);
         */
         
-        NetworkDataSource travel = new TravelDataSource(this.getResources());
-        sources.put("travel", travel);
+        
         /**/
     }
 
@@ -166,6 +164,11 @@ public class Demo extends AugmentedReality {
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+        localData = new LocalDataSource(this.getResources());
+        ARData.addMarkers(localData.getMarkers());
+        
+        NetworkDataSource travel = new TravelDataSource(this.getResources());
+        sources.put("travel", travel);        
     }
 
     /**
@@ -303,6 +306,7 @@ public class Demo extends AugmentedReality {
 	            i.setClass(this,OpenGLActivity.class);
 	            i.putExtras(bundle);
 	            startActivity(i);
+	            
 		//	}
     	//});
     	//builder.setNegativeButton("cancel",null);

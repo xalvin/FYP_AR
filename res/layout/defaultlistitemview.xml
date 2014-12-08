@@ -60,6 +60,26 @@
 	            android:layout_height="wrap_content"
 	            android:text="@string/routeMeThere" />
 
+	    </TableRow>
+
+	    <TableRow
+	        android:id="@+id/tableRow6"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" >
+
+	        <Button
+	            android:id="@+id/favourite"
+	            style="?android:attr/buttonStyleSmall"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" />
+
+	    </TableRow>
+
+	    <TableRow
+	        android:id="@+id/tableRow5"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" >
+
 	        <Button
 	            android:id="@+id/back"
 	            style="?android:attr/buttonStyleSmall"
@@ -68,6 +88,7 @@
 	            android:text="@string/back" />
 
 	    </TableRow>
+
 	</TableLayout>
 
 </RelativeLayout>
