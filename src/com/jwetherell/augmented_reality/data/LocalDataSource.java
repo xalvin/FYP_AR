@@ -103,7 +103,7 @@ public class LocalDataSource extends DataSource {
 				for(int i = 0;i<a.length();i++){
 					JSONObject obj = a.getJSONObject(i);
 					JSONObject dest = obj.getJSONObject("destination");
-					Marker temp = new Marker(obj.getString("name"), dest.getDouble("x"),dest.getDouble("y"),dest.getDouble("z"),Color.YELLOW);
+					Marker temp = new Marker(obj.getString("name"), dest.getDouble("x"),dest.getDouble("y"),dest.getDouble("z"),Color.YELLOW,obj.getString("imgRef"));
 					cachedMarkers.add(temp);
 				}
 			} catch(Exception e){

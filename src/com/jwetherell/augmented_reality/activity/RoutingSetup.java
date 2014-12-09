@@ -62,6 +62,7 @@ public class RoutingSetup extends Setup {
 	private final ActionCalcRelativePos gpsAction;
 	private float[] current;
 	private float[] destination;
+	private String JSONStr;
 	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
@@ -101,49 +102,9 @@ public class RoutingSetup extends Setup {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
-		GeoObj c = EventManager.getInstance().getCurrentLocationObject();
-		this.current = new float[] {(float) c.getLatitude(),(float) c.getLongitude(),(float) c.getAltitude()};
 		this.destination = destination;
 		steps = null;
-		String JSONStr = null;
-		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
-		try {
-			InputStream stream = (new URL(url)).openConnection().getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
-	        StringBuilder sb = new StringBuilder();
-
-	        try {
-	            String line;
-	            while ((line = reader.readLine()) != null) {
-	                sb.append(line + "\n");
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        } finally {
-	            try {
-	                stream.close();
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	        JSONStr = sb.toString();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(JSONStr == null) throw new NullPointerException();
-		JSONObject json = null;
-		try {
-			json = new JSONObject(JSONStr);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		if (json == null) throw new NullPointerException();
-		steps=parse(json);
-				
+		JSONStr = null;						
 	}
 	
 	public ArrayList<GeoObj> parse(JSONObject root) {
@@ -211,6 +172,46 @@ public class RoutingSetup extends Setup {
 		spawnObj(posD, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posE, GLFactory.getInstance().newCircle(Color.blue()));
 */
+		//find steps on google
+		this.current = new float[] {(float) currentPosition.getLatitude(),(float) currentPosition.getLongitude(),(float) currentPosition.getAltitude()};
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
+		try {
+			InputStream stream = (new URL(url)).openConnection().getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
+	        StringBuilder sb = new StringBuilder();
+
+	        try {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                sb.append(line + "\n");
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            try {
+	                stream.close();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        JSONStr = sb.toString();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//process JSONObject
+		JSONObject json = null;
+		try {
+			json = new JSONObject(JSONStr);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		if (json == null) throw new NullPointerException();
+		steps=parse(json);
+		//add points to world
 		try{
 			for(int i =1;i<steps.size();i++){
 				spawnObj(steps.get(i),GLFactory.getInstance().newDiamond(Color.greenTransparent()));
