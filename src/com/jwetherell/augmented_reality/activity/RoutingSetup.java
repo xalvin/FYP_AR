@@ -101,7 +101,7 @@ public class RoutingSetup extends Setup {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
-		GeoObj c = new GeoObj(ARData.getCurrentLocation());
+		GeoObj c = EventManager.getInstance().getCurrentLocationObject();
 		this.current = new float[] {(float) c.getLatitude(),(float) c.getLongitude(),(float) c.getAltitude()};
 		this.destination = destination;
 		steps = null;
