@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.ui.IconMarker;
 import com.jwetherell.augmented_reality.ui.Marker;
 
@@ -100,10 +101,8 @@ public class RoutingSetup extends Setup {
 		camera = new GLCamera();
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
-		GeoObj c = EventManager.getInstance()
-				.getCurrentLocationObject();
-		float[] t = {(float) c.getLatitude(),(float) c.getLongitude(),(float) c.getAltitude()};
-		this.current = t;
+		GeoObj c = new GeoObj(ARData.getCurrentLocation());
+		this.current = new float[] {(float) c.getLatitude(),(float) c.getLongitude(),(float) c.getAltitude()};
 		this.destination = destination;
 		steps = null;
 		String JSONStr = null;
@@ -144,9 +143,7 @@ public class RoutingSetup extends Setup {
 		}
 		if (json == null) throw new NullPointerException();
 		steps=parse(json);
-		if(steps==null){
-			CommandShowToast.show(myTargetActivity,"no route found");
-		}			
+				
 	}
 	
 	public ArrayList<GeoObj> parse(JSONObject root) {
@@ -214,10 +211,14 @@ public class RoutingSetup extends Setup {
 		spawnObj(posD, GLFactory.getInstance().newCircle(Color.green()));
 		spawnObj(posE, GLFactory.getInstance().newCircle(Color.blue()));
 */
-		for(int i =1;i<steps.size();i++){
-			spawnObj(steps.get(i),GLFactory.getInstance().newDiamond(Color.greenTransparent()));
+		try{
+			for(int i =1;i<steps.size();i++){
+				spawnObj(steps.get(i),GLFactory.getInstance().newDiamond(Color.greenTransparent()));
+			}
+			renderer.addRenderElement(world);
+		}catch(Exception ex){
+			CommandShowToast.show(myTargetActivity,"no route found");
 		}
-		renderer.addRenderElement(world);
 	}
 
 	@Override
@@ -291,7 +292,7 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
 		addGpsPosOutputButtons(guiSetup);
-
+		try{
 		for (int i =1; i < steps.size(); i++){
 			MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
 			Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
@@ -300,6 +301,9 @@ public class RoutingSetup extends Setup {
 					+ x.getMySurroundGroup().getPosition());
 			*/
 			world.add(x);
+		}
+		}catch(NullPointerException npe){
+			CommandShowToast.show(myTargetActivity,"no route found");
 		}
 	}
 
