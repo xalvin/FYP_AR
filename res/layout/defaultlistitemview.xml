@@ -1,94 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
-<RelativeLayout android:id="@+id/RelativeLayout01"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="18dp"
+        android:layout_marginTop="42dp" >
 
-	<TableLayout
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentTop="true"
-	    android:layout_marginLeft="18dp"
-	    android:layout_marginTop="42dp" >
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-	    <TableRow
-	        android:id="@+id/tableRow1"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
+            <ImageButton
+                android:id="@+id/routeMeThere"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/route"
+                android:paddingRight="5dp" />
+        </TableRow>
 
-	        <ImageView
-	            android:id="@+id/markerImg"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content" />
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_marginTop="15dp">
 
-	    </TableRow>
+            <ImageButton
+                android:id="@+id/addFavourite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/add"
+                android:paddingRight="5dp" />
 
-	    <TableRow
-	        android:id="@+id/tableRow2"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
+            <ImageButton
+                android:id="@+id/removeFavourite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/remove"
+                android:paddingRight="5dp" />
+        </TableRow>
 
-	        <TextView
-	            android:id="@+id/markerName"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content" />
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_marginTop="15dp">
 
-	    </TableRow>
+            <ImageButton
+                android:id="@+id/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/back"
+                android:paddingRight="5dp" />
 
-	    <TableRow
-	        android:id="@+id/tableRow4"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
+        </TableRow>
 
-	        <TextView
-	            android:id="@+id/location"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content" />
+    </TableLayout>
 
-	    </TableRow>
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tableLayout1"
+        android:layout_toRightOf="@+id/tableLayout1"
+        android:layout_marginLeft="18dp" >
 
-	    <TableRow
-	        android:id="@+id/tableRow3"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-	        <Button
-	            android:id="@+id/routeMeThere"
-	            style="?android:attr/buttonStyleSmall"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/routeMeThere" />
+            <ImageView
+                android:id="@+id/markerImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </TableRow>
 
-	    </TableRow>
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_marginTop="10dp">
 
-	    <TableRow
-	        android:id="@+id/tableRow6"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
-
-	        <Button
-	            android:id="@+id/favourite"
-	            style="?android:attr/buttonStyleSmall"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content" />
-
-	    </TableRow>
-
-	    <TableRow
-	        android:id="@+id/tableRow5"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" >
-
-	        <Button
-	            android:id="@+id/back"
-	            style="?android:attr/buttonStyleSmall"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/back" />
-
-	    </TableRow>
-
-	</TableLayout>
+            <TextView
+                android:id="@+id/markerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </TableRow>
+    </TableLayout>
 
 </RelativeLayout>

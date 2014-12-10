@@ -29,6 +29,7 @@ import de.rwth.setups.PositionTestsSetup;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -36,6 +37,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +45,7 @@ public class OpenGLActivity extends Activity{
 	private float[] destination;
 	private String name;
 	private String imgRef;
+	private boolean dirtyBit;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,6 +68,7 @@ public class OpenGLActivity extends Activity{
 		} catch(NullPointerException npe){
 			npe.printStackTrace();
 		}
+		dirtyBit=false;
 		
 		setContentView(R.layout.defaultlistitemview);
 		if (destination == null) throw new NullPointerException("destination location cannot be loaded");
@@ -79,8 +83,8 @@ public class OpenGLActivity extends Activity{
 			e.printStackTrace();
 		}
 		((TextView) findViewById(R.id.markerName)).setText(this.name);
-		((TextView) findViewById(R.id.location)).setText("destination: x "+destination[0]+"\n\t\t\ty "+destination[1]+"\n\t\t\tz "+destination[2]);
-		((Button) findViewById(R.id.routeMeThere)).setOnClickListener(new View.OnClickListener() {
+		//((TextView) findViewById(R.id.location)).setText("destination: x "+destination[0]+"\n\t\t\ty "+destination[1]+"\n\t\t\tz "+destination[2]);
+		((ImageButton) findViewById(R.id.routeMeThere)).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -91,43 +95,53 @@ public class OpenGLActivity extends Activity{
 	            bundle.putFloatArray("current", current);
 	            */
 	            Activity theCurrentActivity = OpenGLActivity.this;
-				ArActivity.startWithSetup(theCurrentActivity,
+				RoutingActivity.startWithSetup(theCurrentActivity,
 						new RoutingSetup(destination));
 	            //ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);
 			}
 		});
-		final Button b = (Button) findViewById(R.id.favourite);
-		View.OnClickListener buttonAction = new View.OnClickListener() {
+		final ImageButton add = (ImageButton) findViewById(R.id.addFavourite);
+		final ImageButton remove = (ImageButton) findViewById(R.id.removeFavourite);
+		remove.setOnClickListener(new View.OnClickListener(){
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if(((Button)v.findViewById(R.id.favourite)).getText().equals(OpenGLActivity.this.getResources().getString(R.string.remove))){
 					removeFromJson(name);
-					ARData.resetMarkers();
-					LocalDataSource l = new LocalDataSource(OpenGLActivity.this.getResources());
-					ARData.addMarkers(l.getMarkers());
-					b.setText(OpenGLActivity.this.getResources().getString(R.string.add));
-				}else{
-					appendToJson(destination,name,imgRef);
-					ARData.resetMarkers();
-					LocalDataSource l = new LocalDataSource(OpenGLActivity.this.getResources());
-					ARData.addMarkers(l.getMarkers());
-					b.setText(OpenGLActivity.this.getResources().getString(R.string.remove));
-				}
+					add.setVisibility(ImageButton.VISIBLE);
+					remove.setVisibility(ImageButton.GONE);
+					dirtyBit=true;
 			}
-		};
-		if(checkExists(this.name)){
-			b.setText(this.getResources().getString(R.string.remove));
-		} else{
-			b.setText(this.getResources().getString(R.string.add));
-		}
-		b.setOnClickListener(buttonAction);
-		((Button) findViewById(R.id.back)).setOnClickListener(new View.OnClickListener() {
+		});
+		add.setOnClickListener(new View.OnClickListener(){
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+					appendToJson(destination,name,imgRef);
+					remove.setVisibility(ImageButton.VISIBLE);
+					add.setVisibility(ImageButton.GONE);
+					dirtyBit=true;
+			}
+		});
+		
+		if(checkExists(this.name)){
+			remove.setVisibility(ImageButton.VISIBLE);
+			add.setVisibility(ImageButton.GONE);
+		} else{
+			add.setVisibility(ImageButton.VISIBLE);
+			remove.setVisibility(ImageButton.GONE);
+		}
+		((ImageButton) findViewById(R.id.back)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent i=new Intent();
+				Bundle b=new Bundle();
+				b.putBoolean("dirtyBit", dirtyBit);
+				i.putExtras(b);
+				setResult(RESULT_OK,i);
 				finish();
 			}
 		});
@@ -392,5 +406,14 @@ public class OpenGLActivity extends Activity{
 	          e.printStackTrace();
 	          return;
 	       }
+	}
+	
+	public void finish(){
+		Intent i=new Intent();
+		Bundle b=new Bundle();
+		b.putBoolean("dirtyBit", dirtyBit);
+		i.putExtras(b);
+		setResult(RESULT_OK,i);
+		super.finish();
 	}
 }

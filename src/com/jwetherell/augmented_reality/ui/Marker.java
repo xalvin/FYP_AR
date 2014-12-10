@@ -56,18 +56,18 @@ public class Marker implements Comparable<Marker> {
 
     // Container for text
     protected PaintableBoxedText textBox = null;
-    private PaintablePosition textContainer = null;
+    protected PaintablePosition textContainer = null;
 
     // Unique identifier of Marker
-    private String name = null;
+    protected String name = null;
     // Marker's physical location (Lat, Lon, Alt)
     private final PhysicalLocation physicalLocation = new PhysicalLocation();
     // Distance from camera to PhysicalLocation in meters
     private double distance = 0.0;
     // Is within the radar
-    private boolean isOnRadar = false;
+    protected boolean isOnRadar = false;
     // Is in the camera's view
-    private boolean isInView = false;
+    protected boolean isInView = false;
     // Physical location's X, Y, Z relative to the camera's location
     private final Vector locationXyzRelativeToPhysicalLocation = new Vector();
     // Marker's default color
@@ -76,7 +76,7 @@ public class Marker implements Comparable<Marker> {
     private boolean noAltitude = false;
 
     // Used to show exact GPS position
-    private static boolean debugGpsPosition = false;
+    private static boolean debugGpsPosition = true;
     private PaintablePoint positionPoint = null;
     private PaintablePosition positionContainer = null;
     

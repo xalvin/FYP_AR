@@ -49,6 +49,7 @@ import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
 import com.jwetherell.augmented_reality.ui.Marker;
+import com.jwetherell.augmented_reality.ui.MarkerInfo;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
 
@@ -63,10 +64,11 @@ public class Demo extends AugmentedReality {
     private static final String TAG = "Demo";
     private static final String locale = Locale.getDefault().getLanguage();
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(1);
-    private static final ThreadPoolExecutor exeService = new ThreadPoolExecutor(1, 1, 20, TimeUnit.SECONDS, queue);
+    private static final ThreadPoolExecutor exeService = new ThreadPoolExecutor(1, 4, 20, TimeUnit.SECONDS, queue);
     private static final Map<String, NetworkDataSource> sources = new ConcurrentHashMap<String, NetworkDataSource>();
     private static final int MIN_TIME = 30000 * 1000;
     private static final int MIN_DISTANCE = 100;
+    private static final int CONTROL=1;
     
     private static LocalDataSource localData = null;
     private static Toast myToast = null;
@@ -107,7 +109,11 @@ public class Demo extends AugmentedReality {
         sources.put("googlePlaces", googlePlaces);
         */
         
+        localData = new LocalDataSource(this.getResources());
+        ARData.addMarkers(localData.getMarkers());
         
+        NetworkDataSource travel = new TravelDataSource(this.getResources());
+        sources.put("travel", travel);      
         /**/
     }
 
@@ -164,11 +170,7 @@ public class Demo extends AugmentedReality {
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
-        localData = new LocalDataSource(this.getResources());
-        ARData.addMarkers(localData.getMarkers());
-        
-        NetworkDataSource travel = new TravelDataSource(this.getResources());
-        sources.put("travel", travel);        
+          
     }
 
     /**
@@ -282,42 +284,48 @@ public class Demo extends AugmentedReality {
      */
     @Override
     protected void markerTouched(final Marker marker) {
-    	//AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	//builder.setMessage(marker.getName());
-    	//builder.setPositiveButton("Route me", new DialogInterface.OnClickListener() {
-		//	public void onClick(DialogInterface dialog, int id) {
-				Vector dest = marker.getPhysicalLocation();
-		    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
-		    	Location last = ARData.getCurrentLocation();
-		    	final float[] current = {(float)last.getLatitude(),(float)last.getLongitude(),(float)last.getAltitude()};
-		    	String name = marker.getName();
-		    	String imgRef = marker.getImgReference();
-	            Bundle bundle = new Bundle();
-	            bundle.putFloatArray("destination", destination);
-	            bundle.putFloatArray("current", current);
-	            bundle.putString("name", name);
-	            bundle.putString("imgRef", imgRef);
-	            /*
-	            Activity theCurrentActivity = Demo.this;
-				ARActivityPlusMaps.startWithSetup(theCurrentActivity,
-						new de2.rwth2.setups2.ARNavigatorSetup(),bundle);
-				*/
-	            Intent i = new Intent();
-	            i.setClass(this,OpenGLActivity.class);
-	            i.putExtras(bundle);
-	            startActivity(i);
-	            
-		//	}
-    	//});
-    	//builder.setNegativeButton("cancel",null);
-    	//AlertDialog alert = builder.create();  
-		//alert.show();
+
+		Vector dest = marker.getPhysicalLocation();
+    	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
+    	String name = marker.getName();
+    	String imgRef = marker.getImgReference();
+        Bundle bundle = new Bundle();
+        bundle.putFloatArray("destination", destination);
+        bundle.putString("name", name);
+        bundle.putString("imgRef", imgRef);
+        Intent i = new Intent();
+        i.setClass(this,OpenGLActivity.class);
+        i.putExtras(bundle);
+        startActivityForResult(i,CONTROL);
+
+    	/*
+    	Vector dest = marker.getPhysicalLocation();
+    	MarkerInfo mi = new MarkerInfo(marker.getName(),dest.getX(),dest.getY(),dest.getZ(), marker.getColor(),marker.getImgReference() , this.getResources());
+    	ARData.addMarkers(mi);
+    	*/
     	/*
         text.setText(marker.getName());
         myToast.show();
         */
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+	    switch(requestCode){
+	    	case CONTROL:
+	    		
+			    if(data.getExtras().getBoolean("dirtyBit")){
+				    ARData.resetMarkers();
+				    localData = new LocalDataSource(this.getResources());
+					ARData.addMarkers(localData.getMarkers());
+			    }
+				Location last = ARData.getCurrentLocation();
+				updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+				break;
+	    }
+	}
+    
     /**
      * {@inheritDoc}
      */
@@ -330,6 +338,7 @@ public class Demo extends AugmentedReality {
 
     private void updateData(final double lat, final double lon, final double alt) {
         try {
+        	Log.i(TAG, "try download.");
             exeService.execute(new Runnable() {
                 @Override
                 public void run() {

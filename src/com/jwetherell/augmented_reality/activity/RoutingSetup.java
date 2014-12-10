@@ -16,17 +16,15 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jwetherell.augmented_reality.data.ARData;
-import com.jwetherell.augmented_reality.ui.IconMarker;
-import com.jwetherell.augmented_reality.ui.Marker;
+import com.google.android.maps.MapActivity;
 
 import geo.Edge;
+import geo.GeoGraph;
 import geo.GeoObj;
 import gl.Color;
 import gl.CustomGLSurfaceView;
@@ -37,19 +35,17 @@ import gl.scenegraph.MeshComponent;
 import gui.GuiSetup;
 import system.EventManager;
 import system.Setup;
+import util.IO;
 import util.Vec;
 import worldData.SystemUpdater;
 import worldData.World;
 import actions.ActionCalcRelativePos;
-import actions.ActionMoveCameraBuffered;
 import actions.ActionRotateCameraBuffered;
-import android.R;
 import android.app.Activity;
 import android.location.Location;
 import android.util.Log;
 
 import commands.Command;
-import commands.DebugCommandPositionEvent;
 import commands.ui.CommandInUiThread;
 import commands.ui.CommandShowToast;
 
@@ -213,8 +209,21 @@ public class RoutingSetup extends Setup {
 		steps=parse(json);
 		//add points to world
 		try{
-			for(int i =1;i<steps.size();i++){
-				spawnObj(steps.get(i),GLFactory.getInstance().newDiamond(Color.greenTransparent()));
+			int i;
+			for(i =1;i<steps.size();i++){
+				MeshComponent diamond = GLFactory.getInstance().newDiamond(Color.greenTransparent());
+				final String text = "point number "+i;
+				diamond.setOnClickCommand(new Command(){
+
+					@Override
+					public boolean execute() {
+						// TODO Auto-generated method stub
+						CommandShowToast.show(myTargetActivity,text);
+						return true;
+					}
+					
+				});
+				spawnObj(steps.get(i),diamond);
 			}
 			renderer.addRenderElement(world);
 		}catch(Exception ex){
@@ -292,10 +301,38 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posD, "Spawn at posD", guiSetup);
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
+
+		final GMap map = GMap.newDefaultGMap((MapActivity) myTargetActivity,
+				"0l4sCTTyRmXTNo7k8DREHvEaLar2UmHGwnhZVHQ");
+		GeoGraph gg = new GeoGraph();
+		try{
+			for(int i =0;i<steps.size();i++){
+				gg.add(steps.get(i));
+			}
+			map.addOverlay(new CustomItemizedOverlay(gg,IO
+					.loadDrawableFromId(getActivity(),
+							de.rwth.R.drawable.mapdotgreen)));
+		}catch(Exception ex){
+			//CommandShowToast.show(myTargetActivity,"no route found");
+		}
+		
+		guiSetup.addViewToBottomRight(map, 0.5f, 200);
+		
 		addGpsPosOutputButtons(guiSetup);
 		try{
 		for (int i =1; i < steps.size(); i++){
+			final String text = "connection on point "+(i-1)+" to point "+i;
 			MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
+			mesh.setOnClickCommand(new Command(){
+
+					@Override
+					public boolean execute() {
+						// TODO Auto-generated method stub
+						CommandShowToast.show(myTargetActivity,text);
+						return true;
+					}
+					
+				});
 			Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
 			/*
 			CommandShowToast.show(myTargetActivity, "Object spawned at "
