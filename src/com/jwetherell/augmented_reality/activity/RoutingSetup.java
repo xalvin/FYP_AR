@@ -21,6 +21,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.maps.MapActivity;
 
 import geo.Edge;
@@ -41,9 +47,12 @@ import worldData.SystemUpdater;
 import worldData.World;
 import actions.ActionCalcRelativePos;
 import actions.ActionRotateCameraBuffered;
+import com.jwetherell.augmented_reality.R;
 import android.app.Activity;
 import android.location.Location;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import commands.Command;
 import commands.ui.CommandInUiThread;
@@ -59,6 +68,7 @@ public class RoutingSetup extends Setup {
 	private float[] current;
 	private float[] destination;
 	private String JSONStr;
+	private OnMapReadyCallback map;
 	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
@@ -100,7 +110,7 @@ public class RoutingSetup extends Setup {
 		gpsAction = new ActionCalcRelativePos(world, camera);
 		this.destination = destination;
 		steps = null;
-		JSONStr = null;						
+		JSONStr = null;
 	}
 	
 	public ArrayList<GeoObj> parse(JSONObject root) {
@@ -170,11 +180,15 @@ public class RoutingSetup extends Setup {
 */
 		//find steps on google
 		this.current = new float[] {(float) currentPosition.getLatitude(),(float) currentPosition.getLongitude(),(float) currentPosition.getAltitude()};
+		//Log.v(TAG,"current : "+currentPosition.getLatitude()+currentPosition.getLongitude()+ currentPosition.getAltitude());
 		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
+		Log.v(TAG,"url : "+url);
 		try {
+			Log.v(TAG,"open InputStream");
 			InputStream stream = (new URL(url)).openConnection().getInputStream();
+			Log.v(TAG,"open buffer reader");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
-	        StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 
 	        try {
 	            String line;
@@ -197,12 +211,14 @@ public class RoutingSetup extends Setup {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 		//process JSONObject
 		JSONObject json = null;
 		try {
 			json = new JSONObject(JSONStr);
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		if (json == null) throw new NullPointerException();
@@ -253,7 +269,7 @@ public class RoutingSetup extends Setup {
 	public void _d_addElementsToUpdateThread(SystemUpdater updater) {
 		updater.addObjectToUpdateCycle(world);
 	}
-
+	
 	@Override
 	public void _e2_addElementsToGuiSetup(GuiSetup guiSetup, Activity activity) {
 /*		guiSetup.setRightViewAllignBottom();
@@ -301,7 +317,8 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posD, "Spawn at posD", guiSetup);
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
-
+		
+/*
 		final GMap map = GMap.newDefaultGMap((MapActivity) myTargetActivity,
 				"0l4sCTTyRmXTNo7k8DREHvEaLar2UmHGwnhZVHQ");
 		GeoGraph gg = new GeoGraph();
@@ -315,10 +332,11 @@ public class RoutingSetup extends Setup {
 		}catch(Exception ex){
 			//CommandShowToast.show(myTargetActivity,"no route found");
 		}
-		
+	
 		guiSetup.addViewToBottomRight(map, 0.5f, 200);
+*/
 		
-		addGpsPosOutputButtons(guiSetup);
+		//addGpsPosOutputButtons(guiSetup);
 		try{
 		for (int i =1; i < steps.size(); i++){
 			final String text = "connection on point "+(i-1)+" to point "+i;
@@ -345,6 +363,44 @@ public class RoutingSetup extends Setup {
 		}
 	}
 
+	@Override
+	public void _e1_addElementsToOverlay(FrameLayout overlayView,
+			Activity activity) {
+		// the main.xml layout is loaded and the guiSetup is created for
+		// customization. then the customized view is added to overlayView
+		View sourceView = View.inflate(activity, R.layout.defaultlayout, null);
+		//guiSetup = new GuiSetup(this, sourceView);
+		map = new MapObject(steps);
+		MapFragment mf = (MapFragment) myTargetActivity.getFragmentManager().findFragmentById(R.id.map);
+		mf.getMapAsync(map);
+		try{
+			for (int i =1; i < steps.size(); i++){
+				final String text = "connection on point "+(i-1)+" to point "+i;
+				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
+				mesh.setOnClickCommand(new Command(){
+
+						@Override
+						public boolean execute() {
+							// TODO Auto-generated method stub
+							CommandShowToast.show(myTargetActivity,text);
+							return true;
+						}
+						
+					});
+				Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
+				/*
+				CommandShowToast.show(myTargetActivity, "Object spawned at "
+						+ x.getMySurroundGroup().getPosition());
+				*/
+				world.add(x);
+			}
+		}catch(NullPointerException npe){
+			CommandShowToast.show(myTargetActivity,"no route found");
+		}
+		addDroidARInfoBox(activity);
+		overlayView.addView(sourceView);
+	}
+	
 	private void addGpsPosOutputButtons(GuiSetup guiSetup) {
 		guiSetup.addButtonToBottomView(new CommandInUiThread() {
 
@@ -440,5 +496,7 @@ public class RoutingSetup extends Setup {
           e.printStackTrace();
        }
     }
+
+
 }
 

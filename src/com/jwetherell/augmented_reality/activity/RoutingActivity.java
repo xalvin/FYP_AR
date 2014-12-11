@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.maps.MapActivity;
 
 
-public class RoutingActivity extends MapActivity{
+public class RoutingActivity extends Activity{
 	
 	private static final String LOG_TAG = "RoutingActivity";
 	
@@ -85,11 +87,7 @@ public class RoutingActivity extends MapActivity{
 			mySetupToUse.onPause(this);
 		super.onPause();
 	}
-	
-	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return isRouteDisplayed;
-	}
+
+
 
 }
