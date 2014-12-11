@@ -5,12 +5,15 @@ import system.Setup;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import com.google.android.maps.MapActivity;
 
-
-public class RoutingActivity extends MapActivity{
+public class RoutingActivity extends FragmentActivity{
 	
 	private static final String LOG_TAG = "RoutingActivity";
 	
@@ -19,7 +22,7 @@ public class RoutingActivity extends MapActivity{
 	private Setup mySetupToUse;
 
 	private boolean isRouteDisplayed;
-	
+	 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (setupToUse != null) {
@@ -84,12 +87,6 @@ public class RoutingActivity extends MapActivity{
 		if (mySetupToUse != null)
 			mySetupToUse.onPause(this);
 		super.onPause();
-	}
-	
-	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return isRouteDisplayed;
 	}
 
 }

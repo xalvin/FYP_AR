@@ -21,7 +21,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.maps.MapActivity;
+import com.jwetherell.augmented_reality.R;
 
 import geo.Edge;
 import geo.GeoGraph;
@@ -43,7 +46,11 @@ import actions.ActionCalcRelativePos;
 import actions.ActionRotateCameraBuffered;
 import android.app.Activity;
 import android.location.Location;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import commands.Command;
 import commands.ui.CommandInUiThread;
@@ -59,6 +66,7 @@ public class RoutingSetup extends Setup {
 	private float[] current;
 	private float[] destination;
 	private String JSONStr;
+	private Fragment map;
 	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
@@ -301,7 +309,7 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posD, "Spawn at posD", guiSetup);
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
-
+/*
 		final GMap map = GMap.newDefaultGMap((MapActivity) myTargetActivity,
 				"0l4sCTTyRmXTNo7k8DREHvEaLar2UmHGwnhZVHQ");
 		GeoGraph gg = new GeoGraph();
@@ -317,8 +325,18 @@ public class RoutingSetup extends Setup {
 		}
 		
 		guiSetup.addViewToBottomRight(map, 0.5f, 200);
-		
-		addGpsPosOutputButtons(guiSetup);
+*/
+		//addGpsPosOutputButtons(guiSetup);
+		/*
+		map = new MapObject(steps);
+		map.setArguments(activity.getIntent().getExtras());
+		((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().add(R.id.LinLay_bottomRight,map).commit();
+		for (Fragment f :((FragmentActivity)activity).getSupportFragmentManager().getFragments()){
+			Log.i("RoutingSetup",f.getTag());
+			((MapFragment) f).getMapAsync((OnMapReadyCallback)map);
+		}
+		*/
+		/**/
 		try{
 		for (int i =1; i < steps.size(); i++){
 			final String text = "connection on point "+(i-1)+" to point "+i;
