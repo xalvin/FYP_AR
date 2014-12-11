@@ -18,6 +18,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.ui.IconMarker;
@@ -91,16 +92,23 @@ public class TravelDataSource extends NetworkDataSource {
 
 		InputStream stream = null;
 		stream = getHttpGETInputStream(URL);
-		if (stream == null) throw new NullPointerException();
+		if (stream == null) {
+			Log.e("TravelDataSource","no input stream received from network");
+			throw new NullPointerException();
+		}
 
 		String string = null;
 		string = getHttpInputString(stream);
-		if (string == null) throw new NullPointerException();
+		if (string == null){
+			Log.e("TravelDataSource","no string received from network");
+			throw new NullPointerException();
+		}
 
 		JSONObject json = null;
 		try {
 			json = new JSONObject(string);
 		} catch (JSONException e) {
+			Log.e("TravelDataSource","json object creation error");
 			e.printStackTrace();
 		}
 		if (json == null) throw new NullPointerException();
@@ -118,15 +126,24 @@ public class TravelDataSource extends NetworkDataSource {
 
 		try {
 			if (root.has("results")) dataArray = root.getJSONArray("results");
-			if (dataArray == null) return markers;
+			if (dataArray == null) {
+				Log.e("TravelDataSource","empty data source");
+				return markers;
+			}
 			int top = Math.min(MAX, dataArray.length());
 			for (int i = 0; i < top; i++) {
+				Log.v("TravelDataSource","creating json object"+ i);
 				jo = dataArray.getJSONObject(i);
+				Log.v("TravelDataSource","creating marker"+ i);
 				Marker ma = processJSONObject(jo);
-				if (ma != null) markers.add(ma);
+				if (ma != null) {
+					markers.add(ma);
+				}else{
+					Log.v("TravelDataSource","no marker created, json object no "+ i);
+				}
 			}
 		} catch (JSONException e) {
-			
+			Log.e("TravelDataSource","JSONException thrown");
 			e.printStackTrace();
 		}
 		return markers;
@@ -141,19 +158,33 @@ public class TravelDataSource extends NetworkDataSource {
 		try {
 			String ref = null;
 			if (!jo.isNull("photos")){
-				JSONArray imgReference = jo.getJSONArray("photos");
-				ref = imgReference.getJSONObject(0).getString("photo_reference");				
+				try{
+					JSONArray imgReference = jo.getJSONArray("photos");
+					ref = imgReference.getJSONObject(0).getString("photo_reference");
+				}catch(Exception e){
+					Log.e("TravelDataSource","parse image reference error");
+				}
 			}
 			Double lat = null, lon = null;
 
 			if (!jo.isNull("geometry")) {
-				JSONObject geo = jo.getJSONObject("geometry");
-				JSONObject coordinates = geo.getJSONObject("location");
-				lat = Double.parseDouble(coordinates.getString("lat"));
-				lon = Double.parseDouble(coordinates.getString("lng"));
+				try{
+					JSONObject geo = jo.getJSONObject("geometry");
+					JSONObject coordinates = geo.getJSONObject("location");
+					lat = Double.parseDouble(coordinates.getString("lat"));
+					lon = Double.parseDouble(coordinates.getString("lng"));
+				}catch(Exception e){
+					Log.e("TravelDataSource","parse geometry error");
+				}
 			}
 			if (lat != null) {
-				String user = jo.getString("name");
+				String user=null;
+				try{
+					user = jo.getString("name");
+				}catch(Exception e){
+					Log.e("TravelDataSource","parse name error");
+					user = "";
+				}
 				
 				JSONArray temp = jo.getJSONArray("types");
 				int len = temp.length();
@@ -170,6 +201,7 @@ public class TravelDataSource extends NetworkDataSource {
 				appendLog(log);
 			}
 		} catch (Exception e) {
+			Log.e("TravelDataSource","error in processing JSONObject");
 			e.printStackTrace();
 		}
 		return ma;
