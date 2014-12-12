@@ -14,3 +14,5 @@ project.properties
 *.classpath
 *.properties
 project.properties
+*.classpath
+*.properties

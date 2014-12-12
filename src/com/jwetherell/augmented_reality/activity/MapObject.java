@@ -19,13 +19,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import de.rwth.R;
 
-public class MapObject extends Fragment implements OnMapReadyCallback{
+public class MapObject implements OnMapReadyCallback{
 	private ArrayList<GeoObj> points;
-	
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,  
-            Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.defaultlayout, container, false);
-	}
 	
 	public MapObject(ArrayList<GeoObj> points){
 		this.points= points;
