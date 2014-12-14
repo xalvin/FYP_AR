@@ -1,19 +1,21 @@
 package com.jwetherell.augmented_reality.activity;
 
+import com.jwetherell.augmented_reality.data.ARData;
+import com.jwetherell.augmented_reality.data.LocalDataSource;
+
 import system.Setup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 
-public class RoutingActivity extends FragmentActivity{
+public class RoutingActivity extends Activity{
 	
 	private static final String LOG_TAG = "RoutingActivity";
 	
@@ -27,7 +29,6 @@ public class RoutingActivity extends FragmentActivity{
 		super.onCreate(savedInstanceState);
 		if (setupToUse != null) {
 			mySetupToUse = setupToUse;
-			setupToUse = null;
 			runSetup();
 		} else {
 			Log.e(LOG_TAG, "There was no Setup specified to use. "
@@ -89,4 +90,12 @@ public class RoutingActivity extends FragmentActivity{
 		super.onPause();
 	}
 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+	    switch(requestCode){
+	    	case 0:
+	    	runSetup();
+	    }
+	}
+	
 }

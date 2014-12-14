@@ -76,6 +76,17 @@
             
         </activity>
         
+        <activity android:name=".SelfMapActivity"
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:screenOrientation="landscape">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" 
+                    android:screenOrientation="portrait"/>
+            </intent-filter>
+            
+        </activity>
+        
         <activity
             android:name="system.ArActivity"
             android:configChanges="keyboardHidden|orientation"

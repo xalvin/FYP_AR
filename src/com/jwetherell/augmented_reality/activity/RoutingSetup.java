@@ -45,7 +45,9 @@ import worldData.World;
 import actions.ActionCalcRelativePos;
 import actions.ActionRotateCameraBuffered;
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -337,6 +339,25 @@ public class RoutingSetup extends Setup {
 		}
 		*/
 		/**/
+		guiSetup.addButtonToBottomView(new CommandInUiThread() {
+
+			@Override
+			public void executeInUiThread() {
+				Intent i = new Intent();
+				Bundle b = new Bundle();
+				ArrayList<Float> points = new ArrayList<Float>();
+				int size = steps.size();
+				for(int j = 0 ; j<size;j++){
+					GeoObj obj = steps.get(j);
+					points.add((float) obj.getLatitude());
+					points.add((float) obj.getLongitude());
+				}
+				b.putSerializable("point", points);
+				i.putExtras(b);
+				i.setClass(myTargetActivity, SelfMapActivity.class);
+				myTargetActivity.startActivityForResult(i, 0);
+			}
+		}, "Map view");
 		try{
 		for (int i =1; i < steps.size(); i++){
 			final String text = "connection on point "+(i-1)+" to point "+i;
@@ -357,6 +378,7 @@ public class RoutingSetup extends Setup {
 					+ x.getMySurroundGroup().getPosition());
 			*/
 			world.add(x);
+			
 		}
 		}catch(NullPointerException npe){
 			CommandShowToast.show(myTargetActivity,"no route found");
