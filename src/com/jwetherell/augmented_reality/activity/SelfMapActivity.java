@@ -57,7 +57,7 @@ public class SelfMapActivity extends Activity implements OnMapReadyCallback{
 			throw new NullPointerException();
 		}
 		setContentView(R.layout.maplayout);
-		SupportMapFragment smf = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+		MapFragment smf = ((MapFragment) getFragmentManager().findFragmentById(R.id.map));
 		
 		if(smf != null) smf.getMapAsync(this);
 	}
