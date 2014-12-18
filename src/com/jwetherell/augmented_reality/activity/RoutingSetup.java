@@ -52,6 +52,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import commands.Command;
@@ -68,7 +69,7 @@ public class RoutingSetup extends Setup {
 	private float[] current;
 	private float[] destination;
 	private String JSONStr;
-	private Fragment map;
+	//private Fragment map;
 	/*
 	private final GeoObj posA;
 	private final GeoObj posB;
@@ -264,6 +265,22 @@ public class RoutingSetup extends Setup {
 		updater.addObjectToUpdateCycle(world);
 	}
 
+	public void _e1_addElementsToOverlay(FrameLayout overlayView,
+			Activity activity) {
+		// the main.xml layout is loaded and the guiSetup is created for
+		// customization. then the customized view is added to overlayView
+		View sourceView = View.inflate(activity, R.layout.maplayout, null);
+		MapFragment mapFragment = (MapFragment) myTargetActivity.getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(new MapObject(this.steps));
+		guiSetup = new GuiSetup(this, sourceView);
+
+		_e2_addElementsToGuiSetup(getGuiSetup(), activity);
+		//addDroidARInfoBox(activity);
+		overlayView.addView(sourceView);
+		
+	}
+	
 	@Override
 	public void _e2_addElementsToGuiSetup(GuiSetup guiSetup, Activity activity) {
 /*		guiSetup.setRightViewAllignBottom();
@@ -338,7 +355,7 @@ public class RoutingSetup extends Setup {
 			((MapFragment) f).getMapAsync((OnMapReadyCallback)map);
 		}
 		*/
-		/**/
+		/*
 		guiSetup.addButtonToBottomView(new CommandInUiThread() {
 
 			@Override
@@ -358,6 +375,7 @@ public class RoutingSetup extends Setup {
 				myTargetActivity.startActivityForResult(i, 0);
 			}
 		}, "Map view");
+		*/
 		try{
 		for (int i =1; i < steps.size(); i++){
 			final String text = "connection on point "+(i-1)+" to point "+i;
