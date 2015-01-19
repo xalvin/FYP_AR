@@ -80,14 +80,14 @@ public class Marker implements Comparable<Marker> {
     private PaintablePoint positionPoint = null;
     private PaintablePosition positionContainer = null;
     
-    private String imgReference = null;
+    private String imgReferenceWithKey = null;
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
     }
 
-    public Marker(String name, double latitude, double longitude, double altitude, int color, String imgReference) {
-        set(name, latitude, longitude, altitude, color, imgReference);
+    public Marker(String name, double latitude, double longitude, double altitude, int color, String imgReferenceWithKey) {
+        set(name, latitude, longitude, altitude, color, imgReferenceWithKey);
     }
     /**
      * Set the objects parameters. This should be used instead of creating new
@@ -119,7 +119,7 @@ public class Marker implements Comparable<Marker> {
             this.noAltitude = true;
         else
             this.noAltitude = false;
-        this.imgReference=null;
+        this.imgReferenceWithKey=null;
     }
     
     public void set(String name, double latitude, double longitude, double altitude, int color, String imgReference) {
@@ -137,7 +137,7 @@ public class Marker implements Comparable<Marker> {
             this.noAltitude = true;
         else
             this.noAltitude = false;
-        this.imgReference = imgReference;
+        this.imgReferenceWithKey = imgReference;
     }
 
     /**
@@ -150,7 +150,7 @@ public class Marker implements Comparable<Marker> {
     }
 
     public String getImgReference(){
-    	return this.imgReference;
+    	return this.imgReferenceWithKey;
     }
     /**
      * Get the color of this Marker.

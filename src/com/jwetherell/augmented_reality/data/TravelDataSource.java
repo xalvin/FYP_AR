@@ -25,17 +25,17 @@ import com.jwetherell.augmented_reality.ui.IconMarker;
 import com.jwetherell.augmented_reality.ui.Marker;
 
 public class TravelDataSource extends NetworkDataSource {
-	//private static final String URL = "https://maps.googleapis.com/maps/api/place/search/json?";
-	private static final String URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?language=en";
+	private static final String URL = "https://maps.googleapis.com/maps/api/place/search/json?";
+	//private static final String URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?language=en";
 	private static String TYPES = "airport|amusement_park|aquarium|art_gallery|bus_station|campground|car_rental|city_hall|embassy|establishment|hindu_temple|local_governemnt_office|mosque|museum|night_club|park|place_of_worship|police|post_office|stadium|spa|subway_station|synagogue|taxi_stand|train_station|travel_agency|University|zoo";
 
 	//default given all types
 	private String keyword = "";
 	private String customTypes = "";
 	private static String key = null;
-	private static Bitmap amusementPark = null;
+	//private static Bitmap amusementPark = null;
 	private static Bitmap defaultIcon = null;
-	private static Bitmap wikipedia = null;
+	//private static Bitmap wikipedia = null;
 
 	public TravelDataSource(Resources res) {
 		if (res == null) throw new NullPointerException();
@@ -48,9 +48,9 @@ public class TravelDataSource extends NetworkDataSource {
 	protected void createIcon(Resources res) {
 		if (res == null) throw new NullPointerException();
 		
-		amusementPark = BitmapFactory.decodeResource(res, R.drawable.ferriswheel);
+		//amusementPark = BitmapFactory.decodeResource(res, R.drawable.ferriswheel);
 		defaultIcon = BitmapFactory.decodeResource(res, R.drawable.travel);
-		wikipedia = BitmapFactory.decodeResource(res, R.drawable.wikipedia);
+		//wikipedia = BitmapFactory.decodeResource(res, R.drawable.wikipedia);
 	}
 
 	public void setKeyword(String st){
@@ -134,7 +134,7 @@ public class TravelDataSource extends NetworkDataSource {
 			for (int i = 0; i < top; i++) {
 				Log.v("TravelDataSource","creating json object"+ i);
 				jo = dataArray.getJSONObject(i);
-				Log.v("TravelDataSource","creating marker"+ i);
+				//Log.v("TravelDataSource","creating marker"+ i);
 				Marker ma = processJSONObject(jo);
 				if (ma != null) {
 					markers.add(ma);
@@ -151,7 +151,7 @@ public class TravelDataSource extends NetworkDataSource {
 
 	private Marker processJSONObject(JSONObject jo) {
 		if (jo == null) throw new NullPointerException();
-		if (!jo.has("photos")) throw new NullPointerException();
+		//if (!jo.has("photos")) throw new NullPointerException();
 		if (!jo.has("geometry")) throw new NullPointerException();
 
 		Marker ma = null;
@@ -161,6 +161,7 @@ public class TravelDataSource extends NetworkDataSource {
 				try{
 					JSONArray imgReference = jo.getJSONArray("photos");
 					ref = imgReference.getJSONObject(0).getString("photo_reference");
+					Log.v("TravelDataSource","ref "+ref);
 				}catch(Exception e){
 					Log.e("TravelDataSource","parse image reference error");
 				}
@@ -191,13 +192,14 @@ public class TravelDataSource extends NetworkDataSource {
 				String log = "";
 				for(int i=0; i<len;i++){
 					log+= temp.getString(i)+"\n";
-					if(temp.getString(i).equals("amusement_park")){
-						ma = new IconMarker(user, lat, lon, 0, Color.RED, amusementPark,ref);
-						break;
-					}
 				}
-				if (ma==null)
-					ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon,ref);
+				if (ma==null){
+					Log.v("TravelDataSource","creating marker");
+					if(ref!=null)
+						ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon,ref+"&key="+key);
+					else
+						ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon);
+				}
 				appendLog(log);
 			}
 		} catch (Exception e) {

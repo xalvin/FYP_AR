@@ -24,7 +24,7 @@ public class MapObject implements OnMapReadyCallback{
 		int size = points.size();
 		GeoObj start = points.get(0);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-				new LatLng(start.getLatitude(),start.getLongitude()),14));
+				new LatLng(start.getLatitude(),start.getLongitude()),15));
 		PolylineOptions pl = new PolylineOptions().geodesic(true);
 		for(int i =0; i<size;i++){
 			GeoObj obj = points.get(i);
