@@ -54,6 +54,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import commands.Command;
 import commands.ui.CommandInUiThread;
@@ -77,7 +78,8 @@ public class RoutingSetup extends Setup {
 	private final GeoObj posD;
 	private final GeoObj posE;
 	*/
-	private ArrayList<GeoObj> steps;
+	private ArrayList<ArrayList<GeoObj>> steps;
+	private ArrayList<String> instructions;
 	public RoutingSetup() {
 		camera = new GLCamera();
 		world = new World(camera);
@@ -102,7 +104,7 @@ public class RoutingSetup extends Setup {
 		posD = new GeoObj(50.779892, 6.065955);
 		posE = new GeoObj(50.780408, 6.066492);
 		*/
-		steps = new ArrayList<GeoObj>();
+		steps = new ArrayList<ArrayList<GeoObj>>();
 	}
 
 	public RoutingSetup(float[] destination) {
@@ -114,7 +116,7 @@ public class RoutingSetup extends Setup {
 		JSONStr = null;						
 	}
 	
-	public ArrayList<GeoObj> parse(JSONObject root) {
+	public void parse(JSONObject root) {
 		if (root == null) throw new NullPointerException();
 		JSONObject jo = null;
 		JSONArray dataArray = null;
@@ -122,22 +124,32 @@ public class RoutingSetup extends Setup {
 
 		try {
 			if (root.has("routes")) dataArray = root.getJSONArray("routes");
-			if (dataArray == null) return geoObjs;
-			jo = dataArray.getJSONObject(0);
-			geoObjs = processJSONObject(jo);
-			if (geoObjs == null) throw new NullPointerException();
+			if (dataArray == null) {
+				steps=null;
+				return;
+			}
+			int size = dataArray.length();
+			for(int i =0; i<size;i++){
+				jo = dataArray.getJSONObject(i);
+				geoObjs = processJSONGeoObject(jo);
+				//instructions = processJSONInstruction(jo);
+				if (geoObjs == null) throw new NullPointerException();
+				
+				steps.add(geoObjs);
+			}	
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return geoObjs;
+		//steps = geoObjs;
 	}
 
-	private ArrayList<GeoObj> processJSONObject(JSONObject jo) {
+	private ArrayList<GeoObj> processJSONGeoObject(JSONObject jo) {
 		if (jo == null) throw new NullPointerException();
 		if (!jo.has("legs")) return null;
 		JSONArray legsArray = null;
 		
 		ArrayList<GeoObj> result = new ArrayList<GeoObj>();
+		StringBuilder inst = new StringBuilder();
 		try {
 			legsArray = jo.getJSONArray("legs");
 			JSONObject obj = legsArray.getJSONObject(0);
@@ -149,9 +161,11 @@ public class RoutingSetup extends Setup {
 			result.add(new GeoObj(start.getDouble("lat"),start.getDouble("lng")));
 			JSONObject end = first.getJSONObject("end_location");
 			result.add(new GeoObj(end.getDouble("lat"),end.getDouble("lng")));
+			inst.append(first.getString("html_instructions"));
 			for(int i=1; i<len;i++){
 				JSONObject ed = stepsArray.getJSONObject(i).getJSONObject("end_location");
 				result.add(new GeoObj(ed.getDouble("lat"),ed.getDouble("lng")));
+				inst.append(first.getString("html_instructions"));				
 			}
 			if(result.get(0).getLatitude()!=current[0] && result.get(0).getLongitude()!= current[1])
 				result.add(0,new GeoObj(current[0],current[1]));
@@ -160,9 +174,13 @@ public class RoutingSetup extends Setup {
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = null;
+			inst=null;
 		}
+		if (inst!=null)
+			instructions.add(inst.toString());
 		return result;
 	}
+
 	
 	@Override
 	public void _a_initFieldsIfNecessary() {
@@ -217,12 +235,12 @@ public class RoutingSetup extends Setup {
 			e.printStackTrace();
 		}
 		if (json == null) throw new NullPointerException();
-		steps=parse(json);
+		parse(json);
 		//add points to world
 		try{
 			int i;
 			for(i =1;i<steps.size();i++){
-				MeshComponent diamond = GLFactory.getInstance().newDiamond(Color.greenTransparent());
+				MeshComponent diamond = GLFactory.getInstance().newDiamond(null);
 				final String text = "point number "+i;
 				diamond.setOnClickCommand(new Command(){
 
@@ -234,7 +252,10 @@ public class RoutingSetup extends Setup {
 					}
 					
 				});
-				spawnObj(steps.get(i),diamond);
+				for(GeoObj g : steps.get(i)){
+					diamond.setColor(new Color(MapObject.COLORLIST[i]));
+					spawnObj(g,diamond);
+				}
 			}
 			renderer.addRenderElement(world);
 		}catch(Exception ex){
@@ -377,29 +398,83 @@ public class RoutingSetup extends Setup {
 		}, "Map view");
 		*/
 		try{
-		for (int i =1; i < steps.size(); i++){
-			final String text = "connection on point "+(i-1)+" to point "+i;
-			MeshComponent mesh = GLFactory.getInstance().newDirectedPath(steps.get(i-1), steps.get(i), Color.blueTransparent());
-			mesh.setOnClickCommand(new Command(){
-
-					@Override
-					public boolean execute() {
-						// TODO Auto-generated method stub
-						CommandShowToast.show(myTargetActivity,text);
-						return true;
-					}
-					
-				});
-			Edge x = new Edge(steps.get(i-1), steps.get(i),mesh);
-			/*
-			CommandShowToast.show(myTargetActivity, "Object spawned at "
-					+ x.getMySurroundGroup().getPosition());
-			*/
-			world.add(x);
-			
-		}
+			ArrayList<GeoObj> first = steps.get(0);
+			int len = first.size();
+			for(int i=1; i< len;i++){
+				final String text = "connection on point "+(i-1)+" to point "+i;
+				GeoObj pre = first.get(i-1);
+				GeoObj pos = first.get(i);
+				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
+						pre,
+						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
+								pos.getLongitude()*0.001+pre.getLongitude()*0.999),
+								Color.blueTransparent()
+								);
+				mesh.setOnClickCommand(new Command(){
+	
+						@Override
+						public boolean execute() {
+							// TODO Auto-generated method stub
+							CommandShowToast.show(myTargetActivity,text);
+							return true;
+						}
+						
+					});
+				Edge x = new Edge(first.get(i-1), first.get(i),mesh);
+				/*
+				CommandShowToast.show(myTargetActivity, "Object spawned at "
+						+ x.getMySurroundGroup().getPosition());
+				*/
+				world.add(x);
+			}
 		}catch(NullPointerException npe){
 			CommandShowToast.show(myTargetActivity,"no route found");
+		}
+		int len = steps.size();
+		for(int j =0;j<len;j++){
+			final int e = j;
+			guiSetup.addButtonToBottomView(new CommandInUiThread() {
+	
+				@Override
+				public void executeInUiThread() {
+					world.clear();
+					ArrayList<GeoObj> stepList = steps.get(e);
+					int len = stepList.size();
+					for(int i=1; i< len;i++){
+						final String text = "connection on point "+(i-1)+" to point "+i;
+						GeoObj pre = stepList.get(i-1);
+						GeoObj pos = stepList.get(i);
+						MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
+								pre,
+								new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
+										pos.getLongitude()*0.001+pre.getLongitude()*0.999),
+										Color.blueTransparent()
+										);
+						mesh.setOnClickCommand(new Command(){
+			
+								@Override
+								public boolean execute() {
+									// TODO Auto-generated method stub
+									CommandShowToast.show(myTargetActivity,text);
+									return true;
+								}
+								
+							});
+						Edge x = new Edge(
+								pre,
+								new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
+										pos.getLongitude()*0.001+pre.getLongitude()*0.999),
+								mesh
+								);
+						/*
+						CommandShowToast.show(myTargetActivity, "Object spawned at "
+								+ x.getMySurroundGroup().getPosition());
+						*/
+						world.add(x);
+						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(instructions.get(e));
+					}
+				}
+			}, "Route "+e);
 		}
 	}
 

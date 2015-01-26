@@ -34,17 +34,24 @@
 		</ScrollView>
 	</LinearLayout>
 
-	<LinearLayout android:layout_height="fill_parent"
+<LinearLayout android:layout_height="fill_parent"
 		android:layout_alignParentRight="true" android:orientation="vertical"
 		android:layout_above="@+id/LLA_bottom" android:layout_below="@+id/LLA_top"
 		android:layout_width="wrap_content" android:id="@+id/LLA_right">
+
 
 		<ScrollView android:layout_width="wrap_content"
 			android:fadingEdgeLength="30dip" android:layout_height="wrap_content"
 			android:id="@+id/sRight" android:scrollbars="vertical">
 			<LinearLayout android:id="@+id/LinLay_right"
 				android:orientation="vertical" android:layout_width="wrap_content"
-				android:layout_height="wrap_content"></LinearLayout>
+				android:layout_height="wrap_content">		   
+					<TextView
+					    android:id="@+id/instructions"
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:text="" />
+			</LinearLayout>
 		</ScrollView>
 	</LinearLayout>
     
