@@ -46,11 +46,16 @@
 			<LinearLayout android:id="@+id/LinLay_right"
 				android:orientation="vertical" android:layout_width="wrap_content"
 				android:layout_height="wrap_content">		   
+					<ScrollView android:layout_width="200dp"
+			android:fadingEdgeLength="30dip" android:layout_height="0dp" android:layout_weight="1"
+			android:id="@+id/scrollText" android:scrollbars="vertical">
 					<TextView
 					    android:id="@+id/instructions"
-					    android:layout_width="wrap_content"
+					    android:layout_width="200dp"
 					    android:layout_height="wrap_content"
+					    android:layout_gravity="right"
 					    android:text="" />
+					</ScrollView>
 			</LinearLayout>
 		</ScrollView>
 	</LinearLayout>

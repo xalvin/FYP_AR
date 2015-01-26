@@ -50,6 +50,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -105,6 +106,7 @@ public class RoutingSetup extends Setup {
 		posE = new GeoObj(50.780408, 6.066492);
 		*/
 		steps = new ArrayList<ArrayList<GeoObj>>();
+		instructions = new ArrayList<String>();
 	}
 
 	public RoutingSetup(float[] destination) {
@@ -112,8 +114,9 @@ public class RoutingSetup extends Setup {
 		world = new World(camera);
 		gpsAction = new ActionCalcRelativePos(world, camera);
 		this.destination = destination;
-		steps = null;
-		JSONStr = null;						
+		steps = new ArrayList<ArrayList<GeoObj>>();;
+		JSONStr = null;
+		instructions = new ArrayList<String>();
 	}
 	
 	public void parse(JSONObject root) {
@@ -125,7 +128,7 @@ public class RoutingSetup extends Setup {
 		try {
 			if (root.has("routes")) dataArray = root.getJSONArray("routes");
 			if (dataArray == null) {
-				steps=null;
+				//steps=null;
 				return;
 			}
 			int size = dataArray.length();
@@ -134,7 +137,7 @@ public class RoutingSetup extends Setup {
 				geoObjs = processJSONGeoObject(jo);
 				//instructions = processJSONInstruction(jo);
 				if (geoObjs == null) throw new NullPointerException();
-				
+				Log.v("parse",i+" passed");
 				steps.add(geoObjs);
 			}	
 		} catch (JSONException e) {
@@ -163,15 +166,24 @@ public class RoutingSetup extends Setup {
 			result.add(new GeoObj(end.getDouble("lat"),end.getDouble("lng")));
 			inst.append(first.getString("html_instructions"));
 			for(int i=1; i<len;i++){
-				JSONObject ed = stepsArray.getJSONObject(i).getJSONObject("end_location");
+				JSONObject next = stepsArray.getJSONObject(i);
+				JSONObject ed = next.getJSONObject("end_location");
 				result.add(new GeoObj(ed.getDouble("lat"),ed.getDouble("lng")));
-				inst.append(first.getString("html_instructions"));				
+				//blank line on each instructions
+				inst.append("<br/>");
+				try{
+					Log.v("parse",next.getString("html_instructions"));
+					inst.append(next.getString("html_instructions"));
+				}catch(Exception e){
+					Log.e("parse","fail here");
+				}
 			}
 			if(result.get(0).getLatitude()!=current[0] && result.get(0).getLongitude()!= current[1])
 				result.add(0,new GeoObj(current[0],current[1]));
 			if(result.get(result.size()-1).getLatitude()!=destination[0] && result.get(result.size()-1).getLongitude()!= destination[1])
 				result.add(new GeoObj(destination[0],destination[1]));
 		} catch (Exception e) {
+			Log.e("parse","fail within try block");
 			e.printStackTrace();
 			result = null;
 			inst=null;
@@ -199,7 +211,7 @@ public class RoutingSetup extends Setup {
 */
 		//find steps on google
 		this.current = new float[] {(float) currentPosition.getLatitude(),(float) currentPosition.getLongitude(),(float) currentPosition.getAltitude()};
-		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en";
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en&alternatives=true";
 		try {
 			InputStream stream = (new URL(url)).openConnection().getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
@@ -238,28 +250,9 @@ public class RoutingSetup extends Setup {
 		parse(json);
 		//add points to world
 		try{
-			int i;
-			for(i =1;i<steps.size();i++){
-				MeshComponent diamond = GLFactory.getInstance().newDiamond(null);
-				final String text = "point number "+i;
-				diamond.setOnClickCommand(new Command(){
-
-					@Override
-					public boolean execute() {
-						// TODO Auto-generated method stub
-						CommandShowToast.show(myTargetActivity,text);
-						return true;
-					}
-					
-				});
-				for(GeoObj g : steps.get(i)){
-					diamond.setColor(new Color(MapObject.COLORLIST[i]));
-					spawnObj(g,diamond);
-				}
-			}
 			renderer.addRenderElement(world);
 		}catch(Exception ex){
-			CommandShowToast.show(myTargetActivity,"no route found");
+			CommandShowToast.show(myTargetActivity,"no JSON");
 		}
 	}
 
@@ -295,8 +288,8 @@ public class RoutingSetup extends Setup {
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(new MapObject(this.steps));
 		guiSetup = new GuiSetup(this, sourceView);
-
 		_e2_addElementsToGuiSetup(getGuiSetup(), activity);
+		((TextView)(sourceView.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(0)));
 		//addDroidARInfoBox(activity);
 		overlayView.addView(sourceView);
 		
@@ -349,87 +342,8 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posD, "Spawn at posD", guiSetup);
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
-/*
-		final GMap map = GMap.newDefaultGMap((MapActivity) myTargetActivity,
-				"0l4sCTTyRmXTNo7k8DREHvEaLar2UmHGwnhZVHQ");
-		GeoGraph gg = new GeoGraph();
-		try{
-			for(int i =0;i<steps.size();i++){
-				gg.add(steps.get(i));
-			}
-			map.addOverlay(new CustomItemizedOverlay(gg,IO
-					.loadDrawableFromId(getActivity(),
-							de.rwth.R.drawable.mapdotgreen)));
-		}catch(Exception ex){
-			//CommandShowToast.show(myTargetActivity,"no route found");
-		}
-		
-		guiSetup.addViewToBottomRight(map, 0.5f, 200);
-*/
-		//addGpsPosOutputButtons(guiSetup);
-		/*
-		map = new MapObject(steps);
-		map.setArguments(activity.getIntent().getExtras());
-		((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().add(R.id.LinLay_bottomRight,map).commit();
-		for (Fragment f :((FragmentActivity)activity).getSupportFragmentManager().getFragments()){
-			Log.i("RoutingSetup",f.getTag());
-			((MapFragment) f).getMapAsync((OnMapReadyCallback)map);
-		}
-		*/
-		/*
-		guiSetup.addButtonToBottomView(new CommandInUiThread() {
 
-			@Override
-			public void executeInUiThread() {
-				Intent i = new Intent();
-				Bundle b = new Bundle();
-				ArrayList<Float> points = new ArrayList<Float>();
-				int size = steps.size();
-				for(int j = 0 ; j<size;j++){
-					GeoObj obj = steps.get(j);
-					points.add((float) obj.getLatitude());
-					points.add((float) obj.getLongitude());
-				}
-				b.putSerializable("point", points);
-				i.putExtras(b);
-				i.setClass(myTargetActivity, SelfMapActivity.class);
-				myTargetActivity.startActivityForResult(i, 0);
-			}
-		}, "Map view");
-		*/
-		try{
-			ArrayList<GeoObj> first = steps.get(0);
-			int len = first.size();
-			for(int i=1; i< len;i++){
-				final String text = "connection on point "+(i-1)+" to point "+i;
-				GeoObj pre = first.get(i-1);
-				GeoObj pos = first.get(i);
-				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
-						pre,
-						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
-								pos.getLongitude()*0.001+pre.getLongitude()*0.999),
-								Color.blueTransparent()
-								);
-				mesh.setOnClickCommand(new Command(){
-	
-						@Override
-						public boolean execute() {
-							// TODO Auto-generated method stub
-							CommandShowToast.show(myTargetActivity,text);
-							return true;
-						}
-						
-					});
-				Edge x = new Edge(first.get(i-1), first.get(i),mesh);
-				/*
-				CommandShowToast.show(myTargetActivity, "Object spawned at "
-						+ x.getMySurroundGroup().getPosition());
-				*/
-				world.add(x);
-			}
-		}catch(NullPointerException npe){
-			CommandShowToast.show(myTargetActivity,"no route found");
-		}
+		
 		int len = steps.size();
 		for(int j =0;j<len;j++){
 			final int e = j;
@@ -440,10 +354,40 @@ public class RoutingSetup extends Setup {
 					world.clear();
 					ArrayList<GeoObj> stepList = steps.get(e);
 					int len = stepList.size();
+					
+					MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[e]));
+					diamond.setOnClickCommand(new Command(){
+
+						@Override
+						public boolean execute() {
+							// TODO Auto-generated method stub
+							CommandShowToast.show(myTargetActivity,"point number 0");
+							return true;
+						}
+						
+					});
+					spawnObj(stepList.get(0),diamond);
+					
 					for(int i=1; i< len;i++){
 						final String text = "connection on point "+(i-1)+" to point "+i;
 						GeoObj pre = stepList.get(i-1);
 						GeoObj pos = stepList.get(i);
+						if(i == 1){
+							
+						}
+						final String text1 = "point number "+i;
+						diamond.setOnClickCommand(new Command(){
+
+							@Override
+							public boolean execute() {
+								// TODO Auto-generated method stub
+								CommandShowToast.show(myTargetActivity,text1);
+								return true;
+							}
+							
+						});
+						spawnObj(pos,diamond);
+						
 						MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
 								pre,
 								new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
@@ -471,10 +415,78 @@ public class RoutingSetup extends Setup {
 								+ x.getMySurroundGroup().getPosition());
 						*/
 						world.add(x);
-						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(instructions.get(e));
+						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(e)));
 					}
 				}
-			}, "Route "+e);
+			}, "Route "+(e+1));
+		}
+		try{
+			// default show first route found
+			ArrayList<GeoObj> first = steps.get(0);
+			int size = first.size();
+			MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[0]));
+			
+			for(int i=1; i< size;i++){
+				final String text1 = "point number "+i;
+				final String text = "connection on point "+(i-1)+" to point "+i;
+				GeoObj pre = first.get(i-1);
+				GeoObj pos = first.get(i);
+				
+				if(i == 1){
+					diamond.setOnClickCommand(new Command(){
+
+						@Override
+						public boolean execute() {
+							// TODO Auto-generated method stub
+							CommandShowToast.show(myTargetActivity,"point number 0");
+							return true;
+						}
+						
+					});
+					spawnObj(pre,diamond);
+				}
+				diamond.setOnClickCommand(new Command(){
+
+					@Override
+					public boolean execute() {
+						// TODO Auto-generated method stub
+						CommandShowToast.show(myTargetActivity,text1);
+						return true;
+					}
+					
+				});
+				spawnObj(pos,diamond);
+				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
+						pre,
+						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
+								pos.getLongitude()*0.001+pre.getLongitude()*0.999),
+								Color.blueTransparent()
+								);
+				mesh.setOnClickCommand(new Command(){
+	
+						@Override
+						public boolean execute() {
+							// TODO Auto-generated method stub
+							CommandShowToast.show(myTargetActivity,text);
+							return true;
+						}
+						
+					});
+				Edge x = new Edge(
+						pre,
+						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
+						pos.getLongitude()*0.001+pre.getLongitude()*0.999)
+						,mesh);
+				/*
+				CommandShowToast.show(myTargetActivity, "Object spawned at "
+						+ x.getMySurroundGroup().getPosition());
+				*/
+				world.add(x);
+			}
+		}catch(NullPointerException npe){
+			Log.e("addToWorld","487");
+			//CommandShowToast.show(myTargetActivity,"no route found");
+			npe.printStackTrace();
 		}
 	}
 
