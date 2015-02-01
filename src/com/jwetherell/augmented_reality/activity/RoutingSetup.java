@@ -174,6 +174,9 @@ public class RoutingSetup extends Setup {
 				try{
 					Log.v("parse",next.getString("html_instructions"));
 					inst.append(next.getString("html_instructions"));
+					inst.append("<br/>distance : ");
+					inst.append(next.getJSONObject("distance").getString("text"));
+					inst.append("<br/>");
 				}catch(Exception e){
 					Log.e("parse","fail here");
 				}
@@ -211,7 +214,7 @@ public class RoutingSetup extends Setup {
 */
 		//find steps on google
 		this.current = new float[] {(float) currentPosition.getLatitude(),(float) currentPosition.getLongitude(),(float) currentPosition.getAltitude()};
-		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=false&mode=walking&region=hk&language=en&alternatives=true";
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=true&mode=walking&region=hk&language=en&alternatives=true";
 		try {
 			InputStream stream = (new URL(url)).openConnection().getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);

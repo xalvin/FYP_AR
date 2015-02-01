@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@color/Iconbg">
+
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:minHeight="300dp"
+        android:layout_gravity="center"
+        android:src="@drawable/travel_l" 
+        android:layout_marginTop="10dp" 
+        android:contentDescription="@string/icon" />
+    
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="3"
+	    android:layout_marginLeft="10dp"
+	    android:layout_marginRight="10dp"
+	    android:orientation="vertical">
+	    
+	    <Button
+	        android:id="@+id/navigation"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="@string/navigation"
+	        android:textSize="20sp"
+	        android:layout_margin="5sp" />
+	
+	    <Button
+	        android:id="@+id/social"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="@string/social"
+	        android:textSize="20sp"
+	        android:layout_margin="5sp" />
+	    
+	    <Button
+	        android:id="@+id/exit"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="@string/exit"
+	        android:textSize="20sp"
+	        android:layout_margin="5sp" />
+	    
+	</LinearLayout>
+</LinearLayout>

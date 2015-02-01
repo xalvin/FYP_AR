@@ -41,7 +41,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class OpenGLActivity extends Activity{
+public class LocationInfoActivity extends Activity{
 	private float[] destination;
 	private String name;
 	private String imgRef;
@@ -94,7 +94,7 @@ public class OpenGLActivity extends Activity{
 	            bundle.putFloatArray("destination", destination);
 	            bundle.putFloatArray("current", current);
 	            */
-	            Activity theCurrentActivity = OpenGLActivity.this;
+	            Activity theCurrentActivity = LocationInfoActivity.this;
 				RoutingActivity.startWithSetup(theCurrentActivity,
 						new RoutingSetup(destination));
 	            //ARActivityPlusMaps.startWithSetup(OpenGLActivity.this,new ARNavigatorSetup(),bundle);

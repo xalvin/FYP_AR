@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout01"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearLayout01"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"  >
 
-    <TableLayout
-        android:id="@+id/tableLayout1"
+    <LinearLayout
+        android:id="@+id/controlPanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="18dp"
-        android:layout_marginTop="42dp" >
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+        android:orientation="vertical" 
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp">
 
             <ImageButton
                 android:id="@+id/routeMeThere"
@@ -24,75 +19,107 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/route"
                 android:paddingRight="5dp" />
-        </TableRow>
 
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="15dp">
 
             <ImageButton
                 android:id="@+id/addFavourite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/add"
-                android:paddingRight="5dp" />
+                android:paddingRight="5dp" 
+                android:layout_marginTop="15dp"/>
 
             <ImageButton
                 android:id="@+id/removeFavourite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/remove"
-                android:paddingRight="5dp" />
-        </TableRow>
+                android:paddingRight="5dp" 
+                android:layout_marginTop="15dp" />
 
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="15dp">
 
             <ImageButton
                 android:id="@+id/back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/back"
-                android:paddingRight="5dp" />
+                android:paddingRight="5dp"
+                android:layout_marginTop="15dp" />
 
-        </TableRow>
+    </LinearLayout>
 
-    </TableLayout>
-
-    <TableLayout
+    <LinearLayout
+        android:id="@+id/photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tableLayout1"
-        android:layout_toRightOf="@+id/tableLayout1"
-        android:layout_marginLeft="18dp" >
-
-        <TableRow
-            android:id="@+id/tableRow1"
+        android:orientation="vertical" 
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1">
+            
+        <ImageView
+            android:id="@+id/markerImg"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content" />
+        <TextView
+	            android:id="@+id/markerName"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp" />
+        <RatingBar
+		        android:id="@+id/rating"
+		        style="@style/roomRatingBar"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:numStars="5"
+		        android:rating="2"
+		        android:layout_marginTop="10dp" />
+		    
+		    <ScrollView
+		        android:id="@+id/scrollDescription"
+		        android:layout_width="match_parent"
+		        android:layout_height="0dp"
+		        android:layout_weight="1"
+		        android:fadingEdgeLength="30dip"
+		        android:scrollbars="vertical" >
+	
+			    <TextView 
+			        	android:id="@+id/description"
+			        	android:layout_width="wrap_content"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="10dp"/>
+		    
+		    </ScrollView>
+    </LinearLayout>
 
-            <ImageView
-                android:id="@+id/markerImg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </TableRow>
+    <LinearLayout
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" 
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1">
+        
+		<ScrollView
+		        android:id="@+id/scrollComments"
+		        android:layout_width="match_parent"
+		        android:layout_height="0dp"
+		        android:layout_weight="2"
+		        android:fadingEdgeLength="30dip"
+		        android:scrollbars="vertical" >
+		    
+		</ScrollView>
 
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_marginTop="10dp">
+		<EditText
+		    android:id="@+id/enterComment"
+		    android:layout_width="match_parent"
+		    android:layout_height="0dp"
+		    android:layout_weight="1"
+		    android:inputType="textMultiLine" >
 
-            <TextView
-                android:id="@+id/markerName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </TableRow>
-    </TableLayout>
-
-</RelativeLayout>
+		</EditText>
+	    
+	</LinearLayout>
+</LinearLayout>

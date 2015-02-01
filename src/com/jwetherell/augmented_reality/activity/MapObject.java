@@ -43,7 +43,6 @@ public class MapObject implements OnMapReadyCallback{
 			}catch(Exception e){
 				pl.color((int)(Math.random()*(1<<24)));
 			}
-			pl.zIndex(i);
 			pl.width(10);
 			Log.v("map","add to map");
 			map.addPolyline(pl);

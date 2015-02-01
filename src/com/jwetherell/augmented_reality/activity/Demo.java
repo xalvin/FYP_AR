@@ -179,7 +179,7 @@ public class Demo extends AugmentedReality {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu, menu);
+	    inflater.inflate(R.menu.demomenu, menu);
 	    return true;
 	}
 	
@@ -294,7 +294,7 @@ public class Demo extends AugmentedReality {
         bundle.putString("name", name);
         bundle.putString("imgRef", imgRef);
         Intent i = new Intent();
-        i.setClass(this,OpenGLActivity.class);
+        i.setClass(this,LocationInfoActivity.class);
         i.putExtras(bundle);
         startActivityForResult(i,CONTROL);
 
