@@ -21,8 +21,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.MapActivity;
 import com.jwetherell.augmented_reality.R;
 
@@ -289,8 +293,21 @@ public class RoutingSetup extends Setup {
         mapFragment.getMapAsync(new MapObject(this.steps));
 		guiSetup = new GuiSetup(this, sourceView);
 		_e2_addElementsToGuiSetup(getGuiSetup(), activity);
-		((TextView)(sourceView.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(0)));
+		TextView instructionView = (TextView) (sourceView.findViewById(R.id.instructions));
+		instructionView.setText(Html.fromHtml(instructions.get(0)));
+		instructionView.setBackgroundColor(0xAA000000);
 		//addDroidARInfoBox(activity);
+		//add location listener to map
+		final GoogleMap gm = mapFragment.getMap();
+		gm.setOnMyLocationChangeListener(new OnMyLocationChangeListener(){
+
+				@Override
+				public void onMyLocationChange(Location l) {
+					LatLng loc = new LatLng(l.getLatitude(),l.getLongitude());
+					gm.animateCamera(CameraUpdateFactory.newLatLng(loc));
+				}
+				
+			});
 		overlayView.addView(sourceView);
 		
 	}
@@ -356,25 +373,11 @@ public class RoutingSetup extends Setup {
 					int len = stepList.size();
 					
 					MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[e]));
-					diamond.setOnClickCommand(new Command(){
-
-						@Override
-						public boolean execute() {
-							// TODO Auto-generated method stub
-							CommandShowToast.show(myTargetActivity,"point number 0");
-							return true;
-						}
-						
-					});
-					spawnObj(stepList.get(0),diamond);
-					
+										
 					for(int i=1; i< len;i++){
 						final String text = "connection on point "+(i-1)+" to point "+i;
 						GeoObj pre = stepList.get(i-1);
 						GeoObj pos = stepList.get(i);
-						if(i == 1){
-							
-						}
 						final String text1 = "point number "+i;
 						diamond.setOnClickCommand(new Command(){
 
@@ -431,20 +434,6 @@ public class RoutingSetup extends Setup {
 				final String text = "connection on point "+(i-1)+" to point "+i;
 				GeoObj pre = first.get(i-1);
 				GeoObj pos = first.get(i);
-				
-				if(i == 1){
-					diamond.setOnClickCommand(new Command(){
-
-						@Override
-						public boolean execute() {
-							// TODO Auto-generated method stub
-							CommandShowToast.show(myTargetActivity,"point number 0");
-							return true;
-						}
-						
-					});
-					spawnObj(pre,diamond);
-				}
 				diamond.setOnClickCommand(new Command(){
 
 					@Override
@@ -458,8 +447,8 @@ public class RoutingSetup extends Setup {
 				spawnObj(pos,diamond);
 				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
 						pre,
-						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
-								pos.getLongitude()*0.001+pre.getLongitude()*0.999),
+						new GeoObj(pos.getLatitude()*0.01+pre.getLatitude()*0.99,
+								pos.getLongitude()*0.01+pre.getLongitude()*0.99),
 								Color.blueTransparent()
 								);
 				mesh.setOnClickCommand(new Command(){
@@ -474,8 +463,8 @@ public class RoutingSetup extends Setup {
 					});
 				Edge x = new Edge(
 						pre,
-						new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
-						pos.getLongitude()*0.001+pre.getLongitude()*0.999)
+						new GeoObj(pos.getLatitude()*0.01+pre.getLatitude()*0.99,
+						pos.getLongitude()*0.01+pre.getLongitude()*0.99)
 						,mesh);
 				/*
 				CommandShowToast.show(myTargetActivity, "Object spawned at "
@@ -484,7 +473,6 @@ public class RoutingSetup extends Setup {
 				world.add(x);
 			}
 		}catch(NullPointerException npe){
-			Log.e("addToWorld","487");
 			//CommandShowToast.show(myTargetActivity,"no route found");
 			npe.printStackTrace();
 		}

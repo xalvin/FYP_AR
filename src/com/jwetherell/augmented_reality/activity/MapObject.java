@@ -4,10 +4,12 @@ import geo.GeoObj;
 
 import java.util.ArrayList;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -38,15 +40,13 @@ public class MapObject implements OnMapReadyCallback{
 				Log.v("map","add GeoObj "+obj);
 				pl.add(new LatLng(obj.getLatitude(),obj.getLongitude()));
 			}
-			try{
-				pl.color(COLORLIST[i]);
-			}catch(Exception e){
-				pl.color((int)(Math.random()*(1<<24)));
-			}
+			pl.color(COLORLIST[i%COLORLIST.length]);
 			pl.zIndex(i);
 			pl.width(10);
 			Log.v("map","add to map");
 			map.addPolyline(pl);
+			map.setMyLocationEnabled(true);
+			
 		}
 	}
 }
