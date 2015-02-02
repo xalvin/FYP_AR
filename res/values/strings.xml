@@ -7,5 +7,9 @@
     <string name="back">Back</string>
     <string name="routeMeThere">Route me there</string>
     <string name="remove">remove favourite</string>
-    <string name="add">add to favourite</string>
+    <string name="add">add to favourite</string><string name="navigation">Navigation</string>
+    
+    <string name="social">Chat with others</string>
+    <string name="icon">Icon</string>
+    <string name="exit">Exit</string>
 </resources>
