@@ -41,12 +41,10 @@ public class MapObject implements OnMapReadyCallback{
 				pl.add(new LatLng(obj.getLatitude(),obj.getLongitude()));
 			}
 			pl.color(COLORLIST[i%COLORLIST.length]);
-			pl.zIndex(i);
 			pl.width(10);
 			Log.v("map","add to map");
 			map.addPolyline(pl);
 			map.setMyLocationEnabled(true);
-			
 		}
 	}
 }

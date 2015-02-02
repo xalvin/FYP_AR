@@ -1,6 +1,7 @@
 package com.jwetherell.augmented_reality.activity;
 
 import com.jwetherell.augmented_reality.R;
+import com.jwetherell.augmented_reality.data.Account;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,12 +33,21 @@ public class StartActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				if(!Account.login){
+					//To-do add login code here
+				}				
 				Intent i = new Intent();
 			    i.setClass(StartActivity.this,SocialActivity.class);
 				startActivity(i);
 			}
         });
-        
+        ((Button)findViewById(R.id.exit)).setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				finish();
+			}
+        });
 	}
 
 	
@@ -49,13 +59,27 @@ public class StartActivity extends Activity{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.demomenu, menu);
+	    inflater.inflate(R.menu.startmenu, menu);
+	    //check login status
+	    if(Account.login){
+	    	menu.findItem(R.id.login).setVisible(false);
+	    	menu.findItem(R.id.logout).setVisible(true);
+	    }else{
+	    	menu.findItem(R.id.logout).setVisible(false);
+	    	menu.findItem(R.id.login).setVisible(true);
+	    }
 	    return true;
 	}
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+        	case R.id.login:
+        		//To-do add login function here
+        		break;
+        	case R.id.logout:
+        		//To-do add logout function here
+        		break;
         }
         return true;
 	}

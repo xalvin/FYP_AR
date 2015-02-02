@@ -59,6 +59,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import commands.Command;
@@ -422,6 +423,7 @@ public class RoutingSetup extends Setup {
 						*/
 						world.add(x);
 						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(e)));
+						((ScrollView) (myTargetActivity.findViewById(R.id.scrollText))).smoothScrollTo(0, 0);
 					}
 				}
 			}, "Route "+(e+1));
