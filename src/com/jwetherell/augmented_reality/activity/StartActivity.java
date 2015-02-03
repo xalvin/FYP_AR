@@ -33,7 +33,7 @@ public class StartActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if(!Account.login){
+				if(!Account.getLoginStatus()){
 					//To-do add login code here
 				}				
 				Intent i = new Intent();
@@ -61,7 +61,7 @@ public class StartActivity extends Activity{
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.startmenu, menu);
 	    //check login status
-	    if(Account.login){
+	    if(Account.getLoginStatus()){
 	    	menu.findItem(R.id.login).setVisible(false);
 	    	menu.findItem(R.id.logout).setVisible(true);
 	    }else{
