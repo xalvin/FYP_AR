@@ -20,4 +20,6 @@
     <string name="email">Email</string>
     <string name="pw">Password</string>
     <string name="name">User name to display</string>
+    
+    <string name="commentHere">Write your comment here</string>
 </resources>
