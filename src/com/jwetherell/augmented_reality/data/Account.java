@@ -17,22 +17,26 @@ public class Account {
 	private static boolean login;
 	private static int userId;
 	private static String name;
+	private static String status;
 	private static String message;
 	
 	public static void reset(){
 		//default not login
 		login = false;
 		name=null;
-		message = null;
 		userId = Integer.MAX_VALUE;
 	}
 	
-	public static boolean login(String email, String pw){
-		if(login)
-			return false;
+	private static boolean validateEmail(String email){
 		Pattern p = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)+$");
-		if(!p.matcher(email).matches())
+		if(!p.matcher(email).matches()){
+			message= "Wrong email format";
 			return false;
+		}
+		return true;
+	}
+	
+	private static String encryptPw(String pw){
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(pw.getBytes());
@@ -41,11 +45,24 @@ public class Account {
 			for (byte b : digest) {
 				sb.append(String.format("%02x", b & 0xff));
 			}
+			return sb.toString();
 		} catch (NoSuchAlgorithmException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			message= "Password encryption error";
+			return null;
+		}
+	}
+	
+	public static boolean login(String email, String pw){
+		if(login){
+			message = "Login already";
 			return false;
 		}
+		boolean x = validateEmail(email);
+		if(!x){
+			return false;
+		}
+		String epw = encryptPw(pw);
 		try {
 			URL url = new URL("http://hkours.com/akFYP/login.php");
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
@@ -54,7 +71,7 @@ public class Account {
 			conn.setRequestMethod("POST");
 			
 			OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
-			String parameter = "email="+email+"&pw="+pw;
+			String parameter = "email="+email+"&pw="+epw;
             request.write(parameter);
             request.flush();
             request.close(); 
@@ -68,8 +85,9 @@ public class Account {
             }
             String result = sb.toString();
             JSONObject obj = new JSONObject(result);
-            if(!obj.getString("status").equals("OK")){
-            	message = obj.getString("message");
+            status = obj.getString("status");
+            message = obj.getString("message");
+            if(!status.equals("OK")){
             	return false;
             }
             name = obj.getString("name");
@@ -84,8 +102,49 @@ public class Account {
 		return true;
 	}
 	
-	public static boolean register(String email, String pw){
-		
+	public static boolean register(String email, String pw, String name){
+		if(login){
+			message = "Login already";
+			return false;
+		}
+		boolean x = validateEmail(email);
+		if(!x){
+			return false;
+		}
+		String epw = encryptPw(pw);
+		try {
+			URL url = new URL("http://hkours.com/akFYP/register.php");
+			HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			conn.setRequestMethod("POST");
+			
+			OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+			String parameter = "email="+email+"&pw="+epw+"&name="+name;
+            request.write(parameter);
+            request.flush();
+            request.close(); 
+            
+            BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            sb.append(myReader.readLine() + "\n");
+            String line="";
+            while ((line = myReader.readLine()) != null) {
+                sb.append(line);
+            }
+            String result = sb.toString();
+            JSONObject obj = new JSONObject(result);
+            status = obj.getString("status");
+            message = obj.getString("message");
+            if(!status.equals("OK")){
+            	return false;
+            }
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			reset();
+			return false;
+		}
 		return true;
 	}
 	
@@ -99,5 +158,13 @@ public class Account {
 	
 	public static int getUserId(){
 		return userId;
+	}
+	
+	public static String getMessage(){
+		return message;
+	}
+	
+	public static String getStatus(){
+		return status;
 	}
 }

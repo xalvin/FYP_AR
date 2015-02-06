@@ -9,10 +9,15 @@
     <string name="remove">remove favourite</string>
     <string name="add">add to favourite</string><string name="navigation">Navigation</string>
     
-    <string name="social">Chat with others</string>
+    <string name="social">Check recent comments</string>
     <string name="icon">Icon</string>
     <string name="exit">Exit</string>
     
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+    <string name="register">Register new account</string>
+    
+    <string name="email">Email</string>
+    <string name="pw">Password</string>
+    <string name="name">User name to display</string>
 </resources>
