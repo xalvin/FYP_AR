@@ -69,7 +69,7 @@ import commands.ui.CommandShowToast;
 public class RoutingSetup extends Setup {
 
 	private final String TAG = "Routing Setup";
-	protected static final int ZDELTA = 5;
+	protected static final int ZDELTA = 7;
 	private final GLCamera camera;
 	private final World world;
 	private final ActionCalcRelativePos gpsAction;
@@ -364,7 +364,8 @@ public class RoutingSetup extends Setup {
 		addSpawnButtonToUI(posE, "Spawn at posE", guiSetup);
 */
 
-		
+
+		camera.changeZPositionBuffered(+ZDELTA);
 		int len = steps.size();
 		for(int j =0;j<len;j++){
 			final int e = j;
@@ -376,9 +377,9 @@ public class RoutingSetup extends Setup {
 					ArrayList<GeoObj> stepList = steps.get(e);
 					int len = stepList.size();
 					
-					MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[e]));
-										
+					
 					for(int i=1; i< len;i++){
+						MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[e]));
 						final String text = "connection on point "+(i-1)+" to point "+i;
 						GeoObj pre = stepList.get(i-1);
 						GeoObj pos = stepList.get(i);
@@ -395,12 +396,7 @@ public class RoutingSetup extends Setup {
 						});
 						spawnObj(pos,diamond);
 						
-						MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
-								pre,
-								new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
-										pos.getLongitude()*0.001+pre.getLongitude()*0.999),
-										Color.blueTransparent()
-										);
+						MeshComponent mesh = GLFactory.getInstance().newDirectedPath(pre,pos,Color.blueTransparent());
 						mesh.setOnClickCommand(new Command(){
 			
 								@Override
@@ -411,19 +407,18 @@ public class RoutingSetup extends Setup {
 								}
 								
 							});
-						Edge x = new Edge(
-								pre,
-								new GeoObj(pos.getLatitude()*0.001+pre.getLatitude()*0.999,
-										pos.getLongitude()*0.001+pre.getLongitude()*0.999),
-								mesh
-								);
+						Edge x = new Edge(pre,pos,mesh);
+						/*
+						x.setMyAltitude(x.getAltitude()-ZDELTA);
+						x.refreshVirtualPosition();
+						*/
 						/*
 						CommandShowToast.show(myTargetActivity, "Object spawned at "
 								+ x.getMySurroundGroup().getPosition());
 						*/
 						world.add(x);
 						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(e)));
-						((ScrollView) (myTargetActivity.findViewById(R.id.scrollText))).smoothScrollTo(0, 0);
+						((ScrollView) (myTargetActivity.findViewById(R.id.scrollText))).scrollTo(0,0);
 					}
 				}
 			}, "Route "+(e+1));
@@ -432,9 +427,9 @@ public class RoutingSetup extends Setup {
 			// default show first route found
 			ArrayList<GeoObj> first = steps.get(0);
 			int size = first.size();
-			MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[0]));
 			
 			for(int i=1; i< size;i++){
+				MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[0]));
 				final String text1 = "point number "+i;
 				final String text = "connection on point "+(i-1)+" to point "+i;
 				GeoObj pre = first.get(i-1);
@@ -450,12 +445,7 @@ public class RoutingSetup extends Setup {
 					
 				});
 				spawnObj(pos,diamond);
-				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(
-						pre,
-						new GeoObj(pos.getLatitude()*0.01+pre.getLatitude()*0.99,
-								pos.getLongitude()*0.01+pre.getLongitude()*0.99),
-								Color.blueTransparent()
-								);
+				MeshComponent mesh = GLFactory.getInstance().newDirectedPath(pre,pos,Color.blueTransparent());
 				mesh.setOnClickCommand(new Command(){
 	
 						@Override
@@ -466,11 +456,7 @@ public class RoutingSetup extends Setup {
 						}
 						
 					});
-				Edge x = new Edge(
-						pre,
-						new GeoObj(pos.getLatitude()*0.01+pre.getLatitude()*0.99,
-						pos.getLongitude()*0.01+pre.getLongitude()*0.99)
-						,mesh);
+				Edge x = new Edge(pre,pos,mesh);
 				/*
 				CommandShowToast.show(myTargetActivity, "Object spawned at "
 						+ x.getMySurroundGroup().getPosition());
