@@ -49,15 +49,20 @@ import worldData.World;
 import actions.ActionCalcRelativePos;
 import actions.ActionRotateCameraBuffered;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -219,7 +224,8 @@ public class RoutingSetup extends Setup {
 */
 		//find steps on google
 		this.current = new float[] {(float) currentPosition.getLatitude(),(float) currentPosition.getLongitude(),(float) currentPosition.getAltitude()};
-		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=true&mode=walking&region=hk&language=en&alternatives=true";
+		//default gives one route only &alternatives=false
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"&sensor=true&mode=walking&region=hk&language=en&alternatives=false";
 		try {
 			InputStream stream = (new URL(url)).openConnection().getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
@@ -300,6 +306,63 @@ public class RoutingSetup extends Setup {
 		TextView instructionView = (TextView) (sourceView.findViewById(R.id.instructions));
 		instructionView.setText(Html.fromHtml(instructions.get(0)));
 		instructionView.setBackgroundColor(0xAA000000);
+		Button showInst = (Button)(sourceView.findViewById(R.id.showInst));
+		showInst.setVisibility(View.GONE);
+		showInst.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				((Button)(myTargetActivity.findViewById(R.id.showInst))).setVisibility(View.GONE);
+				((Button)(myTargetActivity.findViewById(R.id.hideInst))).setVisibility(View.VISIBLE);
+				((TextView)(myTargetActivity.findViewById(R.id.instructions))).setVisibility(View.VISIBLE);
+			}
+			
+		});
+		((Button)(sourceView.findViewById(R.id.hideInst))).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				((Button)(myTargetActivity.findViewById(R.id.showInst))).setVisibility(View.VISIBLE);
+				((Button)(myTargetActivity.findViewById(R.id.hideInst))).setVisibility(View.GONE);
+				((TextView)(myTargetActivity.findViewById(R.id.instructions))).setVisibility(View.GONE);
+			}
+			
+		});
+		Button showMap = (Button)(sourceView.findViewById(R.id.showMap));
+		showMap.setVisibility(View.GONE);
+		showMap.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				((Button)(myTargetActivity.findViewById(R.id.showMap))).setVisibility(View.GONE);
+				((Button)(myTargetActivity.findViewById(R.id.hideMap))).setVisibility(View.VISIBLE);
+				((LinearLayout)(myTargetActivity.findViewById(R.id.LinLay_bottomRight))).setVisibility(View.VISIBLE);
+			}
+			
+		});
+		((Button)(sourceView.findViewById(R.id.hideMap))).setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				((Button)(myTargetActivity.findViewById(R.id.showMap))).setVisibility(View.VISIBLE);
+				((Button)(myTargetActivity.findViewById(R.id.hideMap))).setVisibility(View.GONE);
+				((LinearLayout)(myTargetActivity.findViewById(R.id.LinLay_bottomRight))).setVisibility(View.GONE);
+			}
+			
+		});
+		((Button)(sourceView.findViewById(R.id.alternative))).setOnClickListener(new OnClickListener(){
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				new DownloadFromURL().execute("http://maps.googleapis.com/maps/api/directions/json?sensor=true&mode=walking&region=hk&language=en&alternatives=true");	
+			}
+			
+		});
 		//addDroidARInfoBox(activity);
 		//add location listener to map
 		final GoogleMap gm = mapFragment.getMap();
@@ -313,7 +376,146 @@ public class RoutingSetup extends Setup {
 				
 			});
 		overlayView.addView(sourceView);
+	}
+	
+	private class DownloadFromURL extends AsyncTask<String, Void, Void> {
+		ProgressDialog pd;
 		
+		protected void onPreExecute(){
+			pd = ProgressDialog.show(myTargetActivity, "", "loading");
+			steps.clear();
+			instructions.clear();
+		}
+		
+		@Override
+		protected Void doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			//"http://maps.googleapis.com/maps/api/directions/json?sensor=true&mode=walking&region=hk&language=en&alternatives=true
+			//				&origin="+current[0]+","+current[1]+"&destination="+destination[0]+","+destination[1]+"";
+
+			String url = params[0];
+			GeoObj current = EventManager.getInstance().getCurrentLocationObject();
+			url += "&origin="+current.getLatitude()+","+current.getLongitude()+"&destination="+destination[0]+","+destination[1];
+			try {
+				InputStream stream = (new URL(url)).openConnection().getInputStream();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
+		        StringBuilder sb = new StringBuilder();
+
+		        try {
+		            String line;
+		            while ((line = reader.readLine()) != null) {
+		                sb.append(line + "\n");
+		            }
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } finally {
+		            try {
+		                stream.close();
+		            } catch (IOException e) {
+		                e.printStackTrace();
+		            }
+		        }
+		        JSONStr = sb.toString();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//process JSONObject
+			JSONObject json = null;
+			try {
+				json = new JSONObject(JSONStr);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (json == null) throw new NullPointerException();
+			parse(json);
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result){
+			// get size of routes
+			int size = steps.size();
+			// place to add routes
+			LinearLayout targetLayout = (LinearLayout)myTargetActivity.findViewById(R.id.LinLay_bottom);
+			// reset view content
+			targetLayout.removeAllViews();
+			for(int j =0;j<size;j++){
+				Button b = new Button(targetLayout.getContext());
+				b.setText("Route "+(j+1));
+				final int e = j;
+				b.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						world.clear();
+						ArrayList<GeoObj> stepList = steps.get(e);
+						int len = stepList.size();
+						
+						
+						for(int i=1; i< len;i++){
+							MeshComponent diamond = GLFactory.getInstance().newDiamond(new Color(MapObject.COLORLIST[e]));
+							final String text = "connection on point "+(i-1)+" to point "+i;
+							GeoObj pre = stepList.get(i-1);
+							GeoObj pos = stepList.get(i);
+							final String text1 = "point number "+i;
+							diamond.setOnClickCommand(new Command(){
+
+								@Override
+								public boolean execute() {
+									// TODO Auto-generated method stub
+									CommandShowToast.show(myTargetActivity,text1);
+									return true;
+								}
+								
+							});
+							spawnObj(pos,diamond);
+							
+							MeshComponent mesh = GLFactory.getInstance().newDirectedPath(pre,pos,Color.blueTransparent());
+							mesh.setOnClickCommand(new Command(){
+				
+									@Override
+									public boolean execute() {
+										// TODO Auto-generated method stub
+										CommandShowToast.show(myTargetActivity,text);
+										return true;
+									}
+									
+								});
+							Edge x = new Edge(pre,pos,mesh);
+							/*
+							x.setMyAltitude(x.getAltitude()-ZDELTA);
+							x.refreshVirtualPosition();
+							*/
+							/*
+							CommandShowToast.show(myTargetActivity, "Object spawned at "
+									+ x.getMySurroundGroup().getPosition());
+							*/
+							world.add(x);
+							((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(e)));
+							((ScrollView) (myTargetActivity.findViewById(R.id.sRight))).scrollTo(0,0);
+						}
+					}
+				});
+				targetLayout.addView(b);
+			}
+			MapFragment mapFragment = (MapFragment) myTargetActivity.getFragmentManager()
+	                .findFragmentById(R.id.map);
+	        mapFragment.getMapAsync(new MapObject(steps));
+	        final GoogleMap gm = mapFragment.getMap();
+			gm.setOnMyLocationChangeListener(new OnMyLocationChangeListener(){
+
+				@Override
+				public void onMyLocationChange(Location l) {
+					LatLng loc = new LatLng(l.getLatitude(),l.getLongitude());
+					gm.animateCamera(CameraUpdateFactory.newLatLng(loc));
+				}
+				
+			});
+			pd.dismiss();
+		}
 	}
 	
 	@Override
@@ -366,6 +568,7 @@ public class RoutingSetup extends Setup {
 
 
 		camera.changeZPositionBuffered(+ZDELTA);
+		/*
 		int len = steps.size();
 		for(int j =0;j<len;j++){
 			final int e = j;
@@ -408,14 +611,11 @@ public class RoutingSetup extends Setup {
 								
 							});
 						Edge x = new Edge(pre,pos,mesh);
-						/*
-						x.setMyAltitude(x.getAltitude()-ZDELTA);
-						x.refreshVirtualPosition();
-						*/
-						/*
-						CommandShowToast.show(myTargetActivity, "Object spawned at "
-								+ x.getMySurroundGroup().getPosition());
-						*/
+						
+						
+						//CommandShowToast.show(myTargetActivity, "Object spawned at "
+						//		+ x.getMySurroundGroup().getPosition());
+						
 						world.add(x);
 						((TextView)(myTargetActivity.findViewById(R.id.instructions))).setText(Html.fromHtml(instructions.get(e)));
 						((ScrollView) (myTargetActivity.findViewById(R.id.scrollText))).scrollTo(0,0);
@@ -423,6 +623,7 @@ public class RoutingSetup extends Setup {
 				}
 			}, "Route "+(e+1));
 		}
+		*/
 		try{
 			// default show first route found
 			ArrayList<GeoObj> first = steps.get(0);

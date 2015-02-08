@@ -33,17 +33,17 @@ public class LocalDataSource extends DataSource {
 
     private List<Marker> cachedMarkers = new ArrayList<Marker>();
     private static Bitmap icon = null;
+    private static String key = null;
 
     public LocalDataSource(Resources res) {
         if (res == null) throw new NullPointerException();
-
+        key = res.getString(R.string.google_places_api_key);
         createIcon(res);
     }
 
     protected void createIcon(Resources res) {
         if (res == null) throw new NullPointerException();
-
-        icon = BitmapFactory.decodeResource(res, R.drawable.icon);
+        icon = BitmapFactory.decodeResource(res, R.drawable.travel);
     }
 
     public List<Marker> getMarkers() {
@@ -103,7 +103,7 @@ public class LocalDataSource extends DataSource {
 				for(int i = 0;i<a.length();i++){
 					JSONObject obj = a.getJSONObject(i);
 					JSONObject dest = obj.getJSONObject("destination");
-					Marker temp = new Marker(obj.getString("name"), dest.getDouble("x"),dest.getDouble("y"),dest.getDouble("z"),Color.YELLOW,obj.getString("imgRef"));
+					IconMarker temp = new IconMarker(obj.getString("name"), dest.getDouble("x"),dest.getDouble("y"),dest.getDouble("z"),Color.YELLOW,icon,obj.getString("imgRef"),obj.getString("detailRef"),key);
 					cachedMarkers.add(temp);
 				}
 			} catch(Exception e){

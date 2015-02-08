@@ -22,4 +22,10 @@
     <string name="name">User name to display</string>
     
     <string name="commentHere">Write your comment here</string>
+    
+    <string name="hideInst">Hide instructions</string>
+    <string name="showInst">Show instructions</string>
+    <string name="hideMap">Hide map</string>
+    <string name="showMap">Show map</string>
+    <string name="alternative">Alternatives</string>
 </resources>

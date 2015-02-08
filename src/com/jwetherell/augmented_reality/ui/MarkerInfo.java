@@ -41,8 +41,8 @@ public class MarkerInfo extends Marker{
 	private float[] locationArray;
 	
 	public MarkerInfo(String name, double latitude, double longitude,
-			double altitude, int color,String imgRef, Resources res) {
-		super(name, latitude, longitude, altitude, color, imgRef);
+			double altitude, int color, String imgRef, String detailRef, Resources res) {
+		super(name, latitude, longitude, altitude, color, imgRef, detailRef, res.getString(R.string.google_places_api_key));
 		// TODO Auto-generated constructor stub
 		this.res = res;
 		add= BitmapFactory.decodeResource(res,R.drawable.add);

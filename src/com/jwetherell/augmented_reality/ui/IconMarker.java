@@ -21,15 +21,15 @@ import android.widget.ImageView;
 public class IconMarker extends Marker {
 
     private Bitmap bitmap = null;
-    private String imgReferenceWithKey = null;
+    private String imgReference = null;
 
     public IconMarker(String name, double latitude, double longitude, double altitude, int color, Bitmap bitmap) {
         super(name, latitude, longitude, altitude, color);
         this.bitmap = bitmap;
     }
 
-    public IconMarker(String name, double latitude, double longitude, double altitude, int color, Bitmap bitmap,String imgReferenceWithKey) {
-    	super(name, latitude, longitude, altitude, color, imgReferenceWithKey);
+    public IconMarker(String name, double latitude, double longitude, double altitude, int color, Bitmap bitmap,String imgReference, String detailRef, String key) {
+    	super(name, latitude, longitude, altitude, color, imgReference, detailRef, key);
     }
     /**
      * {@inheritDoc}
@@ -43,7 +43,7 @@ public class IconMarker extends Marker {
 	        gpsSymbol = new PaintableIcon(bitmap, 96, 96);
 	        super.drawIcon(canvas);
         }else{
-	        String url = "https://maps.googleapis.com/maps/api/place/photo?sensor=true&maxwidth=96&maxheight=96&photoreference="+this.getImgReference();
+	        String url = "https://maps.googleapis.com/maps/api/place/photo?sensor=true&maxwidth=96&maxheight=96&photoreference="+this.getImgReference()+"&key="+this.getkey();
 	        Log.v("IconMarker","download from url "+url);
 	        try {
 	        	InputStream stream = (new URL(url)).openConnection().getInputStream();

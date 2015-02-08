@@ -3,7 +3,7 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="horizontal" android:id="@+id/main_view" android:background="#00000000" xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout android:layout_width="fill_parent" android:layout_alignParentTop="true"
+    <LinearLayout android:layout_width="wrap_content" android:layout_alignParentTop="true"
 		android:id="@+id/LLA_top" android:layout_height="wrap_content">
 
 		<HorizontalScrollView android:layout_height="wrap_content"
@@ -14,7 +14,50 @@
 			<LinearLayout android:id="@+id/LinLay_top"
 			    android:orientation="vertical"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:gravity="center_vertical"></LinearLayout>
+				android:gravity="center_vertical">
+				
+			    <LinearLayout
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:orientation="horizontal" >
+			    	<Button 
+			    	    android:id="@+id/alternative"
+			    	    style="?android:attr/buttonStyleSmall"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:text="@string/alternative"/>
+					<Button
+					    android:id="@+id/showInst"
+					    style="?android:attr/buttonStyleSmall"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:text="@string/showInst"
+					    android:visibility="gone" />
+					
+					<Button
+					    android:id="@+id/hideInst"
+					    style="?android:attr/buttonStyleSmall"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:text="@string/hideInst" />
+				    
+					<Button
+					    android:id="@+id/showMap"
+					    style="?android:attr/buttonStyleSmall"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:text="@string/showMap"
+					    android:visibility="gone" />
+					
+					<Button
+					    android:id="@+id/hideMap"
+					    style="?android:attr/buttonStyleSmall"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:text="@string/hideMap" />
+			</LinearLayout>
+			    
+			</LinearLayout>
 		</HorizontalScrollView>
 	</LinearLayout>
 
@@ -34,30 +77,40 @@
 		</ScrollView>
 	</LinearLayout>
 
-<LinearLayout android:layout_height="fill_parent"
-		android:layout_alignParentRight="true" android:orientation="vertical"
-		android:layout_above="@+id/LLA_bottom" android:layout_below="@+id/LLA_top"
-		android:layout_width="wrap_content" android:id="@+id/LLA_right">
+<LinearLayout
+    android:id="@+id/LLA_right"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:layout_above="@+id/LLA_bottom"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentTop="true"
+    android:orientation="vertical" >
+		
+		<LinearLayout
+		    android:id="@+id/LinLay_right"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical" >
+		    
+		    
+		</LinearLayout>
+		
+		<ScrollView
+		    android:id="@+id/sRight"
+		    android:layout_width="200dp"
+		    android:layout_height="0dp"
+		    android:layout_weight="1"
+		    android:fadingEdgeLength="30dip"
+		    android:scrollbars="vertical" >
 
-
-		<ScrollView android:layout_width="wrap_content"
-			android:fadingEdgeLength="30dip" android:layout_height="wrap_content"
-			android:id="@+id/sRight" android:scrollbars="vertical">
-			<LinearLayout android:id="@+id/LinLay_right"
-				android:orientation="vertical" android:layout_width="wrap_content"
-				android:layout_height="wrap_content">		   
-					<ScrollView android:layout_width="200dp"
-			android:fadingEdgeLength="30dip" android:layout_height="0dp" android:layout_weight="1"
-			android:id="@+id/scrollText" android:scrollbars="vertical">
 					<TextView
 					    android:id="@+id/instructions"
 					    android:layout_width="200dp"
 					    android:layout_height="wrap_content"
 					    android:layout_gravity="right"
 					    android:text="" />
-					</ScrollView>
-			</LinearLayout>
 		</ScrollView>
+		
 	</LinearLayout>
     
     <LinearLayout

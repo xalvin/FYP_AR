@@ -45,6 +45,7 @@ public class LocationInfoActivity extends Activity{
 	private float[] destination;
 	private String name;
 	private String imgRef;
+	private String detailRef;
 	private boolean dirtyBit;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class LocationInfoActivity extends Activity{
 				this.imgRef = data.getString("imgRef");
 			else
 				this.imgRef = "";
+			this.detailRef = data.getString("detailRef");
 		} catch(NullPointerException npe){
 			npe.printStackTrace();
 		}
@@ -118,7 +120,7 @@ public class LocationInfoActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-					appendToJson(destination,name,imgRef);
+					appendToJson(destination,name,imgRef,detailRef);
 					remove.setVisibility(ImageButton.VISIBLE);
 					add.setVisibility(ImageButton.GONE);
 					dirtyBit=true;
@@ -192,7 +194,7 @@ public class LocationInfoActivity extends Activity{
 				
 	
 	*/
-	public static void appendToJson(float[] destination,String name,String imgRef){       
+	public static void appendToJson(float[] destination,String name,String imgRef,String detailRef){       
        File jsonFile = new File("sdcard/localData.json");
        String jsonStr = null;
        if (!jsonFile.exists())
@@ -249,6 +251,7 @@ public class LocationInfoActivity extends Activity{
 				dest.put("z", destination[2]);
 				obj.put("destination",dest);
 				obj.put("imgRef", imgRef);
+				obj.put("detailRef", detailRef);
 				a.put(obj);
 			} catch (JSONException e) {
 				e.printStackTrace();

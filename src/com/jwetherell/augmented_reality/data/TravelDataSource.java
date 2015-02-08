@@ -179,14 +179,20 @@ public class TravelDataSource extends NetworkDataSource {
 				}
 			}
 			if (lat != null) {
-				String user=null;
+				String name=null;
 				try{
-					user = jo.getString("name");
+					name = jo.getString("name");
 				}catch(Exception e){
 					Log.e("TravelDataSource","parse name error");
-					user = "";
+					name = "";
 				}
-				
+				String detailRef = null;
+				try{
+					detailRef = jo.getString("reference");
+				}catch(Exception e){
+					Log.e("TravelDataSource","parse details reference error");
+					detailRef = "";
+				}
 				JSONArray temp = jo.getJSONArray("types");
 				int len = temp.length();
 				String log = "";
@@ -196,9 +202,9 @@ public class TravelDataSource extends NetworkDataSource {
 				if (ma==null){
 					Log.v("TravelDataSource","creating marker");
 					if(ref!=null)
-						ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon,ref+"&key="+key);
+						ma = new IconMarker(name, lat, lon, 0, Color.WHITE, defaultIcon, ref, detailRef, key);
 					else
-						ma = new IconMarker(user, lat, lon, 0, Color.RED, defaultIcon);
+						ma = new IconMarker(name, lat, lon, 0, Color.WHITE, defaultIcon);
 				}
 				appendLog(log);
 			}

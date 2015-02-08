@@ -287,12 +287,11 @@ public class Demo extends AugmentedReality {
 
 		Vector dest = marker.getPhysicalLocation();
     	final float[] destination = {dest.getX(),dest.getY(),dest.getZ()};
-    	String name = marker.getName();
-    	String imgRef = marker.getImgReference();
         Bundle bundle = new Bundle();
         bundle.putFloatArray("destination", destination);
-        bundle.putString("name", name);
-        bundle.putString("imgRef", imgRef);
+        bundle.putString("name", marker.getName());
+        bundle.putString("imgRef", marker.getImgReference());
+        bundle.putString("detailRef", marker.getDetailRef());
         Intent i = new Intent();
         i.setClass(this,LocationInfoActivity.class);
         i.putExtras(bundle);

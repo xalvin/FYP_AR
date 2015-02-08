@@ -81,13 +81,15 @@ public class Marker implements Comparable<Marker> {
     private PaintablePosition positionContainer = null;
     
     private String imgReferenceWithKey = null;
+    private String detailRef = null;
+    private String key = null;
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
     }
 
-    public Marker(String name, double latitude, double longitude, double altitude, int color, String imgReferenceWithKey) {
-        set(name, latitude, longitude, altitude, color, imgReferenceWithKey);
+    public Marker(String name, double latitude, double longitude, double altitude, int color, String imgReference, String detailRef, String key) {
+        set(name, latitude, longitude, altitude, color, imgReference, detailRef, key);
     }
     /**
      * Set the objects parameters. This should be used instead of creating new
@@ -120,9 +122,11 @@ public class Marker implements Comparable<Marker> {
         else
             this.noAltitude = false;
         this.imgReferenceWithKey=null;
+        this.detailRef = null;
+        this.key=null;
     }
     
-    public void set(String name, double latitude, double longitude, double altitude, int color, String imgReference) {
+    public void set(String name, double latitude, double longitude, double altitude, int color, String imgReference, String detailRef, String key) {
         if (name == null)
             throw new NullPointerException();
 
@@ -138,6 +142,8 @@ public class Marker implements Comparable<Marker> {
         else
             this.noAltitude = false;
         this.imgReferenceWithKey = imgReference;
+        this.detailRef = detailRef;
+        this.key = key;
     }
 
     /**
@@ -152,6 +158,15 @@ public class Marker implements Comparable<Marker> {
     public String getImgReference(){
     	return this.imgReferenceWithKey;
     }
+    
+
+    public String getDetailRef() {
+		return detailRef;
+	}
+
+    public String getkey() {
+		return key;
+	}
     /**
      * Get the color of this Marker.
      * 
@@ -538,10 +553,10 @@ public class Marker implements Comparable<Marker> {
         }
         float maxHeight = Math.round(canvas.getHeight() / 10f) + 1;
 
-        if (textBox == null)
-            textBox = new PaintableBoxedText(textStr.toString(), Math.round(maxHeight / 2f) + 1, 300);
-        else
-            textBox.set(textStr.toString(), Math.round(maxHeight / 2f) + 1, 300);
+        //if (textBox == null)
+            textBox = new PaintableBoxedText(textStr.toString(), Math.round(maxHeight / 2f) + 1, 300,color,Color.argb(160, 0, 0, 0),color);
+        //else
+        //    textBox.set(textStr.toString(), Math.round(maxHeight / 2f) + 1, 300);
 
         getScreenPosition().get(locationArray);
         float x = locationArray[0];
@@ -549,7 +564,6 @@ public class Marker implements Comparable<Marker> {
 
         // Adjust the text to be below
         textBox.setCoordinates(0, textBox.getHeight()/2);
-
         float currentAngle = 0;
         if (AugmentedReality.useMarkerAutoRotate) {
             currentAngle = ARData.getDeviceOrientationAngle()+90;
@@ -617,7 +631,7 @@ public class Marker implements Comparable<Marker> {
         return name.hashCode();
     }
 
-    private static final class Box {
+	private static final class Box {
 
         private final float[] points = new float[]{0,0};
         private final Matrix matrix = new Matrix();

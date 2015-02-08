@@ -6,6 +6,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="/DroidAR"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry kind="lib" path="D:/adt/eclipse/workspace/testApp/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="E:/Y3_comp/AR/adt-bundle-windows-x86_64-20140702/sdk/samples/android-19/ui/SwipeRefreshListFragment/SwipeRefreshListFragmentSample/libs/android-support-v4.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
