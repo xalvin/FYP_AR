@@ -1,5 +1,6 @@
 package com.jwetherell.augmented_reality.activity;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,7 +9,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -84,6 +88,14 @@ public class LocationInfoActivity extends Activity{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		try{
+			if(!this.detailRef.equals("")){
+				String url = "https://maps.googleapis.com/maps/api/place/details/json?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&reference="+this.detailRef;
+				new DownloadDetailTask((TextView) findViewById(R.id.description)).execute(url);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		((TextView) findViewById(R.id.markerName)).setText(this.name);
 		//((TextView) findViewById(R.id.location)).setText("destination: x "+destination[0]+"\n\t\t\ty "+destination[1]+"\n\t\t\tz "+destination[2]);
 		((ImageButton) findViewById(R.id.routeMeThere)).setOnClickListener(new View.OnClickListener() {
@@ -148,7 +160,86 @@ public class LocationInfoActivity extends Activity{
 			}
 		});
 	}
-	
+
+	private class DownloadDetailTask extends AsyncTask<String, Void, String>{
+		TextView targetView;
+		
+		public DownloadDetailTask(TextView target){
+			this.targetView = target;
+		}
+		
+		protected String doInBackground(String... urls) {
+	        String urldisplay = urls[0];
+	        StringBuilder textToSet = new StringBuilder();
+	        String JSONStr = null;
+	        try {
+	            InputStream stream = new java.net.URL(urldisplay).openConnection().getInputStream();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(stream), 8 * 1024);
+		        StringBuilder sb = new StringBuilder();
+
+		        try {
+		            String line;
+		            while ((line = reader.readLine()) != null) {
+		                sb.append(line + "\n");
+		            }
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } finally {
+		            try {
+		                stream.close();
+		            } catch (IOException e) {
+		                e.printStackTrace();
+		            }
+		        }
+		        JSONStr = sb.toString();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+	            Log.e("Error", e.getMessage());
+	            e.printStackTrace();
+	        }
+			//process JSONObject
+			JSONObject json = null;
+			try {
+				json = new JSONObject(JSONStr);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (json == null) throw new NullPointerException();
+			JSONObject jo = null;
+			try {
+				if (json.has("result")) jo = json.getJSONObject("result");
+				if (jo == null) {
+					//steps=null;
+					return null;
+				}
+				textToSet.append("Address :\n\t");
+				textToSet.append(jo.getString("formatted_address"));
+				textToSet.append("\n");
+				textToSet.append("Phone number : ");
+				textToSet.append(jo.getString("international_phone_number"));
+				textToSet.append("\n");
+				textToSet.append("Website :\n\t");
+				textToSet.append(jo.getString("website"));
+				textToSet.append("\n\n\t");
+				textToSet.append(jo.getString("url"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        
+	        return textToSet.toString();
+	    }
+
+	    protected void onPostExecute(String result) {
+	    	targetView.setText(result);
+	    }
+	}
+
 	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	    ImageView bmImage;
 
@@ -180,14 +271,15 @@ public class LocationInfoActivity extends Activity{
 			"data":
 			[
 				{
-					"name" : "location_name"
+					"name" : "location_name",
 					"destination":
 					{
 						"x" : (float)lat
 						"y" : (float)lon
 						"z" : (float)alt
-					}
-					"imgRef" : "image_reference"
+					},
+					"imgRef" : "image_reference",
+					"detailRef" : "detail_reference"
 				}...
 			]
 		}

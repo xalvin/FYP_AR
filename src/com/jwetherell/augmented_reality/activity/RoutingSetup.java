@@ -60,6 +60,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -440,7 +441,7 @@ public class RoutingSetup extends Setup {
 			// get size of routes
 			int size = steps.size();
 			// place to add routes
-			LinearLayout targetLayout = (LinearLayout)myTargetActivity.findViewById(R.id.LinLay_bottom);
+			LinearLayout targetLayout = (LinearLayout)myTargetActivity.findViewById(R.id.LinLay_left);
 			// reset view content
 			targetLayout.removeAllViews();
 			for(int j =0;j<size;j++){
