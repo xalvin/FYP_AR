@@ -73,7 +73,9 @@
 			android:id="@+id/sLeft" android:scrollbars="vertical">
 			<LinearLayout android:id="@+id/LinLay_left"
 				android:orientation="vertical" android:layout_width="wrap_content"
-				android:layout_height="wrap_content"></LinearLayout>
+				android:layout_height="wrap_content">
+			    
+			</LinearLayout>
 		</ScrollView>
 	</LinearLayout>
 
@@ -122,11 +124,11 @@
 
 		<HorizontalScrollView android:layout_height="fill_parent"
 			android:id="@+id/sBottom" android:fadingEdgeLength="25dip"
-			android:scrollbars="horizontal" android:layout_width="fill_parent" android:layout_weight="1">
+			android:scrollbars="horizontal" android:layout_width="0dp" android:layout_weight="1">
 
 			<LinearLayout android:id="@+id/LinLay_bottom"
 			    android:orientation="horizontal"
-				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:layout_width="wrap_content" android:layout_height="fill_parent"
 				android:gravity="center_vertical"></LinearLayout>
 		</HorizontalScrollView>
 

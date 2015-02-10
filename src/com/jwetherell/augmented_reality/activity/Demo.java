@@ -275,6 +275,7 @@ public class Demo extends AugmentedReality {
      */
     @Override
     public void onLocationChanged(Location location) {
+    	Log.i(TAG,"changing location "+location.getLatitude()+","+location.getLongitude());
         super.onLocationChanged(location);
         updateData(location.getLatitude(), location.getLongitude(), location.getAltitude());
     }
