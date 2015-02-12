@@ -16,7 +16,6 @@ import android.util.Log;
 import com.jwetherell.augmented_reality.common.Matrix;
 import com.jwetherell.augmented_reality.common.Orientation.ORIENTATION;
 import com.jwetherell.augmented_reality.ui.Marker;
-import com.jwetherell.augmented_reality.ui.MarkerInfo;
 
 /**
  * Abstract class which should be used to set global data.
@@ -358,8 +357,4 @@ public abstract class ARData {
         }
     }
 
-	public static void addMarkers(MarkerInfo mi) {
-		// TODO Auto-generated method stub
-		markerList.put(mi.getName(), mi);
-	}
 }

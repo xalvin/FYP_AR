@@ -378,7 +378,7 @@ public class RoutingSetup extends Setup {
 						// get size of routes
 						int size = steps.size();
 						// place to add routes
-						LinearLayout targetLayout = (LinearLayout)myTargetActivity.findViewById(R.id.LinLay_bottom);
+						LinearLayout targetLayout = (LinearLayout)myTargetActivity.findViewById(R.id.LinLay_left);
 						// reset view content
 						targetLayout.removeAllViews();
 						for(int j =0;j<size;j++){
@@ -457,7 +457,7 @@ public class RoutingSetup extends Setup {
 					LatLng loc = new LatLng(l.getLatitude(),l.getLongitude());
 					gm.animateCamera(CameraUpdateFactory.newLatLng(loc));
 					//gpsAction.onLocationChanged(l);
-					EventManager.getInstance().onLocationChanged(l);
+					//EventManager.getInstance().onLocationChanged(l);
 					current = new float[]{(float) l.getLatitude(),(float) l.getLongitude(),(float) l.getAltitude()};
 					firstPlot(l);
 				}
@@ -472,6 +472,7 @@ public class RoutingSetup extends Setup {
 		if(firstPlotBit>0)
 			return;
 		gpsAction.resetWorldZeroPositions(l);
+		world.clear();
 		new DownloadFromURL(){
 			@Override
 			protected void onPostExecute(Void result){

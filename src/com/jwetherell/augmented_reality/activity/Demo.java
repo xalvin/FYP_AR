@@ -49,7 +49,6 @@ import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
 import com.jwetherell.augmented_reality.ui.Marker;
-import com.jwetherell.augmented_reality.ui.MarkerInfo;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
 

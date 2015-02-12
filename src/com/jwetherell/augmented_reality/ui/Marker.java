@@ -83,6 +83,7 @@ public class Marker implements Comparable<Marker> {
     private String imgReferenceWithKey = null;
     private String detailRef = null;
     private String key = null;
+    private float scale;
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
@@ -339,6 +340,7 @@ public class Marker implements Comparable<Marker> {
 
         // Update the markers distance based on the new location.
         updateDistance(location);
+        updateScale();
 
         // noAltitude means that the elevation of the POI is not known
         // and should be set to the users GPS altitude
@@ -366,6 +368,26 @@ public class Marker implements Comparable<Marker> {
         distance = distanceArray[0];
     }
 
+    private void updateScale(){
+    	// set scale within 0.5 to 2
+    	/* distance			scale
+    	 * 	5000			 0.5
+    	 * 	2000			 0.8
+    	 * 	1000			 1
+    	 * 	500				 1.5
+    	 * 	<100			 2
+    	 */
+    	if(distance>=2000)
+    		scale = (float) (0.3+ (1000/distance));
+    	else if (distance >= 1000)
+    		scale = (float) (1 - (distance - 1000)/5000);
+    	else if (distance >= 500)
+    		scale = (float) (1.5 - (distance - 500)/1000);
+    	else if (distance >= 100)
+    		scale = (float) (2 - (distance - 100)/800);
+    	else
+    		scale = (float) 2;
+    }
     /**
      * Tell if the x/y position is on this marker (if the marker is visible)
      * 
@@ -533,9 +555,9 @@ public class Marker implements Comparable<Marker> {
             currentAngle = 360 - currentAngle;
         }
         if (symbolContainer == null)
-            symbolContainer = new PaintablePosition(gpsSymbol, x, y, currentAngle, 1);
+            symbolContainer = new PaintablePosition(gpsSymbol, x, y, currentAngle, scale);
         else
-            symbolContainer.set(gpsSymbol, x, y, currentAngle, 1);
+            symbolContainer.set(gpsSymbol, x, y, currentAngle, scale);
 
         symbolContainer.paint(canvas);
     }
@@ -570,9 +592,9 @@ public class Marker implements Comparable<Marker> {
             currentAngle = 360 - currentAngle;
         }
         if (textContainer == null)
-            textContainer = new PaintablePosition(textBox, x, y, currentAngle, 1);
+            textContainer = new PaintablePosition(textBox, x, y, currentAngle, scale);
         else
-            textContainer.set(textBox, x, y, currentAngle, 1);
+            textContainer.set(textBox, x, y, currentAngle, scale);
 
         textContainer.paint(canvas);
     }
@@ -594,9 +616,9 @@ public class Marker implements Comparable<Marker> {
             currentAngle = 360 - currentAngle;
         }
         if (positionContainer == null)
-            positionContainer = new PaintablePosition(positionPoint, x, y, currentAngle, 1);
+            positionContainer = new PaintablePosition(positionPoint, x, y, currentAngle, scale);
         else
-            positionContainer.set(positionPoint, x, y, currentAngle, 1);
+            positionContainer.set(positionPoint, x, y, currentAngle, scale);
 
         positionContainer.paint(canvas);
     }
