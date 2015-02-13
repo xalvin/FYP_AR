@@ -59,7 +59,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     public static boolean useRadarAutoOrientate = true;
     public static boolean useMarkerAutoRotate = true;
     public static boolean useDataSmoothing = true;
-    public static boolean useCollisionDetection = true; // defaulted OFF
+    public static boolean useCollisionDetection = false; // defaulted OFF
 
     /**
      * {@inheritDoc}
