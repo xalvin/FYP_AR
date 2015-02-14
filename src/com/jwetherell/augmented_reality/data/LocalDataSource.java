@@ -74,29 +74,29 @@ public class LocalDataSource extends DataSource {
         String jsonStr = null;
         if (jsonFile.exists()){
         	FileInputStream in = null;
- 	       try{
- 	    	   // read exist json string
- 	    	   in = new FileInputStream(jsonFile);
- 	    	   FileChannel fc = in.getChannel();
-                MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-                jsonStr = Charset.defaultCharset().decode(bb).toString();
- 	       }catch(Exception e){
- 	    	   e.printStackTrace();
- 	       }finally{
- 	    	  try {
- 	    		   in.close();
- 	    	  } catch (IOException e) {
+ 	       	try{
+ 	       		// read exist json string
+ 	       		in = new FileInputStream(jsonFile);
+ 	       		FileChannel fc = in.getChannel();
+ 	       		MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+ 	       		jsonStr = Charset.defaultCharset().decode(bb).toString();
+ 	       	}catch(Exception e){
+ 	       		e.printStackTrace();
+ 	       	}finally{
+ 	       		try {
+ 	       			in.close();
+ 	       		} catch (IOException e) {
  					e.printStackTrace();
- 	    	  }
- 	       }
- 	      JSONObject root = new JSONObject();
-			if(jsonStr!=null){
-				try {
-					root = new JSONObject(jsonStr);
-				} catch (JSONException e) {
-					e.printStackTrace();
+ 	       		}
+ 	       	}
+ 	       	JSONObject root = new JSONObject();
+				if(jsonStr!=null){
+					try {
+						root = new JSONObject(jsonStr);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 				}
-			}
 			JSONArray a = null;
 			try {
 				a = root.getJSONArray("data");

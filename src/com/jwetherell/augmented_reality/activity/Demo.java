@@ -1,20 +1,34 @@
 package com.jwetherell.augmented_reality.activity;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -48,6 +62,7 @@ import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.data.NetworkDataSource;
 import com.jwetherell.augmented_reality.data.TravelDataSource;
 import com.jwetherell.augmented_reality.data.WikipediaDataSource;
+import com.jwetherell.augmented_reality.ui.IconMarker;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
@@ -73,6 +88,18 @@ public class Demo extends AugmentedReality {
     private static Toast myToast = null;
     private static VerticalTextView text = null;
 
+    private final String[] types = new String[]{"Accommodation","Entertatment","Food","Sightseeing","Shopping","Transport"};
+	private final String[] forSearch = new String[]{
+			"campground|lodging",
+			"amusement_park|aquarium|art_gallery|night_club|park",
+			"bar|cafe|food|meal_delivery|meal_takeaway|restaurant",
+			"church|city_hall|hindu_temple|mosque|museum|place_of_worship|stadium|synagogue|zoo",
+			"clothing_store|convenience_store|department_store|electronics_store|florist|furniture_store|grocery_or_supermarket|home_goods_store|jewelry_store|liquor_store|shoe_store|shopping_mall|store",
+			"bus_station|subway_station|taxi_stand|train_station"
+		};
+	private Map<String,String> translator = null;
+	
+	private boolean[] selected = new boolean[types.length];
     /**
      * {@inheritDoc}
      */
@@ -114,6 +141,55 @@ public class Demo extends AugmentedReality {
         NetworkDataSource travel = new TravelDataSource(this.getResources());
         sources.put("travel", travel);      
         /**/
+        translator = new ConcurrentHashMap<String,String>();
+        int len = types.length;
+        for(int i =0;i<len;i++){
+    		translator.put(types[i], forSearch[i]);
+    	}
+        selected = new boolean[len];
+        File jsonFile = new File("sdcard/","ARTypeSelected.txt");
+        if (!jsonFile.exists())
+        {
+        	for(int i =0;i<len;i++){
+            	selected[i]=true;
+            }
+        }else{
+        	FileInputStream in = null;
+        	String jsonStr = null;
+        	try {
+        		in = new FileInputStream(jsonFile);
+  	    	   	FileChannel fc = in.getChannel();
+                MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+                jsonStr = Charset.defaultCharset().decode(bb).toString();
+			}catch(Exception e){
+	       		e.printStackTrace();
+	       	}finally{
+	       		try {
+	       			in.close();
+	       		} catch (IOException e) {
+					e.printStackTrace();
+	       		}
+	       	}
+	       	JSONObject root = new JSONObject();
+			if(jsonStr!=null){
+				try {
+					root = new JSONObject(jsonStr);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			JSONArray a = null;
+			try {
+				a = root.getJSONArray("types");
+				for(int i = 0;i<a.length();i++){
+					int index = a.getInt(i);
+					selected[index] = true;
+				}
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+        }
+        
     }
 
     
@@ -169,7 +245,7 @@ public class Demo extends AugmentedReality {
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
-          
+        typeSearch();
     }
 
     /**
@@ -185,6 +261,52 @@ public class Demo extends AugmentedReality {
 	/**
      * {@inheritDoc}
      */
+	
+	private void typeSearch(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		
+    	builder.setMultiChoiceItems(types, selected,
+    			new DialogInterface.OnMultiChoiceClickListener() {
+					@Override
+					public void onClick(DialogInterface d, int indexSelected,
+							boolean isChecked) {
+						// TODO Auto-generated method stub
+						if(isChecked){
+							selected[indexSelected] = true;
+						}else{
+							selected[indexSelected] = false;
+						}
+					}
+    			}).setPositiveButton("ok", new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int id) {
+    					dialog.dismiss();
+    					//fixing text format
+    					String st = "";
+    					for(int i =0;i<types.length;i++){
+    						if(selected[i]){
+    							if(st.equals("")){
+    								st = translator.get(types[i]);
+    							}else{
+    								st += "|"+translator.get(types[i]);
+    							}
+    						}
+    					}
+    					//st = st.toLowerCase().replaceAll(" ", "_");
+    					appendLog("types for searching " +st);
+    					//update types user selected
+    					TravelDataSource t = (TravelDataSource) sources.get("travel");
+    					t.setCustomTypes(st);
+    					//update display data
+    					ARData.resetMarkers();
+    					ARData.addMarkers(localData.getMarkers());
+    					Location last = ARData.getCurrentLocation();
+    			        updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+    				}
+    			}).setNegativeButton("cancel",null);
+    	AlertDialog alert = builder.create();  
+		alert.show();
+	}
+	
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(TAG, "onOptionsItemSelected() item=" + item);
@@ -206,61 +328,7 @@ public class Demo extends AugmentedReality {
         		AlertDialog alert = builder.create();  
         		alert.show();
         		*/
-            	final String[] types = new String[]{"Accommodation","Entertatment","Food","Sightseeing","Shopping","Transport"};
-            	final String[] forSearch = new String[]{
-            			"campground|lodging",
-            			"amusement_park|aquarium|art_gallery|night_club|park",
-            			"bar|cafe|food|meal_delivery|meal_takeaway|restaurant",
-            			"church|city_hall|hindu_temple|mosque|museum|place_of_worship|stadium|synagogue|zoo",
-            			"clothing_store|convenience_store|department_store|electronics_store|florist|furniture_store|grocery_or_supermarket|home_goods_store|jewelry_store|liquor_store|shoe_store|shopping_mall|store",
-            			"bus_station|subway_station|taxi_stand|train_station"
-            		};
-            	final Map<String,String> translator = new ConcurrentHashMap<String,String>();
-            	for(int i =0;i<types.length;i++){
-            		translator.put(types[i], forSearch[i]);
-            	}
-            	final boolean[] selected = new boolean[types.length];
-            	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            	builder.setMultiChoiceItems(types, null,
-            			new DialogInterface.OnMultiChoiceClickListener() {
-							@Override
-							public void onClick(DialogInterface d, int indexSelected,
-									boolean isChecked) {
-								// TODO Auto-generated method stub
-								if(isChecked){
-									selected[indexSelected] = true;
-								}else{
-									selected[indexSelected] = false;
-								}
-							}
-            			}).setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            				public void onClick(DialogInterface dialog, int id) {
-            					dialog.dismiss();
-            					//fixing text format
-            					String st = "";
-            					for(int i =0;i<types.length;i++){
-            						if(selected[i]){
-            							if(st.equals("")){
-            								st = translator.get(types[i]);
-            							}else{
-            								st += "|"+translator.get(types[i]);
-            							}
-            						}
-            					}
-            					//st = st.toLowerCase().replaceAll(" ", "_");
-            					appendLog("types for searching " +st);
-            					//update types user selected
-            					TravelDataSource t = (TravelDataSource) sources.get("travel");
-            					t.setCustomTypes(st);
-            					//update display data
-            					ARData.resetMarkers();
-            					ARData.addMarkers(localData.getMarkers());
-            					Location last = ARData.getCurrentLocation();
-            			        updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
-            				}
-            			}).setNegativeButton("cancel",null);
-            	AlertDialog alert = builder.create();  
-        		alert.show();
+            	typeSearch();
                 break;
             case R.id.exit:
                 finish();
