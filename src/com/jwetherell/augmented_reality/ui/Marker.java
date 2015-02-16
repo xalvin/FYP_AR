@@ -315,7 +315,7 @@ public class Marker implements Comparable<Marker> {
         // If it's not in the same side as our viewing angle (behind us)
         if (z >= -1f)
             return;
-
+// reference here
         // TODO: Revisit for a better approach, I assume it's a "square" axis aligned square.
         float max = Math.max(getWidth(), getHeight()) + 25; // overscan a bit
         float ulX = x - max / 2;
@@ -522,9 +522,14 @@ public class Marker implements Comparable<Marker> {
             throw new NullPointerException();
 
         // If not visible then do nothing
-        if (!isOnRadar || !isInView)
+        // If not on radar, cannot see, return
+        if (!isOnRadar)
             return;
-
+        // If on radar, but not in user view angle, append to list on left or right
+        if(!isInView){
+        	//To-Do here, find whether the marker is on our left or right
+        	return;
+        }
         // Draw the Icon and Text
         drawIcon(canvas);
 

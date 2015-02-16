@@ -17,9 +17,11 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.camera.CameraSurface;
 import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.ui.Marker;
@@ -46,6 +48,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static VerticalTextView endLabel = null;
     protected static LinearLayout zoomLayout = null;
     protected static AugmentedView augmentedView = null;
+    protected static RelativeLayout allPlaceView = null;
 
     public static final float MAX_ZOOM = 5; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
@@ -74,8 +77,11 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         augmentedView = new AugmentedView(this);
         augmentedView.setOnTouchListener(this);
         LayoutParams augLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        allPlaceView = (RelativeLayout) (this.getResources().getLayout(R.layout.places));
+        addContentView(allPlaceView,augLayout);
         addContentView(augmentedView, augLayout);
-
+        
+        
         zoomLayout = new LinearLayout(this);
         zoomLayout.setVisibility((showZoomBar) ? LinearLayout.VISIBLE : LinearLayout.GONE);
         zoomLayout.setOrientation(LinearLayout.VERTICAL);
