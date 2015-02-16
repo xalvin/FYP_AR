@@ -17,6 +17,7 @@
 			    android:layout_height="wrap_content"
 			    android:layout_gravity="left"
 			    android:background="#77000000"
+			    android:maxWidth="100dp"
 			    android:text="More spots on your left" />
 	</LinearLayout>
 	
@@ -28,12 +29,13 @@
        	android:layout_alignParentRight="true"
        	android:layout_alignParentTop="true"
         android:layout_gravity="right" 
-        android:layout_marginRight="10dp" >
+        android:layout_marginRight="30dp" >
 		    <TextView
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_gravity="right"
 			    android:background="#77000000"
+			    android:maxWidth="100dp"
 		        android:text="More spots on your right" />
     </LinearLayout>
     
@@ -65,7 +67,7 @@
                 <TextView
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:maxWidth="150dp"
+		            android:maxWidth="100dp"
 		            android:layout_marginBottom="10dp"
 		            android:text="asdasdfasd asdadfa sdfasdfasdfas fda sdfasdfasdf"
 		            android:background="#77000000" />
@@ -73,7 +75,7 @@
               	<TextView
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:maxWidth="150dp"
+		            android:maxWidth="100dp"
 		            android:layout_marginBottom="10dp"
 		            android:text="asdasdfasd asdadfa sdfasdfasdfas fda sdfasdfasdf"
 		            android:background="#77000000" />
@@ -112,12 +114,12 @@
                 android:layout_gravity="right"
                 android:gravity="center|right"
                 android:orientation="vertical" 
-               	android:layout_marginRight="10dp"  >
+               	android:layout_marginRight="30dp"  >
 
                 <TextView
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:maxWidth="150dp"
+		            android:maxWidth="100dp"
 		            android:layout_marginBottom="10dp"
 		            android:text="asdasdfasd" 
 		            android:background="#77000000" />
@@ -125,7 +127,7 @@
               	<TextView
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:maxWidth="150dp"
+		            android:maxWidth="100dp"
 		            android:layout_marginBottom="10dp"
 		            android:text="asdasdfasd asdadfa sdfasdfasdfas fda sdfasdfasdf" 
 		            android:background="#77000000" />
