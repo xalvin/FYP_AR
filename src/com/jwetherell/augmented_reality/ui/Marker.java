@@ -84,6 +84,7 @@ public class Marker implements Comparable<Marker> {
     private String detailRef = null;
     private String key = null;
     private float scale;
+    private String currentOnSide;
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
@@ -312,9 +313,16 @@ public class Marker implements Comparable<Marker> {
         float y = locationArray[1];
         float z = locationArray[2];
 
+        Log.i("Marker",this.name+" - x:"+x+" y:"+y+" z:"+z);
         // If it's not in the same side as our viewing angle (behind us)
-        if (z >= -1f)
+        if (z >= -1f){
+        	Log.i("Marker",this.name+" - not in view, z>= -1");
+        	if(x>=-1)
+        		this.currentOnSide="left";
+        	else
+        		this.currentOnSide="right";
             return;
+        }
 // reference here
         // TODO: Revisit for a better approach, I assume it's a "square" axis aligned square.
         float max = Math.max(getWidth(), getHeight()) + 25; // overscan a bit
@@ -322,8 +330,18 @@ public class Marker implements Comparable<Marker> {
         float ulY = y - max / 2;
         float lrX = x + max / 2;
         float lrY = y + max / 2;
-        if (lrX >= -1 && ulX <= cam.getWidth() && lrY >= -1 && ulY <= cam.getHeight())
-            isInView = true;
+        Log.i("Marker",this.name+" - ulX : "+ulX+" ulY : "+ulY+" lrX : "+lrX+" lrY : "+lrY);
+        Log.i("Marker",this.name+" - cam width:"+cam.getWidth()+" cam height:"+cam.getHeight());
+        if (lrX >= -1 && ulX <= cam.getWidth() && lrY >= -1 && ulY <= cam.getHeight()){
+        	Log.i("Marker",this.name+" - is in view");
+        	isInView = true;
+        }else{
+        	if(lrX<-1)
+        		this.currentOnSide="left";
+        	else
+        		this.currentOnSide="right";
+        	Log.i("Marker",this.name+" - not in view, check lrX ulX ulY lrY");
+        }        
     }
 
     /**
@@ -657,6 +675,10 @@ public class Marker implements Comparable<Marker> {
     public int hashCode() {
         return name.hashCode();
     }
+
+	public String getCurrentOnSide() {
+		return currentOnSide;
+	}
 
 	private static final class Box {
 

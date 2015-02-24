@@ -57,6 +57,8 @@ public abstract class ARData {
     private static final Object orientationAngleLock = new Object();
     private static int orientationAngle = 0;
 
+    private static List<Marker> leftPlaceList = new ArrayList<Marker>();
+    private static List<Marker> rightPlaceList = new ArrayList<Marker>();
     /**
      * Set the zoom level.
      * 
@@ -155,7 +157,27 @@ public abstract class ARData {
     private static void onLocationChanged(Location location) {
         Log.d(TAG, "New location, updating markers. location=" + location.toString());
         for (Marker ma : markerList.values()) {
-            ma.calcRelativePosition(location);
+           ma.calcRelativePosition(location);
+           if(ma.getCurrentOnSide().equals("right")){
+        	   try{
+        		   //remove from leftPlaceMap
+        		   leftPlaceList.remove(ma);
+        	   }catch(Exception e){
+        		   //ignore if not in leftPlaceMap
+        	   }
+        	   //add to rightPlaceMap
+        	   rightPlaceList.add(ma);
+           }else{
+        	   try{
+        		   //remove from leftPlaceMap
+        		   rightPlaceList.remove(ma);
+        	   }catch(Exception e){
+        		   //ignore if not in leftPlaceMap
+        	   }
+        	   //add to rightPlaceMap
+        	   leftPlaceList.add(ma);
+           }
+           
         }
 
         if (dirty.compareAndSet(false, true)) {
@@ -214,6 +236,29 @@ public abstract class ARData {
             if (!markerList.containsKey(marker.getName())) {
                 marker.calcRelativePosition(getCurrentLocation());
                 markerList.put(marker.getName(), marker);
+                try{
+	                if(marker.getCurrentOnSide().equals("right")){
+	             	   try{
+	             		   //remove from leftPlaceMap
+	             		  leftPlaceList.remove(marker);
+	             	   }catch(Exception e){
+	             		   //ignore if not in leftPlaceMap
+	             	   }
+	             	   //add to rightPlaceMap
+	             	   rightPlaceList.add(marker);
+	                }else{
+	             	   try{
+	             		   //remove from leftPlaceMap
+	             		  rightPlaceList.remove(marker);
+	             	   }catch(Exception e){
+	             		   //ignore if not in leftPlaceMap
+	             	   }
+	             	   //add to rightPlaceMap
+	             	   leftPlaceList.add(marker);
+	                }
+                }catch(NullPointerException npe){
+                	// marker not ready
+                }
             }
         }
 
@@ -225,6 +270,8 @@ public abstract class ARData {
     
     public static void resetMarkers(){
     	markerList.clear();
+    	leftPlaceList.clear();
+    	rightPlaceList.clear();
     }
 
     /**
@@ -254,6 +301,14 @@ public abstract class ARData {
         return Collections.unmodifiableList(cache);
     }
 
+    public static List<Marker> getLeftMarkers(){
+    	return Collections.unmodifiableList(leftPlaceList);
+    }
+    
+    public static List<Marker> getRightMarkers(){
+    	return Collections.unmodifiableList(rightPlaceList);
+    }
+    
     private static final Comparator<Marker> comparator = new Comparator<Marker>() {
 
         /**

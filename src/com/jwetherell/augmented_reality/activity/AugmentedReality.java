@@ -17,7 +17,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -49,6 +48,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static LinearLayout zoomLayout = null;
     protected static AugmentedView augmentedView = null;
     protected static View allPlaceView = null;
+    
 
     public static final float MAX_ZOOM = 5; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
@@ -63,7 +63,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     public static boolean useMarkerAutoRotate = true;
     public static boolean useDataSmoothing = true;
     public static boolean useCollisionDetection = false; // defaulted OFF
-
+    
     /**
      * {@inheritDoc}
      */
@@ -77,8 +77,8 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         augmentedView = new AugmentedView(this);
         augmentedView.setOnTouchListener(this);
         LayoutParams augLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        allPlaceView = this.getLayoutInflater().inflate(R.layout.places, null);
-        addContentView(allPlaceView,augLayout);
+        //allPlaceView = new AllPlaceView(this);
+        //addContentView(allPlaceView,augLayout);
         addContentView(augmentedView, augLayout);
         
         
@@ -143,6 +143,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
 
         if (evt.sensor.getType() == Sensor.TYPE_ACCELEROMETER || evt.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             augmentedView.postInvalidate();
+            allPlaceView.postInvalidate();
         }
     }
 

@@ -48,6 +48,7 @@ public class IconMarker extends Marker {
 	        try {
 	        	InputStream stream = (new URL(url)).openConnection().getInputStream();
 	        	Bitmap mIcon11 = BitmapFactory.decodeStream(stream);
+	        	this.bitmap = mIcon11;
 	            Log.v("IconMarker","finish");
 	            gpsSymbol = new PaintableIcon(mIcon11,96,96);
 	            super.drawIcon(canvas);

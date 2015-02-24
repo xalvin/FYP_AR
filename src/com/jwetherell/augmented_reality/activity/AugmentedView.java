@@ -11,7 +11,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 
+import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.ui.Marker;
 import com.jwetherell.augmented_reality.ui.Radar;
@@ -45,6 +47,7 @@ public class AugmentedView extends View {
      */
     @Override
     protected void onDraw(Canvas canvas) {
+    	Log.i(TAG,"in on draw");
         if (canvas == null) return;
 
         if (drawing.compareAndSet(false, true)) {

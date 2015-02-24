@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="Iconbg">#0e9eff</color>
+    <color name="wordsBg">#77000000</color>
     
 </resources>
