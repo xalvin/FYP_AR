@@ -26,7 +26,7 @@ public class AllPlaceView extends View {
 		super(context);
 		this.context = context;
 		LayoutInflater  mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mInflater.inflate(R.layout.places, this, true);
+        //mInflater.inflate(R.layout.places, this, true);
 	}
 
 	protected void onDraw(Canvas canvas) {

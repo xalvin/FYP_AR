@@ -1,6 +1,7 @@
 package com.jwetherell.augmented_reality.activity;
 
 import java.text.DecimalFormat;
+import java.util.zip.Inflater;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,12 +12,16 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -47,8 +52,9 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static VerticalTextView endLabel = null;
     protected static LinearLayout zoomLayout = null;
     protected static AugmentedView augmentedView = null;
-    protected static View allPlaceView = null;
-    
+    //protected static View allPlaceView = null;
+    protected static ScrollView sv = null;
+    protected static LinearLayout allPlaceView = null; 
 
     public static final float MAX_ZOOM = 5; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
@@ -103,9 +109,25 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         zoomBarParams.gravity = Gravity.CENTER_HORIZONTAL;
         zoomLayout.addView(myZoomBar, zoomBarParams);
 
-        FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, Gravity.RIGHT);
+        //FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, Gravity.RIGHT);
+        
+        RelativeLayout.LayoutParams frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        frameLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
+        
         addContentView(zoomLayout, frameLayoutParams);
 
+        frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        frameLayoutParams.addRule(RelativeLayout.RIGHT_OF,zoomLayout.getId());
+        
+        sv = new ScrollView(this);
+        
+        allPlaceView = new LinearLayout(this);
+        allPlaceView.setBackgroundColor(ZOOMBAR_BACKGROUND_COLOR);
+        allPlaceView.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        
+        sv.addView(allPlaceView,param);
+        addContentView(sv, frameLayoutParams);
         updateDataOnZoom();
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -143,7 +165,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
 
         if (evt.sensor.getType() == Sensor.TYPE_ACCELEROMETER || evt.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             augmentedView.postInvalidate();
-            allPlaceView.postInvalidate();
+            //allPlaceView.postInvalidate();
         }
     }
 
