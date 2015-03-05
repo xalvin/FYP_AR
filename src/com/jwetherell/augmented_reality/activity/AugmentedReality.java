@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.jwetherell.augmented_reality.R;
@@ -69,7 +70,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     public static boolean useMarkerAutoRotate = true;
     public static boolean useDataSmoothing = true;
     public static boolean useCollisionDetection = false; // defaulted OFF
-    
+    private static TextView place = null;
     /**
      * {@inheritDoc}
      */
@@ -116,8 +117,8 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         
         addContentView(zoomLayout, frameLayoutParams);
 
-        frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        frameLayoutParams.addRule(RelativeLayout.RIGHT_OF,zoomLayout.getId());
+        frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.FILL_PARENT);
+        frameLayoutParams.addRule(RelativeLayout.LEFT_OF,zoomLayout.getId());
         
         sv = new ScrollView(this);
         
@@ -128,6 +129,14 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         
         sv.addView(allPlaceView,param);
         addContentView(sv, frameLayoutParams);
+        
+        place = new TextView(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.bottomMargin = 10;
+        place.setLayoutParams(params);
+        place.setMaxWidth(150);
+        place.setBackgroundResource(R.color.wordsBg);
+        
         updateDataOnZoom();
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -238,5 +247,29 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
 
     protected void markerTouched(Marker marker) {
         Log.w(TAG, "markerTouched() not implemented. marker="+marker.getName());
+    }
+    
+    protected static void updateUI(){
+    	allPlaceView.removeAllViews();
+    	
+    	//sv.removeAllViews();
+        for(Marker m : ARData.getMarkers()){
+        	double d = m.getDistance();
+        	String unit = "m";
+        	if(d>1000f){
+        		d/=1000f;
+        		unit = "km";
+        	}
+        	place.setText(m.getName()+" "+d+unit);
+        	try{
+        	((ViewGroup)allPlaceView.getParent()).removeAllViews();
+        	}catch(Exception e){
+        		
+        	}
+        	allPlaceView.addView(place);
+        }
+        //LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        
+        //sv.addView(allPlaceView,param);
     }
 }

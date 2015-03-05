@@ -158,7 +158,7 @@ public abstract class ARData {
         Log.d(TAG, "New location, updating markers. location=" + location.toString());
         for (Marker ma : markerList.values()) {
            ma.calcRelativePosition(location);
-           if(ma.getCurrentOnSide().equals("right")){
+           /*if(ma.getCurrentOnSide().equals("right")){
         	   try{
         		   //remove from leftPlaceMap
         		   leftPlaceList.remove(ma);
@@ -176,7 +176,7 @@ public abstract class ARData {
         	   }
         	   //add to rightPlaceMap
         	   leftPlaceList.add(ma);
-           }
+           }*/
            
         }
 

@@ -101,7 +101,7 @@ public class Demo extends AugmentedReality {
 	private Map<String,String> translator = null;
 	
 	private boolean[] selected = new boolean[types.length];
-	private static TextView place = null;
+	
     /**
      * {@inheritDoc}
      */
@@ -122,13 +122,6 @@ public class Demo extends AugmentedReality {
         myToast.setView(text);
         // Setting duration and displaying the toast
         myToast.setDuration(Toast.LENGTH_SHORT);
-
-        place = new TextView(this);
-        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        param.bottomMargin = 10;
-        place.setLayoutParams(param);
-        place.setMaxWidth(150);
-        place.setBackgroundResource(R.color.wordsBg);
         
         // Local
         
@@ -447,15 +440,12 @@ public class Demo extends AugmentedReality {
         }
 
         ARData.addMarkers(markers);
-        allPlaceView.removeAllViews();
-        for(Marker m : ARData.getMarkers()){
-        	double d = m.getDistance();
-        	if(d>1000f){
-        		d/=1000f;
+        allPlaceView.post(new Runnable(){
+        	public void run(){
+	        	updateUI();
         	}
-        	place.setText(m.getName()+" "+d);
-        	allPlaceView.addView(place);
-        }
+        });
+        
         return true;
     }
     
