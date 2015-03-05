@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -78,6 +79,7 @@ import com.jwetherell.augmented_reality.widget.VerticalTextView;
  */
 public class Demo extends AugmentedReality {
 	
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("@#");
     private static final String TAG = "Demo";
     private static final String locale = Locale.getDefault().getLanguage();
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(1);
@@ -465,9 +467,11 @@ public class Demo extends AugmentedReality {
         	public void run(){
         		places.removeAllViews();
                 for(Marker m : ARData.getMarkers()){
+                	String unit = "m";
                 	double d = m.getDistance();
-                	if(d>1000f){
-                		d/=1000f;
+                	if(d>1000){
+                		d/=1000;
+                		unit = "km";
                 	}
                 	TextView place = new TextView(getBaseContext());
                 	
@@ -477,7 +481,7 @@ public class Demo extends AugmentedReality {
                     place.setMaxWidth(150);
                     place.setBackgroundResource(R.color.wordsBg);
                     
-                	place.setText(m.getName()+" "+d);
+                	place.setText(m.getName()+" "+DECIMAL_FORMAT.format(d)+unit);
                 	places.addView(place);
                 }
         	}
