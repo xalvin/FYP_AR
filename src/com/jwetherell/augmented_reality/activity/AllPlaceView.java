@@ -38,7 +38,7 @@ public class AllPlaceView extends View {
             // Get all the markers
             List<Marker> leftCollection = ARData.getLeftMarkers();
             List<Marker> rightCollection = ARData.getRightMarkers();
-            LinearLayout ll = (LinearLayout) findViewById(R.id.left);
+            LinearLayout ll = null;//(LinearLayout) findViewById(R.id.left);
             if(ll == null) return;
             ll.removeAllViews();
             for(Marker ma : leftCollection){

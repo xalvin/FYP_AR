@@ -50,8 +50,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,14 +103,20 @@ public class Demo extends AugmentedReality {
 	private Map<String,String> translator = null;
 	
 	private boolean[] selected = new boolean[types.length];
-	
+
+	protected static View allPlaceView = null;
+	protected static ScrollView sv = null;
+	protected static LinearLayout places = null;
     /**
      * {@inheritDoc}
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // Add my view to UI
+        LayoutParams augLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        allPlaceView = this.getLayoutInflater().inflate(R.layout.places, null);
+        addContentView(allPlaceView,augLayout);
         // Create toast
         myToast = new Toast(getApplicationContext());
         myToast.setGravity(Gravity.CENTER, 0, 0);
@@ -122,6 +130,18 @@ public class Demo extends AugmentedReality {
         myToast.setView(text);
         // Setting duration and displaying the toast
         myToast.setDuration(Toast.LENGTH_SHORT);
+
+
+        places = (LinearLayout) findViewById(R.id.right);
+        sv = (ScrollView) findViewById(R.id.sv);
+        /*
+        place = new TextView(this);
+        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        param.bottomMargin = 10;
+        place.setLayoutParams(param);
+        place.setMaxWidth(150);
+        place.setBackgroundResource(R.color.wordsBg);
+		*/
         
         // Local
         
@@ -422,7 +442,7 @@ public class Demo extends AugmentedReality {
         }
     }
 
-    private static boolean download(NetworkDataSource source, double lat, double lon, double alt) {
+    private boolean download(NetworkDataSource source, double lat, double lon, double alt) {
         if (source == null) return false;
 
         String url = null;
@@ -440,14 +460,31 @@ public class Demo extends AugmentedReality {
         }
 
         ARData.addMarkers(markers);
-        allPlaceView.post(new Runnable(){
+
+        places.post(new Runnable(){
         	public void run(){
-	        	updateUI();
+        		places.removeAllViews();
+                for(Marker m : ARData.getMarkers()){
+                	double d = m.getDistance();
+                	if(d>1000f){
+                		d/=1000f;
+                	}
+                	TextView place = new TextView(getBaseContext());
+                	
+                	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    param.bottomMargin = 10;
+                    place.setLayoutParams(param);
+                    place.setMaxWidth(150);
+                    place.setBackgroundResource(R.color.wordsBg);
+                    
+                	place.setText(m.getName()+" "+d);
+                	places.addView(place);
+                }
         	}
         });
-        
         return true;
     }
+    
     
     public static void appendLog(String text)
     {       

@@ -2,109 +2,36 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="horizontal" android:id="@+id/main" android:background="#00000000">
-        
-	<LinearLayout
-        android:id="@+id/topLeft"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
-		android:layout_gravity="left" 
-		android:layout_marginLeft="10dp" >
-			<TextView
-				android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_gravity="left"
-			    android:background="#77000000"
-			    android:maxWidth="100dp"
-			    android:text="More spots on your left" />
-	</LinearLayout>
-	
-    <LinearLayout
-        android:id="@+id/topRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-       	android:layout_alignParentRight="true"
-       	android:layout_alignParentTop="true"
-        android:layout_gravity="right" 
-        android:layout_marginRight="30dp" >
-		    <TextView
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_gravity="right"
-			    android:background="#77000000"
-			    android:maxWidth="100dp"
-		        android:text="More spots on your right" />
-    </LinearLayout>
-    
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/topLeft"
-        android:gravity="center"
-        android:orientation="vertical" >
-		
-        <ScrollView 
-            android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:fadingEdgeLength="30dip"
-        	android:scrollbars="vertical"
-            >
 
-            <LinearLayout
-                android:id="@+id/left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:gravity="center|left"
-                android:orientation="vertical" 
-                android:layout_marginLeft="10dp">
-                
-              	<TextView
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:maxWidth="100dp"
-		            android:layout_marginBottom="10dp"
-		            android:text="asdasdgjh"
-		            android:background="#77000000" />
-		
-		        
-            </LinearLayout>
-            
-        </ScrollView>
-        
-    </LinearLayout>
-    
-    
-    
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/topRight"
-        android:gravity="center"
+        android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
-        
-        
-        <ScrollView 
+        <TextView
             android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:fadingEdgeLength="30dip"
-        	android:scrollbars="vertical"
-            >
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="0"
+            android:background="#77000000"
+            android:maxWidth="100dp"
+            android:text="spots found" />
+        
+        <ScrollView
+            android:id="@+id/sv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fadingEdgeLength="30dip"
+            android:scrollbars="vertical" >
 
             <LinearLayout
         		android:id="@+id/right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:gravity="center|right"
                 android:orientation="vertical" 
                	android:layout_marginRight="30dp"  >
 
@@ -115,7 +42,63 @@
 		            android:layout_marginBottom="10dp"
 		            android:text="asdasdfasd" 
 		            android:background="#77000000" />
-		
+                
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
+				<TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:maxWidth="100dp"
+		            android:layout_marginBottom="10dp"
+		            android:text="asdasdfasd asdasdfasd asdasdfasd" 
+		            android:background="#77000000" />
 		        
             </LinearLayout>
             
@@ -123,6 +106,5 @@
       
     </LinearLayout>
 
-    
     
 </RelativeLayout>
