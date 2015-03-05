@@ -47,7 +47,6 @@ public class AugmentedView extends View {
      */
     @Override
     protected void onDraw(Canvas canvas) {
-    	Log.i(TAG,"in on draw");
         if (canvas == null) return;
 
         if (drawing.compareAndSet(false, true)) {

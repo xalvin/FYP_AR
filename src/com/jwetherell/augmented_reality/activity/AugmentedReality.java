@@ -54,7 +54,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
     protected static AugmentedView augmentedView = null;
     //protected static View allPlaceView = null;
     protected static ScrollView sv = null;
-    protected static LinearLayout allPlaceView = null; 
+    
 
     public static final float MAX_ZOOM = 5; // in KM
     public static final float ONE_PERCENT = MAX_ZOOM / 100f;
@@ -85,8 +85,9 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         LayoutParams augLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         //allPlaceView = new AllPlaceView(this);
         //addContentView(allPlaceView,augLayout);
+        //allPlaceView = this.getLayoutInflater().inflate(R.layout.places, null);
+        //addContentView(allPlaceView,augLayout);
         addContentView(augmentedView, augLayout);
-        
         
         zoomLayout = new LinearLayout(this);
         zoomLayout.setVisibility((showZoomBar) ? LinearLayout.VISIBLE : LinearLayout.GONE);
@@ -109,13 +110,13 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         zoomBarParams.gravity = Gravity.CENTER_HORIZONTAL;
         zoomLayout.addView(myZoomBar, zoomBarParams);
 
-        //FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, Gravity.RIGHT);
+        FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT, Gravity.RIGHT);
         
-        RelativeLayout.LayoutParams frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        frameLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
+        //RelativeLayout.LayoutParams frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        //frameLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
         
         addContentView(zoomLayout, frameLayoutParams);
-
+/*
         frameLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         frameLayoutParams.addRule(RelativeLayout.RIGHT_OF,zoomLayout.getId());
         
@@ -128,6 +129,7 @@ public class AugmentedReality extends SensorsActivity implements OnTouchListener
         
         sv.addView(allPlaceView,param);
         addContentView(sv, frameLayoutParams);
+*/
         updateDataOnZoom();
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);

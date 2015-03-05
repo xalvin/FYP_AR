@@ -50,6 +50,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -101,6 +102,8 @@ public class Demo extends AugmentedReality {
 	private Map<String,String> translator = null;
 	
 	private boolean[] selected = new boolean[types.length];
+	protected static View allPlaceView = null;
+	protected static LinearLayout places = null;
 	private static TextView place = null;
     /**
      * {@inheritDoc}
@@ -108,7 +111,10 @@ public class Demo extends AugmentedReality {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // Add my view to UI
+        LayoutParams augLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        allPlaceView = this.getLayoutInflater().inflate(R.layout.places, null);
+        addContentView(allPlaceView,augLayout);
         // Create toast
         myToast = new Toast(getApplicationContext());
         myToast.setGravity(Gravity.CENTER, 0, 0);
@@ -123,6 +129,7 @@ public class Demo extends AugmentedReality {
         // Setting duration and displaying the toast
         myToast.setDuration(Toast.LENGTH_SHORT);
 
+        places = (LinearLayout) findViewById(R.id.right);
         place = new TextView(this);
         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         param.bottomMargin = 10;
@@ -447,17 +454,22 @@ public class Demo extends AugmentedReality {
         }
 
         ARData.addMarkers(markers);
-        allPlaceView.removeAllViews();
-        for(Marker m : ARData.getMarkers()){
-        	double d = m.getDistance();
-        	if(d>1000f){
-        		d/=1000f;
+        places.post(new Runnable(){
+        	public void run(){
+        		allPlaceView.removeAllViews();
+                for(Marker m : ARData.getMarkers()){
+                	double d = m.getDistance();
+                	if(d>1000f){
+                		d/=1000f;
+                	}
+                	place.setText(m.getName()+" "+d);
+                	allPlaceView.addView(place);
+                }
         	}
-        	place.setText(m.getName()+" "+d);
-        	allPlaceView.addView(place);
-        }
+        });
         return true;
     }
+    
     
     public static void appendLog(String text)
     {       
