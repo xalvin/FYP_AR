@@ -28,6 +28,7 @@ import system.ArActivity;
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.data.ARData;
 import com.jwetherell.augmented_reality.data.LocalDataSource;
+import com.jwetherell.augmented_reality.ui.objects.PaintableIcon;
 
 import de.rwth.setups.PositionTestsSetup;
 
@@ -55,7 +56,7 @@ public class LocationInfoActivity extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try {
-			System.setErr(new PrintStream(new FileOutputStream(new File("sdcard/ARErrLog.txt"), true)));
+			System.setErr(new PrintStream(new FileOutputStream(new File("sdcard/com.jwetherell.augmented_reality/data/","ARErrLog.txt"), true)));
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -82,16 +83,92 @@ public class LocationInfoActivity extends Activity{
 		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
 		try{
 			if(!this.imgRef.equals("")){
-				String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
-				new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
+				File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",this.imgRef+"-L");
+	        	if(img.exists()){
+	        		try{
+	        			FileInputStream in = new FileInputStream(img);
+	        			Bitmap mIcon11 = BitmapFactory.decodeStream(in);
+	        			in.close();
+	        			ImageView iv = (ImageView) findViewById(R.id.markerImg);
+	        			iv.setImageBitmap(mIcon11);
+	        		}catch(Exception e){
+	        			Log.e("LocationInfo","Error on opening image");
+	        		}
+	        	}else{
+					String url = "https://maps.googleapis.com/maps/api/place/photo?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&maxwidth=300&photoreference="+this.imgRef;
+					new DownloadImageTask((ImageView) findViewById(R.id.markerImg)).execute(url);
+	        	}
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		try{
 			if(!this.detailRef.equals("")){
-				String url = "https://maps.googleapis.com/maps/api/place/details/json?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&reference="+this.detailRef;
-				new DownloadDetailTask((TextView) findViewById(R.id.description)).execute(url);
+				File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","locationDeatils.json");
+				if (jsonFile.exists()){
+					FileInputStream in = null;
+		        	String jsonStr = null;
+		        	try {
+		        		in = new FileInputStream(jsonFile);
+		  	    	   	FileChannel fc = in.getChannel();
+		                MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+		                jsonStr = Charset.defaultCharset().decode(bb).toString();
+					}catch(Exception e){
+			       		e.printStackTrace();
+			       	}finally{
+			       		try {
+			       			in.close();
+			       		} catch (IOException e) {
+							e.printStackTrace();
+			       		}
+			       	}
+			       	JSONObject root = new JSONObject();
+					if(jsonStr!=null){
+						try {
+							root = new JSONObject(jsonStr);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+					JSONArray a = null;
+					try {
+						a = root.getJSONArray("data");
+						int len = a.length();
+						boolean flag = true;
+						for(int i = 0;i<len;i++){
+							JSONObject obj = a.getJSONObject(i);
+							if(obj.getString("detailRef").equals(this.detailRef)){
+								JSONObject jo = obj.getJSONObject("details");
+								StringBuilder textToSet = new StringBuilder();
+								textToSet.append("Address :\n\t");
+								textToSet.append(jo.getString("formatted_address"));
+								textToSet.append("\n");
+								textToSet.append("Phone number : ");
+								textToSet.append(jo.getString("international_phone_number"));
+								textToSet.append("\n");
+								textToSet.append("Website :\n\t");
+								textToSet.append(jo.getString("website"));
+								textToSet.append("\n\n\t");
+								textToSet.append(jo.getString("url"));
+								TextView targetView = (TextView) findViewById(R.id.description);
+								targetView.setText(textToSet.toString());
+								flag = false;
+								break;
+							}							
+						}
+						if(flag){
+							String url = "https://maps.googleapis.com/maps/api/place/details/json?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&reference="+this.detailRef;
+							new DownloadDetailTask((TextView) findViewById(R.id.description)).execute(url);
+						}
+					} catch(Exception e){
+						e.printStackTrace();
+						String url = "https://maps.googleapis.com/maps/api/place/details/json?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&reference="+this.detailRef;
+						new DownloadDetailTask((TextView) findViewById(R.id.description)).execute(url);
+					}
+				}else{
+					String url = "https://maps.googleapis.com/maps/api/place/details/json?key="+this.getResources().getString(R.string.google_places_api_key)+"&sensor=true&reference="+this.detailRef;
+					new DownloadDetailTask((TextView) findViewById(R.id.description)).execute(url);
+				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -217,6 +294,90 @@ public class LocationInfoActivity extends Activity{
 					//steps=null;
 					return null;
 				}
+				
+				//save json to storage
+				File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","locationDeatils.json");
+			       String jsonStr = null;
+			       if (!jsonFile.exists())
+			       {
+			          try
+			          {
+			        	  jsonFile.createNewFile();
+			          } 
+			          catch (IOException e)
+			          {
+			             // TODO Auto-generated catch block
+			             e.printStackTrace();
+			          }
+			       }else{
+			    	   FileInputStream in = null;
+				       try{
+				    	   // read exist json string
+				    	   in = new FileInputStream(jsonFile);
+				    	   FileChannel fc = in.getChannel();
+			               MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			               jsonStr = Charset.defaultCharset().decode(bb).toString();
+				       }catch(Exception e){
+				    	   e.printStackTrace();
+				       }finally{
+				    	  try {
+				    		   in.close();
+				    	  } catch (IOException e) {
+								e.printStackTrace();
+				    	  }
+				       }
+			       }
+			       /* format
+					{"data":
+						[{"detailRef":"detailRef....",
+						  "details":{obj details}
+						  },{...}]					
+					}
+					*/
+					try
+					{
+						JSONObject root = new JSONObject();
+						if(jsonStr!=null){
+							try {
+								root = new JSONObject(jsonStr);
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+						JSONArray a = null;
+						try {
+							try{
+								a = root.getJSONArray("data");
+							} catch(Exception e){
+								a = new JSONArray();
+							}
+							JSONObject obj = new JSONObject();
+							obj.put("detailRef", detailRef);
+							obj.put("details",jo);
+							a.put(obj);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						if(a!=null){
+							root = new JSONObject();
+							root.put("data",a);
+						}
+						try{
+							FileWriter out = new FileWriter(jsonFile,false);
+							out.write(root.toString());
+							out.flush();
+							out.close();
+						}catch(IOException ex){
+							ex.printStackTrace();
+						}
+					}
+			       catch (Exception e)
+			       {
+			          // TODO Auto-generated catch block
+			          e.printStackTrace();
+			       }
+					
+				
 				textToSet.append("Address :\n\t");
 				textToSet.append(jo.getString("formatted_address"));
 				textToSet.append("\n");
@@ -257,6 +418,15 @@ public class LocationInfoActivity extends Activity{
 	            Log.e("Error", e.getMessage());
 	            e.printStackTrace();
 	        }
+	        //save image to storage
+	        File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",imgRef+"-L");
+	        try {
+        		FileOutputStream out = new FileOutputStream(img);
+        		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        		out.close();
+        	}catch(Exception e){
+        		Log.e("LocationInfo","Error on saving image to storage");
+        	}	   
 	        return mIcon11;
 	    }
 
@@ -287,7 +457,7 @@ public class LocationInfoActivity extends Activity{
 	
 	*/
 	public static void appendToJson(float[] destination,String name,String imgRef,String detailRef){       
-       File jsonFile = new File("sdcard/localData.json");
+       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
        String jsonStr = null;
        if (!jsonFile.exists())
        {
@@ -370,7 +540,7 @@ public class LocationInfoActivity extends Activity{
 	
 	//check if destination exists in data file already
 	public static boolean checkExists(String name){
-	       File jsonFile = new File("sdcard/localData.json");
+	       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
 	       String jsonStr = null;
 	       if (!jsonFile.exists())
 	       {
@@ -428,7 +598,7 @@ public class LocationInfoActivity extends Activity{
 	
 	//check if destination exists in data file already
 	public static void removeFromJson(String name){       
-	       File jsonFile = new File("sdcard/localData.json");
+	       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
 	       String jsonStr = null;
 	       if (!jsonFile.exists())
 	       {

@@ -70,7 +70,7 @@ public class LocalDataSource extends DataSource {
     	Marker philipDental = new Marker("Prince Philip Dental Hospital", 22.2862335,114.14393,0,Color.YELLOW);
     	cachedMarkers.add(philipDental);
     	*/
-    	File jsonFile = new File("sdcard/localData.json");
+    	File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
         String jsonStr = null;
         if (jsonFile.exists()){
         	FileInputStream in = null;

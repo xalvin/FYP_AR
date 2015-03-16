@@ -1,5 +1,8 @@
 package com.jwetherell.augmented_reality.ui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -21,7 +24,6 @@ import android.widget.ImageView;
 public class IconMarker extends Marker {
 
     private Bitmap bitmap = null;
-    private String imgReference = null;
 
     public IconMarker(String name, double latitude, double longitude, double altitude, int color, Bitmap bitmap) {
         super(name, latitude, longitude, altitude, color);
@@ -43,12 +45,35 @@ public class IconMarker extends Marker {
 	        gpsSymbol = new PaintableIcon(bitmap, 96, 96);
 	        super.drawIcon(canvas);
         }else{
+        	File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",this.getImgReference()+"-s");
+        	if(img.exists()){
+        		try{
+        			FileInputStream in = new FileInputStream(img);
+        			Bitmap mIcon11 = BitmapFactory.decodeStream(in);
+        			in.close();
+        			this.bitmap = mIcon11;
+        			gpsSymbol = new PaintableIcon(mIcon11,96,96);
+    	            super.drawIcon(canvas);
+    	            return;
+        		}catch(Exception e){
+        			Log.e("IconMarker","Error on opening image");
+        		}
+        	}
 	        String url = "https://maps.googleapis.com/maps/api/place/photo?sensor=true&maxwidth=96&maxheight=96&photoreference="+this.getImgReference()+"&key="+this.getkey();
 	        Log.v("IconMarker","download from url "+url);
 	        try {
 	        	InputStream stream = (new URL(url)).openConnection().getInputStream();
 	        	Bitmap mIcon11 = BitmapFactory.decodeStream(stream);
 	        	this.bitmap = mIcon11;
+	        	
+	        	Log.v("IconMarker","saving image to storage");
+	        	try {
+	        		FileOutputStream out = new FileOutputStream(img);
+	        		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
+	        		out.close();
+	        	}catch(Exception e){
+	        		Log.e("IconMarker","Error on saving image to storage");
+	        	}	        	
 	            Log.v("IconMarker","finish");
 	            gpsSymbol = new PaintableIcon(mIcon11,96,96);
 	            super.drawIcon(canvas);

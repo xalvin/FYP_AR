@@ -105,6 +105,7 @@ public class Demo extends AugmentedReality {
 	private Map<String,String> translator = null;
 	
 	private boolean[] selected = new boolean[types.length];
+	private boolean preset = false;
 
 	protected static View allPlaceView = null;
 	protected static ScrollView sv = null;
@@ -171,13 +172,14 @@ public class Demo extends AugmentedReality {
     		translator.put(types[i], forSearch[i]);
     	}
         selected = new boolean[len];
-        File jsonFile = new File("sdcard/","ARTypeSelected.txt");
+        File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","ARTypeSelected.txt");
         if (!jsonFile.exists())
         {
         	for(int i =0;i<len;i++){
             	selected[i]=true;
             }
         }else{
+        	preset = true;
         	FileInputStream in = null;
         	String jsonStr = null;
         	try {
@@ -269,7 +271,8 @@ public class Demo extends AugmentedReality {
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
-        typeSearch();
+        if(!preset)
+        	typeSearch();
     }
 
     /**
@@ -492,7 +495,7 @@ public class Demo extends AugmentedReality {
     
     public static void appendLog(String text)
     {       
-       File logFile = new File("sdcard/ARlog.txt");
+       File logFile = new File("sdcard/com.jwetherell.augmented_reality/data/","ARlog.txt");
        if (!logFile.exists())
        {
           try
