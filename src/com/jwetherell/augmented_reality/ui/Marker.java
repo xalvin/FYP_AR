@@ -313,10 +313,10 @@ public class Marker implements Comparable<Marker> {
         float y = locationArray[1];
         float z = locationArray[2];
 
-        Log.i("Marker",this.name+" - x:"+x+" y:"+y+" z:"+z);
+        //Log.i("Marker",this.name+" - x:"+x+" y:"+y+" z:"+z);
         // If it's not in the same side as our viewing angle (behind us)
         if (z >= -1f){
-        	Log.i("Marker",this.name+" - not in view, z>= -1");
+        	//Log.i("Marker",this.name+" - not in view, z>= -1");
         	if(x>=-1)
         		this.currentOnSide="left";
         	else
@@ -330,17 +330,17 @@ public class Marker implements Comparable<Marker> {
         float ulY = y - max / 2;
         float lrX = x + max / 2;
         float lrY = y + max / 2;
-        Log.i("Marker",this.name+" - ulX : "+ulX+" ulY : "+ulY+" lrX : "+lrX+" lrY : "+lrY);
-        Log.i("Marker",this.name+" - cam width:"+cam.getWidth()+" cam height:"+cam.getHeight());
+        //Log.i("Marker",this.name+" - ulX : "+ulX+" ulY : "+ulY+" lrX : "+lrX+" lrY : "+lrY);
+        //Log.i("Marker",this.name+" - cam width:"+cam.getWidth()+" cam height:"+cam.getHeight());
         if (lrX >= -1 && ulX <= cam.getWidth() && lrY >= -1 && ulY <= cam.getHeight()){
-        	Log.i("Marker",this.name+" - is in view");
+        	//Log.i("Marker",this.name+" - is in view");
         	isInView = true;
         }else{
         	if(lrX<-1)
         		this.currentOnSide="left";
         	else
         		this.currentOnSide="right";
-        	Log.i("Marker",this.name+" - not in view, check lrX ulX ulY lrY");
+        	//Log.i("Marker",this.name+" - not in view, check lrX ulX ulY lrY");
         }        
     }
 

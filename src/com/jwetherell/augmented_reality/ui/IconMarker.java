@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -45,7 +46,9 @@ public class IconMarker extends Marker {
 	        gpsSymbol = new PaintableIcon(bitmap, 96, 96);
 	        super.drawIcon(canvas);
         }else{
-        	File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",this.getImgReference()+"-s");
+        	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+        	folder.mkdirs();
+        	File img = new File(folder,this.getImgReference()+"-s");
         	if(img.exists()){
         		try{
         			FileInputStream in = new FileInputStream(img);
@@ -72,7 +75,12 @@ public class IconMarker extends Marker {
 	        		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
 	        		out.close();
 	        	}catch(Exception e){
+	        		Log.e("IconMarker",Log.getStackTraceString(e));
 	        		Log.e("IconMarker","Error on saving image to storage");
+	        		//Log.e("IconMarker",e.);
+	        		/*for(StackTraceElement st :e.getStackTrace()){
+        				Log.e("IconMarker",st.toString()+"\n"+st.getFileName()+" "+st.getMethodName()+" "+st.getLineNumber()+"\n");
+        			}*/
 	        	}	        	
 	            Log.v("IconMarker","finish");
 	            gpsSymbol = new PaintableIcon(mIcon11,96,96);
