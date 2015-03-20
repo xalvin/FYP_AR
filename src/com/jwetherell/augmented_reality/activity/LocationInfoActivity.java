@@ -57,7 +57,7 @@ public class LocationInfoActivity extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try {
-			File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+			File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/log/");
 			folder.mkdirs();
 			System.setErr(new PrintStream(new FileOutputStream(new File(folder,"ARErrLog.txt"), true)));
 		} catch (FileNotFoundException e1) {
@@ -428,7 +428,7 @@ public class LocationInfoActivity extends Activity{
 	            e.printStackTrace();
 	        }
 	        //save image to storage
-	        File folder = new File("sdcard/com.jwetherell.augmented_reality/imgs/");
+	        File folder = new File(Environment.getExternalStorageDirectory()+"/com.jwetherell.augmented_reality/imgs/");
 	        folder.mkdirs();
 	        File img = new File(folder,imgRef+"-L");
 	        try {

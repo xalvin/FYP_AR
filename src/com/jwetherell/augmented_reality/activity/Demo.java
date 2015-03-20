@@ -274,8 +274,10 @@ public class Demo extends AugmentedReality {
         super.onStart();        
         //Location last = ARData.getCurrentLocation();
         //updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
-        if(!preset)
+        if(!preset){
+        	Log.i(TAG,""+preset);
         	typeSearch();
+        }
     }
 
     /**
@@ -498,7 +500,7 @@ public class Demo extends AugmentedReality {
     
     public static void appendLog(String text)
     {       
-       File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+       File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/log/");
        folder.mkdirs();
        File logFile = new File(folder,"ARlog.txt");
        if (!logFile.exists())

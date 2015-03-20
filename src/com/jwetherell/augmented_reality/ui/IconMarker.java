@@ -46,7 +46,7 @@ public class IconMarker extends Marker {
 	        gpsSymbol = new PaintableIcon(bitmap, 96, 96);
 	        super.drawIcon(canvas);
         }else{
-        	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+        	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/img/");
         	folder.mkdirs();
         	File img = new File(folder,this.getImgReference()+"-s");
         	if(img.exists()){
