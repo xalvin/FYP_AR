@@ -43,6 +43,7 @@ import android.location.Location;
 import android.location.LocationListener;  
 import android.location.LocationManager; 
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
@@ -172,7 +173,9 @@ public class Demo extends AugmentedReality {
     		translator.put(types[i], forSearch[i]);
     	}
         selected = new boolean[len];
-        File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","ARTypeSelected.txt");
+        File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+        folder.mkdirs();
+        File jsonFile = new File(folder,"ARTypeSelected.txt");
         if (!jsonFile.exists())
         {
         	for(int i =0;i<len;i++){
@@ -495,7 +498,9 @@ public class Demo extends AugmentedReality {
     
     public static void appendLog(String text)
     {       
-       File logFile = new File("sdcard/com.jwetherell.augmented_reality/data/","ARlog.txt");
+       File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+       folder.mkdirs();
+       File logFile = new File(folder,"ARlog.txt");
        if (!logFile.exists())
        {
           try

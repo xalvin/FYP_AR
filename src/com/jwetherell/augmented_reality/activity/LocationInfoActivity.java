@@ -39,6 +39,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -56,7 +57,9 @@ public class LocationInfoActivity extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try {
-			System.setErr(new PrintStream(new FileOutputStream(new File("sdcard/com.jwetherell.augmented_reality/data/","ARErrLog.txt"), true)));
+			File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+			folder.mkdirs();
+			System.setErr(new PrintStream(new FileOutputStream(new File(folder,"ARErrLog.txt"), true)));
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -83,7 +86,9 @@ public class LocationInfoActivity extends Activity{
 		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
 		try{
 			if(!this.imgRef.equals("")){
-				File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",this.imgRef+"-L");
+				File folder = new File("sdcard/com.jwetherell.augmented_reality/imgs/");
+				folder.mkdirs();
+				File img = new File(folder,this.imgRef+"-L");
 	        	if(img.exists()){
 	        		try{
 	        			FileInputStream in = new FileInputStream(img);
@@ -104,7 +109,9 @@ public class LocationInfoActivity extends Activity{
 		}
 		try{
 			if(!this.detailRef.equals("")){
-				File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","locationDeatils.json");
+				File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+				folder.mkdirs();
+				File jsonFile = new File(folder,"locationDeatils.json");
 				if (jsonFile.exists()){
 					FileInputStream in = null;
 		        	String jsonStr = null;
@@ -296,7 +303,9 @@ public class LocationInfoActivity extends Activity{
 				}
 				
 				//save json to storage
-				File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","locationDeatils.json");
+				File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+				folder.mkdirs();
+				File jsonFile = new File(folder,"locationDeatils.json");
 			       String jsonStr = null;
 			       if (!jsonFile.exists())
 			       {
@@ -419,7 +428,9 @@ public class LocationInfoActivity extends Activity{
 	            e.printStackTrace();
 	        }
 	        //save image to storage
-	        File img = new File("sdcard/com.jwetherell.augmented_reality/imgs/",imgRef+"-L");
+	        File folder = new File("sdcard/com.jwetherell.augmented_reality/imgs/");
+	        folder.mkdirs();
+	        File img = new File(folder,imgRef+"-L");
 	        try {
         		FileOutputStream out = new FileOutputStream(img);
         		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -456,8 +467,10 @@ public class LocationInfoActivity extends Activity{
 				
 	
 	*/
-	public static void appendToJson(float[] destination,String name,String imgRef,String detailRef){       
-       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
+	public static void appendToJson(float[] destination,String name,String imgRef,String detailRef){  
+		File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+		folder.mkdirs();
+       File jsonFile = new File(folder,"localData.json");
        String jsonStr = null;
        if (!jsonFile.exists())
        {
@@ -540,7 +553,9 @@ public class LocationInfoActivity extends Activity{
 	
 	//check if destination exists in data file already
 	public static boolean checkExists(String name){
-	       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
+			File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+			folder.mkdirs();
+	       File jsonFile = new File(folder,"localData.json");
 	       String jsonStr = null;
 	       if (!jsonFile.exists())
 	       {
@@ -597,8 +612,10 @@ public class LocationInfoActivity extends Activity{
 	}
 	
 	//check if destination exists in data file already
-	public static void removeFromJson(String name){       
-	       File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
+	public static void removeFromJson(String name){  
+			File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+			folder.mkdirs();
+	       File jsonFile = new File(folder,"localData.json");
 	       String jsonStr = null;
 	       if (!jsonFile.exists())
 	       {

@@ -17,6 +17,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Environment;
 
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.ui.IconMarker;
@@ -70,7 +71,9 @@ public class LocalDataSource extends DataSource {
     	Marker philipDental = new Marker("Prince Philip Dental Hospital", 22.2862335,114.14393,0,Color.YELLOW);
     	cachedMarkers.add(philipDental);
     	*/
-    	File jsonFile = new File("sdcard/com.jwetherell.augmented_reality/data/","localData.json");
+    	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+    	folder.mkdirs();
+    	File jsonFile = new File(folder,"localData.json");
         String jsonStr = null;
         if (jsonFile.exists()){
         	FileInputStream in = null;
