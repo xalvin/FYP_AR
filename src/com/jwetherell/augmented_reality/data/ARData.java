@@ -158,26 +158,6 @@ public abstract class ARData {
         Log.d(TAG, "New location, updating markers. location=" + location.toString());
         for (Marker ma : markerList.values()) {
            ma.calcRelativePosition(location);
-           /*if(ma.getCurrentOnSide().equals("right")){
-        	   try{
-        		   //remove from leftPlaceMap
-        		   leftPlaceList.remove(ma);
-        	   }catch(Exception e){
-        		   //ignore if not in leftPlaceMap
-        	   }
-        	   //add to rightPlaceMap
-        	   rightPlaceList.add(ma);
-           }else{
-        	   try{
-        		   //remove from leftPlaceMap
-        		   rightPlaceList.remove(ma);
-        	   }catch(Exception e){
-        		   //ignore if not in leftPlaceMap
-        	   }
-        	   //add to rightPlaceMap
-        	   leftPlaceList.add(ma);
-           }*/
-           
         }
 
         if (dirty.compareAndSet(false, true)) {
@@ -219,6 +199,22 @@ public abstract class ARData {
             return ARData.rotationMatrix;
         }
     }
+    
+    public static void updateList(){
+    	Log.i(TAG,"clear place list");
+    	leftPlaceList.clear();
+    	rightPlaceList.clear();
+    	for (Marker marker : ARData.getMarkers()) {
+    		if(marker.getCurrentOnSide().equals("right")){
+    			Log.i(TAG,marker.getName()+" - on right side");
+    			rightPlaceList.add(marker);
+    		}else if(marker.getCurrentOnSide().equals("left")){
+    			Log.i(TAG,marker.getName()+" - on left side");
+    			leftPlaceList.add(marker);
+    		}else
+    			Log.i(TAG,marker.getName()+" - on screen");
+    	}
+    }
 
     /**
      * Add a List of Markers to our Collection.
@@ -246,7 +242,7 @@ public abstract class ARData {
 	             	   }
 	             	   //add to rightPlaceMap
 	             	   rightPlaceList.add(marker);
-	                }else{
+	                }else if(marker.getCurrentOnSide().equals("left")){
 	             	   try{
 	             		   //remove from leftPlaceMap
 	             		  rightPlaceList.remove(marker);
@@ -255,6 +251,19 @@ public abstract class ARData {
 	             	   }
 	             	   //add to rightPlaceMap
 	             	   leftPlaceList.add(marker);
+	                }else{
+	                	try{
+	                		//remove from leftPlaceMap
+		             		leftPlaceList.remove(marker);
+		             	}catch(Exception e){
+		             		//ignore if not in leftPlaceMap
+		             	}
+	                	try{
+		             		//remove from leftPlaceMap
+	                		rightPlaceList.remove(marker);
+		             	}catch(Exception e){
+		             		//ignore if not in leftPlaceMap
+		             	}
 	                }
                 }catch(NullPointerException npe){
                 	// marker not ready

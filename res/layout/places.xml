@@ -7,19 +7,55 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
         android:orientation="vertical"
-        android:layout_marginRight="30dp" >
+        android:layout_marginLeft="5dp" >
 
-        <TextView
+        <ImageView
+            android:id="@+id/leftArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_weight="0"
+            android:layout_marginBottom="5dp"
             android:background="#77000000"
-            android:maxWidth="100dp"
-            android:text="spots found" />
+            android:layout_weight="0"
+            android:src="@drawable/left" />
+        
+        <ScrollView
+            android:id="@+id/Lsv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fadingEdgeLength="30dip"
+            android:scrollbars="vertical" >
+
+            <LinearLayout
+        		android:id="@+id/left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"   >
+                
+            </LinearLayout>
+            
+        </ScrollView>
+      
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical"
+        android:layout_marginRight="32dp" >
+
+        <ImageView
+            android:id="@+id/rightArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:background="#77000000"
+            android:layout_weight="0"
+            android:src="@drawable/right" />
         
         <ScrollView
             android:id="@+id/sv"
@@ -35,6 +71,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"   >
 
+                
             </LinearLayout>
             
         </ScrollView>

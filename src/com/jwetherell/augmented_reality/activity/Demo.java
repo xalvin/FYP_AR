@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +14,13 @@ import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,10 +43,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.SensorEvent;
 import android.location.Location;
 import android.location.LocationListener;  
 import android.location.LocationManager; 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -54,6 +63,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -109,8 +119,10 @@ public class Demo extends AugmentedReality {
 	private boolean preset = false;
 
 	protected static View allPlaceView = null;
-	protected static ScrollView sv = null;
-	protected static LinearLayout places = null;
+	protected static LinearLayout leftPlaces = null;
+	protected static LinearLayout rightPlaces = null;
+	
+	private ArrayList<String> pool = new ArrayList<String>();
     /**
      * {@inheritDoc}
      */
@@ -136,8 +148,8 @@ public class Demo extends AugmentedReality {
         myToast.setDuration(Toast.LENGTH_SHORT);
 
 
-        places = (LinearLayout) findViewById(R.id.right);
-        sv = (ScrollView) findViewById(R.id.sv);
+        leftPlaces = (LinearLayout) findViewById(R.id.left);
+        rightPlaces = (LinearLayout) findViewById(R.id.right);
         /*
         place = new TextView(this);
         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -175,7 +187,7 @@ public class Demo extends AugmentedReality {
         selected = new boolean[len];
         File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
         folder.mkdirs();
-        File jsonFile = new File(folder,"ARTypeSelected.txt");
+        File jsonFile = new File(folder,"ARTypeSelected.json");
         if (!jsonFile.exists())
         {
         	for(int i =0;i<len;i++){
@@ -199,6 +211,14 @@ public class Demo extends AugmentedReality {
 					e.printStackTrace();
 	       		}
 	       	}
+        	/*
+        	{
+        		"types":
+        			[
+	        			typeIndex(int),...
+	        		]
+        	}
+        	*/
 	       	JSONObject root = new JSONObject();
 			if(jsonStr!=null){
 				try {
@@ -312,10 +332,32 @@ public class Demo extends AugmentedReality {
     			}).setPositiveButton("ok", new DialogInterface.OnClickListener() {
     				public void onClick(DialogInterface dialog, int id) {
     					dialog.dismiss();
-    					//fixing text format
+    					//fixing text format, saving into file
     					String st = "";
+    					File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/data/");
+    			        folder.mkdirs();
+    			        File jsonFile = new File(folder,"ARTypeSelected.json");
+    			        if (!jsonFile.exists())
+    			        {
+    			        	try {
+								jsonFile.createNewFile();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+    			        }
+    			        FileWriter out = null;
+    			        try {
+    			        	out = new FileWriter(jsonFile,false);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    			        JSONObject root = new JSONObject();
+    			        JSONArray array = new JSONArray();
     					for(int i =0;i<types.length;i++){
     						if(selected[i]){
+    							array.put(i);
     							if(st.equals("")){
     								st = translator.get(types[i]);
     							}else{
@@ -323,6 +365,15 @@ public class Demo extends AugmentedReality {
     							}
     						}
     					}
+    					try {
+							root.put("types",array);
+							out.write(root.toString());
+							out.flush();
+							out.close();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
     					//st = st.toLowerCase().replaceAll(" ", "_");
     					appendLog("types for searching " +st);
     					//update types user selected
@@ -333,6 +384,21 @@ public class Demo extends AugmentedReality {
     					ARData.addMarkers(localData.getMarkers());
     					Location last = ARData.getCurrentLocation();
     			        updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+    			        
+    			        Log.i(TAG, "update left places.");
+    			        leftPlaces.post(new Runnable(){
+    			        	public void run(){
+    			        		leftPlaces.removeAllViews();
+    			        		updateView(ARData.getLeftMarkers(),leftPlaces);
+    			        	}
+    			        });
+    			        Log.i(TAG, "update right places.");
+    					rightPlaces.post(new Runnable(){
+    			        	public void run(){
+    			        		rightPlaces.removeAllViews();
+    			        		updateView(ARData.getRightMarkers(),rightPlaces);
+    			        	}
+    			        });
     				}
     			}).setNegativeButton("cancel",null);
     	AlertDialog alert = builder.create();  
@@ -377,6 +443,21 @@ public class Demo extends AugmentedReality {
     	Log.i(TAG,"changing location "+location.getLatitude()+","+location.getLongitude());
         super.onLocationChanged(location);
         updateData(location.getLatitude(), location.getLongitude(), location.getAltitude());
+        
+        Log.i(TAG, "update left places.");
+        leftPlaces.post(new Runnable(){
+        	public void run(){
+        		leftPlaces.removeAllViews();
+        		updateView(ARData.getLeftMarkers(),leftPlaces);
+        	}
+        });
+        Log.i(TAG, "update right places.");
+		rightPlaces.post(new Runnable(){
+        	public void run(){
+        		rightPlaces.removeAllViews();
+        		updateView(ARData.getRightMarkers(),rightPlaces);
+        	}
+        });
     }
 
     /**
@@ -407,7 +488,118 @@ public class Demo extends AugmentedReality {
         myToast.show();
         */
     }
+    
+    public void onSensorChanged(SensorEvent evt) {
+        super.onSensorChanged(evt);
+        //update list in ARData        
+        ARData.updateList();
+        //update view
+        Log.i(TAG, "update left places.");
+        leftPlaces.post(new Runnable(){
+        	public void run(){
+        		leftPlaces.removeAllViews();
+        		updateView(ARData.getLeftMarkers(),leftPlaces);
+        	}
+        });
+        Log.i(TAG, "update right places.");
+		rightPlaces.post(new Runnable(){
+        	public void run(){
+        		rightPlaces.removeAllViews();
+        		updateView(ARData.getRightMarkers(),rightPlaces);
+        	}
+        });        
+    }
+    
+    
 
+    private synchronized void updateView(List<Marker> mList, LinearLayout viewToAdd){
+    	for(Marker m : mList){
+    		Log.i(TAG, "marker in, name = "+m.getName());
+	    	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/imgs/");
+	    	folder.mkdirs();
+	    	File img = new File(folder,fileName(m.getImgReference())+"-s");
+	    	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+	        param.bottomMargin = 5;
+	        ImageView place = new ImageView(getBaseContext());
+	        place.setLayoutParams(param);
+	        place.setMaxWidth(50);
+	        place.setMaxHeight(50);
+	        Log.i(TAG, "add image view to layout");
+	        viewToAdd.addView(place);
+	    	if(img.exists()){
+	    		try{
+	    			FileInputStream in = new FileInputStream(img);
+	    			Bitmap mIcon11 = BitmapFactory.decodeStream(in);
+	    			in.close();
+	    			place.setImageBitmap(mIcon11);
+	    		}catch(Exception e){}
+	    	}else{
+	    		//while(true){
+	    			try{
+	    				synchronized (pool){
+		    				if(!pool.contains(m.getImgReference())){
+		    					pool.add(m.getImgReference());
+		    					new DownloadImageTask(place).execute(m.getImgReference(),m.getkey());
+		    				}
+	    				}
+	    				//break;
+	    			}catch(RejectedExecutionException e){
+	    				Log.i(TAG,"Thread Pool is full, retrying");
+	    			}
+	    		//}
+	    		
+	    	}
+	    	
+    	}
+    }
+    
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap>{
+    	ImageView bmImage;
+    	
+    	public DownloadImageTask(ImageView i){
+    		bmImage = i;
+    	}
+    	
+    	@Override
+		protected Bitmap doInBackground(String... arg0) {
+			// TODO Auto-generated method stub
+			String ref = arg0[0];
+			String key = arg0[1];
+			String url = "https://maps.googleapis.com/maps/api/place/photo?sensor=true&maxwidth=96&maxheight=96&photoreference="+ref+"&key="+key;
+			Bitmap mIcon11 = null;
+			try {
+	            InputStream in = new java.net.URL(url).openStream();
+	            mIcon11 = BitmapFactory.decodeStream(in);
+	            Log.i(TAG, "download success");
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Fail to download image");
+	            Log.e(TAG, e.getMessage());
+	            synchronized (pool){
+	            	pool.remove(ref);
+	            }
+	        }
+			//save image to storage
+			Log.i(TAG, "saving image file");
+	        File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/imgs/");
+	        folder.mkdirs();
+	        File img = new File(folder,fileName(ref)+"-s");
+	        try {
+        		FileOutputStream out = new FileOutputStream(img);
+        		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        		out.close();
+        	}catch(Exception e){
+        		Log.e(TAG,"Error on saving image to storage");
+        		Log.e(TAG,e.getLocalizedMessage());
+        	}	   
+	        return mIcon11;
+		}
+		
+		protected void onPostExecute(Bitmap result) {
+			Log.i(TAG, "setting image to view");
+			bmImage.setImageBitmap(result);
+	    }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
@@ -421,6 +613,21 @@ public class Demo extends AugmentedReality {
 			    }
 				Location last = ARData.getCurrentLocation();
 				updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+				
+				Log.i(TAG, "update left places.");
+		        leftPlaces.post(new Runnable(){
+		        	public void run(){
+		        		leftPlaces.removeAllViews();
+		        		updateView(ARData.getLeftMarkers(),leftPlaces);
+		        	}
+		        });
+		        Log.i(TAG, "update right places.");
+				rightPlaces.post(new Runnable(){
+		        	public void run(){
+		        		rightPlaces.removeAllViews();
+		        		updateView(ARData.getRightMarkers(),rightPlaces);
+		        	}
+		        });
 				break;
 	    }
 	}
@@ -433,6 +640,22 @@ public class Demo extends AugmentedReality {
         super.updateDataOnZoom();
         Location last = ARData.getCurrentLocation();
         updateData(last.getLatitude(), last.getLongitude(), last.getAltitude());
+        Log.i(TAG, "update left places.");
+        /*
+        leftPlaces.post(new Runnable(){
+        	public void run(){
+        		leftPlaces.removeAllViews();
+        		updateView(ARData.getLeftMarkers(),leftPlaces);
+        	}
+        });
+        Log.i(TAG, "update right places.");
+		rightPlaces.post(new Runnable(){
+        	public void run(){
+        		rightPlaces.removeAllViews();
+        		updateView(ARData.getRightMarkers(),rightPlaces);
+        	}
+        });
+        */
     }
 
     private void updateData(final double lat, final double lon, final double alt) {
@@ -470,28 +693,18 @@ public class Demo extends AugmentedReality {
         }
 
         ARData.addMarkers(markers);
-
-        places.post(new Runnable(){
+        Log.i(TAG, "update left places.");
+        leftPlaces.post(new Runnable(){
         	public void run(){
-        		places.removeAllViews();
-                for(Marker m : ARData.getMarkers()){
-                	String unit = "m";
-                	double d = m.getDistance();
-                	if(d>1000){
-                		d/=1000;
-                		unit = "km";
-                	}
-                	TextView place = new TextView(getBaseContext());
-                	
-                	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    param.bottomMargin = 10;
-                    place.setLayoutParams(param);
-                    place.setMaxWidth(150);
-                    place.setBackgroundResource(R.color.wordsBg);
-                    
-                	place.setText(m.getName()+" "+DECIMAL_FORMAT.format(d)+unit);
-                	places.addView(place);
-                }
+        		leftPlaces.removeAllViews();
+        		updateView(ARData.getLeftMarkers(),leftPlaces);
+        	}
+        });
+        Log.i(TAG, "update right places.");
+		rightPlaces.post(new Runnable(){
+        	public void run(){
+        		rightPlaces.removeAllViews();
+        		updateView(ARData.getRightMarkers(),rightPlaces);
         	}
         });
         return true;
@@ -533,4 +746,20 @@ public class Demo extends AugmentedReality {
           e.printStackTrace();
        }
     }
+    
+    private static String fileName(String ref){
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(ref.getBytes());
+			byte[] digest = md.digest();
+			StringBuffer sb = new StringBuffer();
+			for (byte b : digest) {
+				sb.append(String.format("%02x", b & 0xff));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+	}
 }

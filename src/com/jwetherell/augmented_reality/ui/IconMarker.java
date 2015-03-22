@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.ui.objects.PaintableIcon;
@@ -46,9 +48,9 @@ public class IconMarker extends Marker {
 	        gpsSymbol = new PaintableIcon(bitmap, 96, 96);
 	        super.drawIcon(canvas);
         }else{
-        	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/img/");
+        	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/imgs/");
         	folder.mkdirs();
-        	File img = new File(folder,this.getImgReference()+"-s");
+        	File img = new File(folder,fileName(this.getImgReference())+"-s");
         	if(img.exists()){
         		try{
         			FileInputStream in = new FileInputStream(img);
@@ -91,6 +93,22 @@ public class IconMarker extends Marker {
 	        //new DownloadImageTask(this,canvas).execute(url);
         }
     }
+    
+    private static String fileName(String ref){
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(ref.getBytes());
+			byte[] digest = md.digest();
+			StringBuffer sb = new StringBuffer();
+			for (byte b : digest) {
+				sb.append(String.format("%02x", b & 0xff));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+	}
 /*    
     public void callSuperDrawIcon(Canvas canvas){
     	super.drawIcon(canvas);

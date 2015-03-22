@@ -84,7 +84,7 @@ public class Marker implements Comparable<Marker> {
     private String detailRef = null;
     private String key = null;
     private float scale;
-    private String currentOnSide;
+    private String currentOnSide = "none";
 
     public Marker(String name, double latitude, double longitude, double altitude, int color) {
         set(name, latitude, longitude, altitude, color);
@@ -302,6 +302,7 @@ public class Marker implements Comparable<Marker> {
     }
 
     private void updateView() {
+    	//Log.i("Marker",this.getName()+" - updating view");
         isInView = false;
 
         // If it's not on the radar, can't be in view
@@ -321,6 +322,7 @@ public class Marker implements Comparable<Marker> {
         		this.currentOnSide="left";
         	else
         		this.currentOnSide="right";
+        	Log.i("Marker", this.getName()+" - "+this.getCurrentOnSide());
             return;
         }
 // reference here
@@ -335,13 +337,15 @@ public class Marker implements Comparable<Marker> {
         if (lrX >= -1 && ulX <= cam.getWidth() && lrY >= -1 && ulY <= cam.getHeight()){
         	//Log.i("Marker",this.name+" - is in view");
         	isInView = true;
+        	this.currentOnSide="none";
         }else{
         	if(lrX<-1)
         		this.currentOnSide="left";
         	else
         		this.currentOnSide="right";
         	//Log.i("Marker",this.name+" - not in view, check lrX ulX ulY lrY");
-        }        
+        }
+        Log.i("Marker", this.getName()+" - "+this.getCurrentOnSide());
     }
 
     /**
@@ -389,22 +393,22 @@ public class Marker implements Comparable<Marker> {
     private void updateScale(){
     	// set scale within 0.5 to 2
     	/* distance			scale
-    	 * 	5000			 0.5
-    	 * 	2000			 0.8
-    	 * 	1000			 1
-    	 * 	500				 1.5
-    	 * 	<100			 2
+    	 * 	<5000			 0.3
+    	 * 	<2000			 0.5
+    	 * 	<1000			 0.9
+    	 * 	<500			 1.3
+    	 * 	<100			 1.5
     	 */
     	if(distance>=2000)
-    		scale = (float) (0.3+ (1000/distance));
+    		scale = (float) (0.5 - (distance - 2000)/15000);
     	else if (distance >= 1000)
-    		scale = (float) (1 - (distance - 1000)/5000);
+    		scale = (float) (0.9 - (distance - 1000)/2500);
     	else if (distance >= 500)
-    		scale = (float) (1.5 - (distance - 500)/1000);
+    		scale = (float) (1.3 - (distance - 500)/1250);
     	else if (distance >= 100)
-    		scale = (float) (2 - (distance - 100)/800);
+    		scale = (float) (1.5 - (distance - 100)/2000);
     	else
-    		scale = (float) 2;
+    		scale = (float) 1.5;
     }
     /**
      * Tell if the x/y position is on this marker (if the marker is visible)
@@ -615,9 +619,9 @@ public class Marker implements Comparable<Marker> {
             currentAngle = 360 - currentAngle;
         }
         if (textContainer == null)
-            textContainer = new PaintablePosition(textBox, x, y, currentAngle, scale);
+            textContainer = new PaintablePosition(textBox, x, y, currentAngle, 1);
         else
-            textContainer.set(textBox, x, y, currentAngle, scale);
+            textContainer.set(textBox, x, y, currentAngle, 1);
 
         textContainer.paint(canvas);
     }

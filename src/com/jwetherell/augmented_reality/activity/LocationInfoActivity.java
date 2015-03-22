@@ -16,6 +16,8 @@ import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -88,7 +90,7 @@ public class LocationInfoActivity extends Activity{
 			if(!this.imgRef.equals("")){
 				File folder = new File("sdcard/com.jwetherell.augmented_reality/imgs/");
 				folder.mkdirs();
-				File img = new File(folder,this.imgRef+"-L");
+				File img = new File(folder,fileName(this.imgRef)+"-L");
 	        	if(img.exists()){
 	        		try{
 	        			FileInputStream in = new FileInputStream(img);
@@ -430,7 +432,7 @@ public class LocationInfoActivity extends Activity{
 	        //save image to storage
 	        File folder = new File(Environment.getExternalStorageDirectory()+"/com.jwetherell.augmented_reality/imgs/");
 	        folder.mkdirs();
-	        File img = new File(folder,imgRef+"-L");
+	        File img = new File(folder,fileName(imgRef)+"-L");
 	        try {
         		FileOutputStream out = new FileOutputStream(img);
         		mIcon11.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -697,5 +699,21 @@ public class LocationInfoActivity extends Activity{
 		i.putExtras(b);
 		setResult(RESULT_OK,i);
 		super.finish();
+	}
+	
+	private static String fileName(String ref){
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(ref.getBytes());
+			byte[] digest = md.digest();
+			StringBuffer sb = new StringBuffer();
+			for (byte b : digest) {
+				sb.append(String.format("%02x", b & 0xff));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			return null;
+		}
 	}
 }
