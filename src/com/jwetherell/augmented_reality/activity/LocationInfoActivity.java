@@ -10,7 +10,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.MappedByteBuffer;
@@ -29,25 +31,39 @@ import system.ArActivity;
 
 import com.jwetherell.augmented_reality.R;
 import com.jwetherell.augmented_reality.data.ARData;
+import com.jwetherell.augmented_reality.data.Account;
 import com.jwetherell.augmented_reality.data.LocalDataSource;
 import com.jwetherell.augmented_reality.ui.objects.PaintableIcon;
+import com.jwetherell.augmented_reality.widget.VerticalTextView;
 
 import de.rwth.setups.PositionTestsSetup;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LocationInfoActivity extends Activity{
 	private float[] destination;
@@ -55,6 +71,9 @@ public class LocationInfoActivity extends Activity{
 	private String imgRef;
 	private String detailRef;
 	private boolean dirtyBit;
+	private static Toast myToast = null;
+	private static VerticalTextView text = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,6 +102,116 @@ public class LocationInfoActivity extends Activity{
 		dirtyBit=false;
 		
 		setContentView(R.layout.defaultlistitemview);
+		if(Account.getLoginStatus()){
+			((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
+		}else{
+			((LinearLayout)findViewById(R.id.commentLayout)).setVisibility(View.GONE);
+			((LinearLayout)findViewById(R.id.register)).setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View arg0) {
+					// TODO Auto-generated method stub
+					LayoutInflater li = LayoutInflater.from(LocationInfoActivity.this);
+					View promptsView = li.inflate(R.layout.register, null);
+					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+							LocationInfoActivity.this);
+					
+					// set prompts.xml to alertdialog builder
+					alertDialogBuilder.setView(promptsView);
+					final EditText email = (EditText) promptsView
+							.findViewById(R.id.email);
+					final EditText pw = (EditText) promptsView
+							.findViewById(R.id.pw);
+					final EditText name = (EditText) promptsView
+							.findViewById(R.id.name);
+					
+					// set dialog message
+					alertDialogBuilder
+						.setCancelable(false)
+						.setPositiveButton("OK",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+								// get user input and set it to result
+								// edit text
+								String mail = email.getText().toString();
+								String pass = pw.getText().toString();
+								String userName = name.getText().toString();
+								boolean success = Account.register(mail, pass, userName);
+								if(success)
+									Account.login(mail, pass);
+								Toast.makeText(LocationInfoActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+								if(Account.getLoginStatus()){
+									((LinearLayout)findViewById(R.id.commentLayout)).setVisibility(View.VISIBLE);
+									((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
+								}
+						    }
+						  })
+						.setNegativeButton("Cancel",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+							dialog.cancel();
+						    }
+						  });
+	 
+					// create alert dialog
+					AlertDialog alertDialog = alertDialogBuilder.create();
+	 
+					// show it
+					alertDialog.show();
+				}
+				
+			});
+			((LinearLayout)findViewById(R.id.login)).setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					LayoutInflater l = LayoutInflater.from(LocationInfoActivity.this);
+					View prompt = l.inflate(R.layout.login, null);
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							LocationInfoActivity.this);
+					
+					// set prompts.xml to alertdialog builder
+					builder.setView(prompt);
+					final EditText mail = (EditText) prompt
+							.findViewById(R.id.email);
+					final EditText pass = (EditText) prompt
+							.findViewById(R.id.pw);
+					
+					// set dialog message
+					builder
+						.setCancelable(false)
+						.setPositiveButton("OK",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+								// get user input and set it to result
+								// edit text
+								String email = mail.getText().toString();
+								String pw = pass.getText().toString();
+								Account.login(email, pw);
+								Toast.makeText(LocationInfoActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+								if(Account.getLoginStatus()){
+									((LinearLayout)findViewById(R.id.commentLayout)).setVisibility(View.VISIBLE);
+									((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
+								}
+						    }
+						  })
+						.setNegativeButton("Cancel",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+							dialog.cancel();
+						    }
+						  });
+	 
+					// create alert dialog
+					AlertDialog ad = builder.create();
+	 
+					// show it
+					ad.show();
+				}
+				
+			});
+		}
 		if (destination == null) throw new NullPointerException("destination location cannot be loaded");
 		
 		//((TextView) findViewById(R.id.lat)).setText("current: x "+current[0]+" y "+current[1]+" z "+current[2]+"\n");
@@ -245,6 +374,28 @@ public class LocationInfoActivity extends Activity{
 				finish();
 			}
 		});
+		((ImageButton) findViewById(R.id.send)).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				String msg = ((EditText) findViewById(R.id.enterComment)).getText().toString();
+				new UploadComment().execute(msg);
+			}
+			
+		});
+		myToast = new Toast(getApplicationContext());
+        myToast.setGravity(Gravity.CENTER, 0, 0);
+        // Creating our custom text view, and setting text/rotation
+        text = new VerticalTextView(getApplicationContext());
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        text.setLayoutParams(params);
+        text.setBackgroundResource(android.R.drawable.toast_frame);
+        text.setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_Small);
+        text.setShadowLayer(2.75f, 0f, 0f, Color.parseColor("#BB000000"));
+        myToast.setView(text);
+        // Setting duration and displaying the toast
+        myToast.setDuration(Toast.LENGTH_SHORT);
 	}
 
 	private class DownloadDetailTask extends AsyncTask<String, Void, String>{
@@ -446,6 +597,123 @@ public class LocationInfoActivity extends Activity{
 	    protected void onPostExecute(Bitmap result) {
 	        bmImage.setImageBitmap(result);
 	    }
+	}
+	
+	private class DownloadCommentTask extends AsyncTask<Void, Void, Void> {
+		LinearLayout ll;
+
+	    public DownloadCommentTask(LinearLayout ll) {
+	        this.ll = ll;
+	    }
+
+	    protected Void doInBackground(Void... params) {
+	        URL url = new URL("http://hkours.com/akFYP/retriveMsg.php");
+	        try {
+	        	HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				conn.setRequestMethod("POST");
+				
+				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+				String parameter = "id="+Account.getUserId()+
+						"&lName="+name+
+						"&lan="+destination[0]+
+						"&lon="+destination[1]+
+						"&imgRef="+imgRef+
+						"&detailRef="+detailRef+
+						"&msg="+msg;
+	            request.write(parameter);
+	            request.flush();
+	            request.close(); 
+
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(myReader.readLine() + "\n");
+	            String line="";
+	            while ((line = myReader.readLine()) != null) {
+	                sb.append(line);
+	            }
+	            String result = sb.toString();
+	        } catch (Exception e) {
+	            Log.e("Error", e.getMessage());
+	            e.printStackTrace();
+	        }
+	        return mIcon11;
+	    }
+
+	    protected void onPostExecute(Bitmap result) {
+	        bmImage.setImageBitmap(result);
+	    }
+
+	}
+	
+	private class UploadComment extends AsyncTask<String, Void, Boolean> {
+		private final ProgressDialog dialog = new ProgressDialog(LocationInfoActivity.this);
+		String status;
+		String message;
+
+	    protected void onPreExecute() {
+	        this.dialog.setMessage("Loading...");
+	        this.dialog.setCancelable(false);
+	        this.dialog.show();
+	    }
+
+	    @Override
+		protected Boolean doInBackground(String... arg0) {
+			// TODO Auto-generated method stub
+	    	String msg = arg0[0];
+	    	URL url;
+			try {
+				url = new URL("http://hkours.com/akFYP/addMsg.php");
+				
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				conn.setRequestMethod("POST");
+				
+				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+				String parameter = "id="+Account.getUserId()+
+						"&lName="+name+
+						"&lan="+destination[0]+
+						"&lon="+destination[1]+
+						"&imgRef="+imgRef+
+						"&detailRef="+detailRef+
+						"&msg="+msg;
+	            request.write(parameter);
+	            request.flush();
+	            request.close(); 
+
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(myReader.readLine() + "\n");
+	            String line="";
+	            while ((line = myReader.readLine()) != null) {
+	                sb.append(line);
+	            }
+	            String result = sb.toString();
+	            JSONObject obj = new JSONObject(result);
+	            status = obj.getString("status");
+	            message = obj.getString("message");
+	            if(!status.equals("OK")){
+	            	return false;
+	            }
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		}
+
+        protected void onPostExecute(Boolean result) {
+
+            // Here if you wish to do future process for ex. move to another activity do here
+
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            text.setText(message);
+            myToast.show();
+        }
 	}
 	
 	//append new favourite destination to JSON file
