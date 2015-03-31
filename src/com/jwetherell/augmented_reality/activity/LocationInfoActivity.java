@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.json.JSONArray;
@@ -50,6 +51,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -61,6 +63,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -105,8 +108,8 @@ public class LocationInfoActivity extends Activity{
 		if(Account.getLoginStatus()){
 			((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
 		}else{
-			((LinearLayout)findViewById(R.id.commentLayout)).setVisibility(View.GONE);
-			((LinearLayout)findViewById(R.id.register)).setOnClickListener(new OnClickListener(){
+			((RelativeLayout)findViewById(R.id.commentLayout)).setVisibility(View.GONE);
+			((Button)findViewById(R.id.register)).setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View arg0) {
@@ -161,7 +164,7 @@ public class LocationInfoActivity extends Activity{
 				}
 				
 			});
-			((LinearLayout)findViewById(R.id.login)).setOnClickListener(new OnClickListener(){
+			((Button)findViewById(R.id.login)).setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
@@ -191,7 +194,7 @@ public class LocationInfoActivity extends Activity{
 								Account.login(email, pw);
 								Toast.makeText(LocationInfoActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
 								if(Account.getLoginStatus()){
-									((LinearLayout)findViewById(R.id.commentLayout)).setVisibility(View.VISIBLE);
+									((RelativeLayout)findViewById(R.id.commentLayout)).setVisibility(View.VISIBLE);
 									((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
 								}
 						    }
@@ -384,6 +387,7 @@ public class LocationInfoActivity extends Activity{
 			}
 			
 		});
+		new DownloadCommentTask((LinearLayout)findViewById(R.id.userComments)).execute();
 		myToast = new Toast(getApplicationContext());
         myToast.setGravity(Gravity.CENTER, 0, 0);
         // Creating our custom text view, and setting text/rotation
@@ -539,17 +543,27 @@ public class LocationInfoActivity extends Activity{
 			          e.printStackTrace();
 			       }
 					
+				try{
+					String temp = jo.getString("formatted_address");
+					textToSet.append("Address :\n\t");
+					textToSet.append(temp);
+				}catch(Exception e){}
+				try{
+					textToSet.append("\n");
+					String temp = jo.getString("international_phone_number");
+					textToSet.append("Phone number : ");
+					textToSet.append(temp);
+				}catch(Exception e){}
+				try{
+					textToSet.append("\n");
+					String temp = jo.getString("website");
+					String temp2 = jo.getString("url");
+					textToSet.append("Website :\n\t");
+					textToSet.append(temp);
+					textToSet.append("\n\n\t");
+					textToSet.append(temp2);
+				}catch(Exception e){}
 				
-				textToSet.append("Address :\n\t");
-				textToSet.append(jo.getString("formatted_address"));
-				textToSet.append("\n");
-				textToSet.append("Phone number : ");
-				textToSet.append(jo.getString("international_phone_number"));
-				textToSet.append("\n");
-				textToSet.append("Website :\n\t");
-				textToSet.append(jo.getString("website"));
-				textToSet.append("\n\n\t");
-				textToSet.append(jo.getString("url"));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -599,29 +613,35 @@ public class LocationInfoActivity extends Activity{
 	    }
 	}
 	
-	private class DownloadCommentTask extends AsyncTask<Void, Void, Void> {
+	private class DownloadCommentTask extends AsyncTask<Void, Void, String> {
 		LinearLayout ll;
-
+		
 	    public DownloadCommentTask(LinearLayout ll) {
 	        this.ll = ll;
 	    }
+	    
+	    protected void onPreExecute(){
+	    	ll.removeAllViews();
+	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+			TextView t = new TextView(getBaseContext());
+			params.gravity=Gravity.CENTER;
+			t.setLayoutParams(params);
+			t.setText("Loading...");
+			ll.addView(t);
+	    }
 
-	    protected Void doInBackground(Void... params) {
-	        URL url = new URL("http://hkours.com/akFYP/retriveMsg.php");
+	    protected String doInBackground(Void... params) {
 	        try {
+	        	URL url = new URL("http://hkours.com/akFYP/retriveMsg.php");
 	        	HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
 				conn.setDoOutput(true);
 				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				conn.setRequestMethod("POST");
 				
 				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
-				String parameter = "id="+Account.getUserId()+
-						"&lName="+name+
-						"&lan="+destination[0]+
-						"&lon="+destination[1]+
-						"&imgRef="+imgRef+
-						"&detailRef="+detailRef+
-						"&msg="+msg;
+				String parameter = "lan="+destination[0]+
+						"&lon="+destination[1];
 	            request.write(parameter);
 	            request.flush();
 	            request.close(); 
@@ -634,15 +654,66 @@ public class LocationInfoActivity extends Activity{
 	                sb.append(line);
 	            }
 	            String result = sb.toString();
+	            Log.i("Comments",result);
+	            return result;
 	        } catch (Exception e) {
-	            Log.e("Error", e.getMessage());
+	            Log.e("Comments", e.getMessage());
 	            e.printStackTrace();
+	            return null;
 	        }
-	        return mIcon11;
 	    }
 
-	    protected void onPostExecute(Bitmap result) {
-	        bmImage.setImageBitmap(result);
+	    protected void onPostExecute(String result) {
+	    	ll.removeAllViews();
+	        try {
+	        	if(result == null){
+		    		throw new Exception();
+		    	}
+				JSONObject obj = new JSONObject(result);
+				if(!obj.getString("status").equals("OK"))
+					throw new Exception();
+				JSONArray data = obj.getJSONArray("data");
+				int len = data.length();
+				if(len == 0){
+					throw new Exception();
+				}
+				for(int i = 0;i<len;i++){
+					JSONObject record = data.getJSONObject(i);
+					
+					LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+							LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+					LinearLayout comments = new LinearLayout(getBaseContext());
+					param.bottomMargin=5;
+					comments.setLayoutParams(param);
+					comments.setOrientation(LinearLayout.VERTICAL);
+					comments.setBackgroundColor(Color.parseColor("#88888888"));
+					
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+							LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+					TextView userName = new TextView(getBaseContext());
+					userName.setLayoutParams(params);
+					userName.setText(Html.fromHtml("<u>"+record.getString("name")+"</u>"));
+					
+					TextView msg = new TextView(getBaseContext());
+					msg.setLayoutParams(params);
+					msg.setText(record.getString("msg"));
+					
+					comments.addView(userName);
+					comments.addView(msg);
+					
+					ll.addView(comments);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				ll.removeAllViews();
+				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+						LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+				TextView t = new TextView(getBaseContext());
+				params.gravity=Gravity.CENTER;
+				t.setLayoutParams(params);
+				t.setText("No recent comment");
+				ll.addView(t);
+			}
 	    }
 
 	}
@@ -694,6 +765,8 @@ public class LocationInfoActivity extends Activity{
 	            JSONObject obj = new JSONObject(result);
 	            status = obj.getString("status");
 	            message = obj.getString("message");
+	            Log.i("LocationInfoActivity","status "+status);
+	            Log.i("LocationInfoActivity","message "+message);
 	            if(!status.equals("OK")){
 	            	return false;
 	            }
@@ -713,6 +786,7 @@ public class LocationInfoActivity extends Activity{
             }
             text.setText(message);
             myToast.show();
+            new DownloadCommentTask((LinearLayout)findViewById(R.id.userComments)).execute();
         }
 	}
 	

@@ -23,6 +23,7 @@
     
     <string name="comment">Comment</string>
     <string name="registerButton">Register</string>
+    <string name="loading">Loading...</string>
     
     <string name="hideInst">Hide instructions</string>
     <string name="showInst">Show instructions</string>
