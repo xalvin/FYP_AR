@@ -949,6 +949,7 @@ public class LocationInfoActivity extends Activity{
 	private class UploadRatingTask extends AsyncTask<Integer, Void, Boolean> {
 		private final ProgressDialog dialog = new ProgressDialog(LocationInfoActivity.this);
 		RatingBar rb;
+		int rating;
 		String status;
 		String message;
 		
@@ -965,7 +966,7 @@ public class LocationInfoActivity extends Activity{
 	    @Override
 		protected Boolean doInBackground(Integer... arg0) {
 			// TODO Auto-generated method stub
-	    	int rating = arg0[0];
+	    	rating = arg0[0];
 			try {
 				URL url = new URL("http://hkours.com/akFYP/addMsg.php");
 				
@@ -1012,12 +1013,15 @@ public class LocationInfoActivity extends Activity{
         protected void onPostExecute(Boolean result) {
 
             // Here if you wish to do future process for ex. move to another activity do here
-
+        	if(result){
+            	rb.setRating(rating);
+            }
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
             text.setText(message);
             myToast.show();
+            
         }
 	}
 	
