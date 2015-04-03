@@ -45,6 +45,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -63,6 +64,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -105,6 +108,22 @@ public class LocationInfoActivity extends Activity{
 		dirtyBit=false;
 		
 		setContentView(R.layout.defaultlistitemview);
+		RatingBar r = (RatingBar)findViewById(R.id.rating);
+		new DownloadRatingTask(r,(TextView)findViewById(R.id.avg),(TextView)findViewById(R.id.count));
+		r.setOnRatingBarChangeListener(new OnRatingBarChangeListener(){
+
+			@Override
+			public void onRatingChanged(RatingBar arg0, float arg1, boolean arg2) {
+				// TODO Auto-generated method stub
+				if(arg2){
+					int rating = (int) Math.ceil(arg1);
+					new UploadRatingTask(arg0).execute(rating);
+				}
+			}
+			
+		});
+		new DownloadCommentTask((LinearLayout)findViewById(R.id.userComments)).execute();
+		
 		if(Account.getLoginStatus()){
 			((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
 		}else{
@@ -387,7 +406,6 @@ public class LocationInfoActivity extends Activity{
 			}
 			
 		});
-		new DownloadCommentTask((LinearLayout)findViewById(R.id.userComments)).execute();
 		myToast = new Toast(getApplicationContext());
         myToast.setGravity(Gravity.CENTER, 0, 0);
         // Creating our custom text view, and setting text/rotation
@@ -787,6 +805,219 @@ public class LocationInfoActivity extends Activity{
             text.setText(message);
             myToast.show();
             new DownloadCommentTask((LinearLayout)findViewById(R.id.userComments)).execute();
+        }
+	}
+	
+	private class DownloadRatingTask extends AsyncTask<Void, Void, Boolean> {
+		
+		RatingBar rb;
+		TextView avg;
+		TextView count;
+		String status;
+		int cnt;
+		double av;
+		
+		
+		public DownloadRatingTask(RatingBar rb,TextView avg,TextView count){
+			this.rb=rb;
+			this.avg=avg;
+			this.count=count;
+		}
+
+	    protected void onPreExecute() {
+	    	Resources res = LocationInfoActivity.this.getResources();
+	    	String average = String.format(res.getString(R.string.avg),0);
+	        avg.setText(average);
+	        String c = String.format(res.getString(R.string.rate), 0);
+	        count.setText(c);
+	    }
+
+	    @Override
+		protected Boolean doInBackground(Void... arg0) {
+	    	try {
+				URL url = new URL("http://hkours.com/akFYP/retriveRating.php");
+				
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				conn.setRequestMethod("POST");
+				
+				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+				String parameter = "lan="+destination[0]+
+						"&lon="+destination[1];
+	            request.write(parameter);
+	            request.flush();
+	            request.close(); 
+
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(myReader.readLine() + "\n");
+	            String line="";
+	            while ((line = myReader.readLine()) != null) {
+	                sb.append(line);
+	            }
+	            String result = sb.toString();
+	            JSONObject obj = new JSONObject(result);
+	            status = obj.getString("status");
+	            Log.i("LocationInfoActivity","status "+status);
+	            if(!status.equals("OK")){
+	            	return false;
+	            }
+	            av = obj.getDouble("avg");
+	            cnt = obj.getInt("count");
+	            return true;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+        protected void onPostExecute(Boolean result) {
+        	if(result){
+        		Resources res = LocationInfoActivity.this.getResources();
+        		rb.setRating((float) av);
+        		new DownloadSelfRatingTask(rb).execute();
+        		String average = String.format(res.getString(R.string.avg),av);
+    	        avg.setText(average);
+    	        String c = String.format(res.getString(R.string.rate), cnt);
+    	        count.setText(c);
+        	}
+        }
+		
+	}
+	
+	private class DownloadSelfRatingTask extends AsyncTask<Void, Void, Boolean> {
+		
+		RatingBar rb;
+		int rating;
+		String status;
+		int r;
+		
+		public DownloadSelfRatingTask(RatingBar rb){
+			this.rb = rb;
+		}
+
+	    @Override
+		protected Boolean doInBackground(Void... arg0) {
+	    	try {
+				URL url = new URL("http://hkours.com/akFYP/retriveSelfRating.php");
+				
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				conn.setRequestMethod("POST");
+				
+				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+				String parameter = "id"+Account.getUserId()+ 
+						"&lan="+destination[0]+
+						"&lon="+destination[1];
+	            request.write(parameter);
+	            request.flush();
+	            request.close(); 
+
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(myReader.readLine() + "\n");
+	            String line="";
+	            while ((line = myReader.readLine()) != null) {
+	                sb.append(line);
+	            }
+	            String result = sb.toString();
+	            JSONObject obj = new JSONObject(result);
+	            status = obj.getString("status");
+	            Log.i("LocationInfoActivity","status "+status);
+	            if(!status.equals("OK")){
+	            	return false;
+	            }
+	            r = obj.getInt("rating");
+	            return true;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+        protected void onPostExecute(Boolean result) {
+        	if(result){
+        		rb.setRating(r);
+        	}
+        }
+	}
+	
+	private class UploadRatingTask extends AsyncTask<Integer, Void, Boolean> {
+		private final ProgressDialog dialog = new ProgressDialog(LocationInfoActivity.this);
+		RatingBar rb;
+		String status;
+		String message;
+		
+		public UploadRatingTask(RatingBar rb){
+			this.rb = rb;
+		}
+
+	    protected void onPreExecute() {
+	        this.dialog.setMessage("Loading...");
+	        this.dialog.setCancelable(false);
+	        this.dialog.show();
+	    }
+
+	    @Override
+		protected Boolean doInBackground(Integer... arg0) {
+			// TODO Auto-generated method stub
+	    	int rating = arg0[0];
+			try {
+				URL url = new URL("http://hkours.com/akFYP/addMsg.php");
+				
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				conn.setRequestMethod("POST");
+				
+				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
+				String parameter = "id="+Account.getUserId()+
+						"&lName="+name+
+						"&lan="+destination[0]+
+						"&lon="+destination[1]+
+						"&imgRef="+imgRef+
+						"&detailRef="+detailRef+
+						"&rating="+rating;
+	            request.write(parameter);
+	            request.flush();
+	            request.close(); 
+
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(myReader.readLine() + "\n");
+	            String line="";
+	            while ((line = myReader.readLine()) != null) {
+	                sb.append(line);
+	            }
+	            String result = sb.toString();
+	            JSONObject obj = new JSONObject(result);
+	            status = obj.getString("status");
+	            message = obj.getString("message");
+	            Log.i("LocationInfoActivity","status "+status);
+	            Log.i("LocationInfoActivity","message "+message);
+	            if(!status.equals("OK")){
+	            	return false;
+	            }
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		}
+
+        protected void onPostExecute(Boolean result) {
+
+            // Here if you wish to do future process for ex. move to another activity do here
+
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            text.setText(message);
+            myToast.show();
         }
 	}
 	

@@ -24,10 +24,14 @@
     <string name="comment">Comment</string>
     <string name="registerButton">Register</string>
     <string name="loading">Loading...</string>
+    <string name="rate">Rated by %d user</string>
+    <string name="avg">Average: %.1f </string>
     
     <string name="hideInst">Hide instructions</string>
     <string name="showInst">Show instructions</string>
     <string name="hideMap">Hide map</string>
     <string name="showMap">Show map</string>
     <string name="alternative">Alternatives</string>
+    
+    
 </resources>
