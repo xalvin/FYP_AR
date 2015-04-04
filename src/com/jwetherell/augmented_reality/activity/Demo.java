@@ -515,6 +515,9 @@ public class Demo extends AugmentedReality {
     private synchronized void updateView(List<Marker> mList, LinearLayout viewToAdd){
     	for(Marker m : mList){
     		Log.i(TAG, "marker in, name = "+m.getName());
+    		Log.i(TAG, "marker img reference = "+m.getImgReference());
+    		if(m.getImgReference()==null)
+    			continue;
 	    	File folder = new File(Environment.getExternalStorageDirectory().getPath()+"/com.jwetherell.augmented_reality/imgs/");
 	    	folder.mkdirs();
 	    	File img = new File(folder,fileName(m.getImgReference())+"-s");

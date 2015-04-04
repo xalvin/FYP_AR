@@ -109,15 +109,63 @@ public class LocationInfoActivity extends Activity{
 		
 		setContentView(R.layout.defaultlistitemview);
 		RatingBar r = (RatingBar)findViewById(R.id.rating);
-		new DownloadRatingTask(r,(TextView)findViewById(R.id.avg),(TextView)findViewById(R.id.count));
+		new DownloadRatingTask(r,(TextView)findViewById(R.id.avg),(TextView)findViewById(R.id.count)).execute();
 		r.setOnRatingBarChangeListener(new OnRatingBarChangeListener(){
 
 			@Override
-			public void onRatingChanged(RatingBar arg0, float arg1, boolean arg2) {
+			public void onRatingChanged(final RatingBar arg0, final float arg1, boolean arg2) {
 				// TODO Auto-generated method stub
 				if(arg2){
-					int rating = (int) Math.ceil(arg1);
-					new UploadRatingTask(arg0).execute(rating);
+					if(!Account.getLoginStatus()){
+							// TODO Auto-generated method stub
+							LayoutInflater l = LayoutInflater.from(LocationInfoActivity.this);
+							View prompt = l.inflate(R.layout.login, null);
+							AlertDialog.Builder builder = new AlertDialog.Builder(
+									LocationInfoActivity.this);
+							
+							// set prompts.xml to alertdialog builder
+							builder.setView(prompt);
+							final EditText mail = (EditText) prompt
+									.findViewById(R.id.email);
+							final EditText pass = (EditText) prompt
+									.findViewById(R.id.pw);
+							
+							// set dialog message
+							builder
+								.setCancelable(false)
+								.setPositiveButton("OK",
+								  new DialogInterface.OnClickListener() {
+								    public void onClick(DialogInterface dialog,int id) {
+										// get user input and set it to result
+										// edit text
+										String email = mail.getText().toString();
+										String pw = pass.getText().toString();
+										Account.login(email, pw);
+										Toast.makeText(LocationInfoActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+										if(Account.getLoginStatus()){
+											((RelativeLayout)findViewById(R.id.commentLayout)).setVisibility(View.VISIBLE);
+											((LinearLayout)findViewById(R.id.loginLayout)).setVisibility(View.GONE);
+											int rating = (int) Math.ceil(arg1);
+											new UploadRatingTask(arg0).execute(rating);
+										}
+								    }
+								  })
+								.setNegativeButton("Cancel",
+								  new DialogInterface.OnClickListener() {
+								    public void onClick(DialogInterface dialog,int id) {
+									dialog.cancel();
+								    }
+								  });
+			 
+							// create alert dialog
+							AlertDialog ad = builder.create();
+			 
+							// show it
+							ad.show();
+						}else{
+							int rating = (int) Math.ceil(arg1);
+							new UploadRatingTask(arg0).execute(rating);
+						}
 				}
 			}
 			
@@ -403,6 +451,15 @@ public class LocationInfoActivity extends Activity{
 				// TODO Auto-generated method stub
 				String msg = ((EditText) findViewById(R.id.enterComment)).getText().toString();
 				new UploadComment().execute(msg);
+				((EditText) findViewById(R.id.enterComment)).post(new Runnable(){
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						((EditText) findViewById(R.id.enterComment)).setText("");
+					}
+					
+				});
 			}
 			
 		});
@@ -826,9 +883,11 @@ public class LocationInfoActivity extends Activity{
 
 	    protected void onPreExecute() {
 	    	Resources res = LocationInfoActivity.this.getResources();
-	    	String average = String.format(res.getString(R.string.avg),0);
+	    	String average = String.format(res.getString(R.string.avg),0f);
+	    	Log.i("DownloadRatingTask","average string : "+average);
 	        avg.setText(average);
 	        String c = String.format(res.getString(R.string.rate), 0);
+	        Log.i("DownloadRatingTask","rate string : "+c);
 	        count.setText(c);
 	    }
 
@@ -878,9 +937,11 @@ public class LocationInfoActivity extends Activity{
         		Resources res = LocationInfoActivity.this.getResources();
         		rb.setRating((float) av);
         		new DownloadSelfRatingTask(rb).execute();
-        		String average = String.format(res.getString(R.string.avg),av);
+        		String average = String.format(res.getString(R.string.avg),(float)av);
+        		Log.i("DownloadRatingTask","average string : "+average);
     	        avg.setText(average);
     	        String c = String.format(res.getString(R.string.rate), cnt);
+    	        Log.i("DownloadRatingTask","rate string : "+c);
     	        count.setText(c);
         	}
         }
@@ -909,9 +970,10 @@ public class LocationInfoActivity extends Activity{
 				conn.setRequestMethod("POST");
 				
 				OutputStreamWriter request = new OutputStreamWriter(conn.getOutputStream());
-				String parameter = "id"+Account.getUserId()+ 
+				String parameter = "id="+Account.getUserId()+ 
 						"&lan="+destination[0]+
 						"&lon="+destination[1];
+				Log.i("DownloadSelfRatingTask",parameter);
 	            request.write(parameter);
 	            request.flush();
 	            request.close(); 
@@ -931,6 +993,7 @@ public class LocationInfoActivity extends Activity{
 	            	return false;
 	            }
 	            r = obj.getInt("rating");
+	            Log.i("DownloadSelfRatingTask",""+r);
 	            return true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -940,7 +1003,7 @@ public class LocationInfoActivity extends Activity{
 		}
 
         protected void onPostExecute(Boolean result) {
-        	if(result){
+        	if(result && r!=0){
         		rb.setRating(r);
         	}
         }
@@ -968,7 +1031,7 @@ public class LocationInfoActivity extends Activity{
 			// TODO Auto-generated method stub
 	    	rating = arg0[0];
 			try {
-				URL url = new URL("http://hkours.com/akFYP/addMsg.php");
+				URL url = new URL("http://hkours.com/akFYP/addRating.php");
 				
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection() ;
 				conn.setDoOutput(true);
