@@ -36,11 +36,29 @@
 	        android:layout_margin="5sp" />
 	
 	    <Button
-	        android:id="@+id/social"
+	        android:id="@+id/login"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="center"
-	        android:text="@string/social"
+	        android:text="@string/login"
+	        android:textSize="20sp"
+	        android:layout_margin="5sp" />
+	    
+	    <Button
+	        android:id="@+id/register"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="@string/registerButton"
+	        android:textSize="20sp"
+	        android:layout_margin="5sp" />
+	    
+	    <Button
+	        android:id="@+id/logout"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:text="@string/logout"
 	        android:textSize="20sp"
 	        android:layout_margin="5sp" />
 	    

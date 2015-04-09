@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class StartActivity extends Activity{
+	boolean modifyBit;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,16 +36,124 @@ public class StartActivity extends Activity{
 				startActivity(i);
 			}
         });
-        ((Button)findViewById(R.id.social)).setOnClickListener(new OnClickListener(){
+        ((Button)findViewById(R.id.login)).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				if(!Account.getLoginStatus()){
 					//To-do add login code here
-				}				
-				Intent i = new Intent();
-			    i.setClass(StartActivity.this,SocialActivity.class);
-				startActivity(i);
+					LayoutInflater l = LayoutInflater.from(StartActivity.this);
+					View prompt = l.inflate(R.layout.login, null);
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							StartActivity.this);
+					
+					// set prompts.xml to alertdialog builder
+					builder.setView(prompt);
+					final EditText mail = (EditText) prompt
+							.findViewById(R.id.email);
+					final EditText pass = (EditText) prompt
+							.findViewById(R.id.pw);
+					
+					// set dialog message
+					builder
+						.setCancelable(false)
+						.setPositiveButton("OK",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+								// get user input and set it to result
+								// edit text
+								String email = mail.getText().toString();
+								String pw = pass.getText().toString();
+								Account.login(email, pw);
+								Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+								((Button)findViewById(R.id.login)).setVisibility(View.GONE);
+								((Button)findViewById(R.id.register)).setVisibility(View.GONE);
+								((Button)findViewById(R.id.logout)).setVisibility(View.VISIBLE);
+						    }
+						  })
+						.setNegativeButton("Cancel",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+							dialog.cancel();
+						    }
+						  });
+
+					// create alert dialog
+					AlertDialog ad = builder.create();
+
+					// show it
+					ad.show();
+				}
+			}
+        });
+        ((Button)findViewById(R.id.register)).setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(!Account.getLoginStatus()){
+					//To-do add login code here
+					LayoutInflater li = LayoutInflater.from(StartActivity.this);
+					View promptsView = li.inflate(R.layout.register, null);
+					AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+							StartActivity.this);
+					
+					// set prompts.xml to alertdialog builder
+					alertDialogBuilder.setView(promptsView);
+					final EditText email = (EditText) promptsView
+							.findViewById(R.id.email);
+					final EditText pw = (EditText) promptsView
+							.findViewById(R.id.pw);
+					final EditText name = (EditText) promptsView
+							.findViewById(R.id.name);
+					
+					// set dialog message
+					alertDialogBuilder
+						.setCancelable(false)
+						.setPositiveButton("OK",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+								// get user input and set it to result
+								// edit text
+								String mail = email.getText().toString();
+								String pass = pw.getText().toString();
+								String userName = name.getText().toString();
+								boolean success = Account.register(mail, pass, userName);
+								if(success)
+									Account.login(mail, pass);
+								Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+								((Button)findViewById(R.id.login)).setVisibility(View.GONE);
+								((Button)findViewById(R.id.register)).setVisibility(View.GONE);
+								((Button)findViewById(R.id.logout)).setVisibility(View.VISIBLE);
+						    }
+						  })
+						.setNegativeButton("Cancel",
+						  new DialogInterface.OnClickListener() {
+						    public void onClick(DialogInterface dialog,int id) {
+							dialog.cancel();
+						    }
+						  });
+
+					// create alert dialog
+					AlertDialog alertDialog = alertDialogBuilder.create();
+
+					// show it
+					alertDialog.show();
+				}
+			}
+        });
+        ((Button)findViewById(R.id.logout)).setVisibility(View.GONE);
+        ((Button)findViewById(R.id.logout)).setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(Account.getLoginStatus()){
+					//To-do add login code here
+					Toast.makeText(StartActivity.this, "Goodbye "+Account.getName(), Toast.LENGTH_SHORT).show();
+					Account.reset();
+					((Button)findViewById(R.id.login)).setVisibility(View.VISIBLE);
+					((Button)findViewById(R.id.register)).setVisibility(View.VISIBLE);
+					((Button)findViewById(R.id.logout)).setVisibility(View.GONE);
+				}
 			}
         });
         ((Button)findViewById(R.id.exit)).setOnClickListener(new OnClickListener(){
@@ -88,102 +198,108 @@ public class StartActivity extends Activity{
         switch (item.getItemId()) {
         	case R.id.register:
         		//To-do add register function here
-        		// get prompts.xml view
-				LayoutInflater li = LayoutInflater.from(this);
-				View promptsView = li.inflate(R.layout.register, null);
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-						this);
-				
-				// set prompts.xml to alertdialog builder
-				alertDialogBuilder.setView(promptsView);
-				final EditText email = (EditText) promptsView
-						.findViewById(R.id.email);
-				final EditText pw = (EditText) promptsView
-						.findViewById(R.id.pw);
-				final EditText name = (EditText) promptsView
-						.findViewById(R.id.name);
-				
-				// set dialog message
-				alertDialogBuilder
-					.setCancelable(false)
-					.setPositiveButton("OK",
-					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
-							// get user input and set it to result
-							// edit text
-							String mail = email.getText().toString();
-							String pass = pw.getText().toString();
-							String userName = name.getText().toString();
-							boolean success = Account.register(mail, pass, userName);
-							if(success)
-								Account.login(mail, pass);
-							Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
-					    }
-					  })
-					.setNegativeButton("Cancel",
-					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-					    }
-					  });
- 
-				// create alert dialog
-				AlertDialog alertDialog = alertDialogBuilder.create();
- 
-				// show it
-				alertDialog.show();
- 
+        		LayoutInflater li = LayoutInflater.from(this);
+        		View promptsView = li.inflate(R.layout.register, null);
+        		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+        				this);
+        		
+        		// set prompts.xml to alertdialog builder
+        		alertDialogBuilder.setView(promptsView);
+        		final EditText email = (EditText) promptsView
+        				.findViewById(R.id.email);
+        		final EditText pw = (EditText) promptsView
+        				.findViewById(R.id.pw);
+        		final EditText name = (EditText) promptsView
+        				.findViewById(R.id.name);
+        		
+        		// set dialog message
+        		alertDialogBuilder
+        			.setCancelable(false)
+        			.setPositiveButton("OK",
+        			  new DialogInterface.OnClickListener() {
+        			    public void onClick(DialogInterface dialog,int id) {
+        					// get user input and set it to result
+        					// edit text
+        					String mail = email.getText().toString();
+        					String pass = pw.getText().toString();
+        					String userName = name.getText().toString();
+        					boolean success = Account.register(mail, pass, userName);
+        					if(success)
+        						Account.login(mail, pass);
+        					Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+        					((Button)findViewById(R.id.login)).setVisibility(View.GONE);
+							((Button)findViewById(R.id.register)).setVisibility(View.GONE);
+							((Button)findViewById(R.id.logout)).setVisibility(View.VISIBLE);
+        			    }
+        			  })
+        			.setNegativeButton("Cancel",
+        			  new DialogInterface.OnClickListener() {
+        			    public void onClick(DialogInterface dialog,int id) {
+        				dialog.cancel();
+        			    }
+        			  });
+
+        		// create alert dialog
+        		AlertDialog alertDialog = alertDialogBuilder.create();
+
+        		// show it
+        		alertDialog.show();
         		break;
         	case R.id.login:
         		//To-do add login function here
         		
         		LayoutInflater l = LayoutInflater.from(this);
-				View prompt = l.inflate(R.layout.login, null);
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						this);
-				
-				// set prompts.xml to alertdialog builder
-				builder.setView(prompt);
-				final EditText mail = (EditText) prompt
-						.findViewById(R.id.email);
-				final EditText pass = (EditText) prompt
-						.findViewById(R.id.pw);
-				
-				// set dialog message
-				builder
-					.setCancelable(false)
-					.setPositiveButton("OK",
-					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
-							// get user input and set it to result
-							// edit text
-							String email = mail.getText().toString();
-							String pw = pass.getText().toString();
-							Account.login(email, pw);
-							Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
-					    }
-					  })
-					.setNegativeButton("Cancel",
-					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-					    }
-					  });
- 
-				// create alert dialog
-				AlertDialog ad = builder.create();
- 
-				// show it
-				ad.show();
- 
+        		View prompt = l.inflate(R.layout.login, null);
+        		AlertDialog.Builder builder = new AlertDialog.Builder(
+        				this);
+        		
+        		// set prompts.xml to alertdialog builder
+        		builder.setView(prompt);
+        		final EditText mail = (EditText) prompt
+        				.findViewById(R.id.email);
+        		final EditText pass = (EditText) prompt
+        				.findViewById(R.id.pw);
+        		
+        		// set dialog message
+        		builder
+        			.setCancelable(false)
+        			.setPositiveButton("OK",
+        			  new DialogInterface.OnClickListener() {
+        			    public void onClick(DialogInterface dialog,int id) {
+        					// get user input and set it to result
+        					// edit text
+        					String email = mail.getText().toString();
+        					String pw = pass.getText().toString();
+        					Account.login(email, pw);
+        					Toast.makeText(StartActivity.this, Account.getMessage(), Toast.LENGTH_SHORT).show();
+        					((Button)findViewById(R.id.login)).setVisibility(View.GONE);
+        					((Button)findViewById(R.id.register)).setVisibility(View.GONE);
+        					((Button)findViewById(R.id.logout)).setVisibility(View.VISIBLE);
+        			    }
+        			  })
+        			.setNegativeButton("Cancel",
+        			  new DialogInterface.OnClickListener() {
+        			    public void onClick(DialogInterface dialog,int id) {
+        				dialog.cancel();
+        			    }
+        			  });
+
+        		// create alert dialog
+        		AlertDialog ad = builder.create();
+
+        		// show it
+        		ad.show();
         		break;
         	case R.id.logout:
         		//To-do add logout function here
         		Toast.makeText(StartActivity.this, "Goodbye "+Account.getName(), Toast.LENGTH_SHORT).show();
         		Account.reset();
+        		((Button)findViewById(R.id.login)).setVisibility(View.VISIBLE);
+				((Button)findViewById(R.id.register)).setVisibility(View.VISIBLE);
+				((Button)findViewById(R.id.logout)).setVisibility(View.GONE);
         		break;
         }
         return true;
 	}
-	
+
 }
